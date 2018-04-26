@@ -1,1 +1,1 @@
-from .data_loader import load_csv
+from .data_loader import load_data_from_uci
