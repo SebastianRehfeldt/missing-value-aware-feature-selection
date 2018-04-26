@@ -1,4 +1,4 @@
 #%%
-from project.utils import load_csv
+from project.utils import load_data_from_uci
 
-load_csv()
+load_data_from_uci()
