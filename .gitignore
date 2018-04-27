@@ -1,6 +1,9 @@
 # CUSTOM
 
-data
+data/**/*.csv
+data/**/*.txt
+data/**/*.json
+data/**/*.arff
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

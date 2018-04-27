@@ -1,8 +1,18 @@
 #%%
-from project.utils import load_data_from_uci
+import numpy as np
+from project.utils import DataLoader
 
-features, labels, types = load_data_from_uci("artificial-characters")
+"""
+data_loader = DataLoader("ionosphere")
+features, labels, types = data_loader.load_csv()
 
-print(features.head())
-print(labels.head())
-print(types)
+print(types.head())
+"""
+
+
+import requests
+import json
+
+url = 'https://www.openml.org/api/v1/json/data/list/data_name/madelon'
+r = requests.get(url)
+print(json.loads(r.content))
