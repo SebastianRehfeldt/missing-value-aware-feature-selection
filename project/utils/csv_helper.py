@@ -5,14 +5,12 @@ import numpy as np
 
 class CSVHelper():
 
-    def __init__(self, path, data, target, names, types, nominal_thresh):
+    def __init__(self, path, data, target, *args, **kwargs):
         self.path = path
         self.data = data
         self.n_features = data.shape[1]
         self.target = target
-        self.names = names
-        self.types = types
-        self.nominal_thresh = nominal_thresh
+        self.kwargs = kwargs
 
     def _feature_is_sparse_int(self, feature, thresh=0.0001):
         # Features with missing values are always float64 even though data are integers
@@ -24,7 +22,7 @@ class CSVHelper():
 
         # We need to count unique values on complete vector as np.nan is always unique
         n_unique_values = len(np.unique(complete_vector))
-        is_sparse = n_unique_values < self.nominal_thresh
+        is_sparse = n_unique_values < (self.kwargs.get("nominal_thresh") or 10)
         return is_sparse and is_int
 
     def _feature_is_nominal(self, feature):
@@ -47,6 +45,7 @@ class CSVHelper():
                 self.types[i] = "nominal"
 
         self.types = pd.Series(self.types, self.names)
+        return self.types
 
     def _create_feature_names(self):
         # Create generic feature names and call target class
@@ -65,11 +64,7 @@ class CSVHelper():
 
     def create_meta_data(self):
         # Compute meta data if it was not passed initially
-        if self.names is None:
-            self._create_feature_names()
-
-        if self.types is None:
-            self._create_feature_types()
-
+        self.names = self.kwargs.get("names") or self._create_feature_names()
+        self.types = self.kwargs.get("types") or self._create_feature_types()
         self._store_meta_data()
         return self.names, self.types
