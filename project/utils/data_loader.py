@@ -21,11 +21,13 @@ from project import DATA_PATH
 
 
 class DataLoader():
-    def __init__(self, name, target_index=-1, nominal_thresh=10, feature_names=None, feature_types=None, header=None):
+    def __init__(self, name, target_index=-1, nominal_thresh=10, feature_names=None, feature_types=None, header=None, na_values=[]):
         self.name = name
         self.csv_folder = os.path.join(DATA_PATH, "csv", name)
         self.arff_folder = os.path.join(DATA_PATH, "arff", name)
         self.header = header
+        self.na_values = ["?", "na"]
+        self.na_values.extend(na_values)
 
         # Parameters are ignored when data.csv and meta_data.json exist
         # Modify meta_data.json to apply changes
@@ -113,12 +115,25 @@ class DataLoader():
         print("Could not find file: {:s}".format(file_path))
         sys.exit("File not found error")
 
+    def _is_sparse_int(self, feature, thresh=0.0001):
+        # Features with missing values are always float64 even though data are integers
+        # As the dtype cant be used, the complete data of the feature is analyzed
+        # The float vector is converted to int (floor) and it is checked if the vectors dont differ significantly
+        complete_vector = feature.dropna()
+        distance = np.sum(complete_vector - complete_vector.astype(np.int))
+        is_int = distance < thresh * len(complete_vector)
+
+        # We need to count unique values on complete vector as np.nan is always unique
+        n_unique_values = np.unique(complete_vector)
+        is_sparse = n_unique_values < self.nominal_thresh
+        return is_int and is_sparse
+
     def _feature_is_nominal(self, feature):
         # A nominal feature is either an object or an int feature with few unique values
-        unique_features = len(np.unique(feature))
-        is_object = feature.dtype == "object"
-        is_sparse_int = feature.dtype == "int64" and unique_features < self.nominal_thresh
-        return True if is_object or is_sparse_int else False
+        if feature.dtype == "object":
+            return True
+
+        return True if self._is_sparse_int(feature) else False
 
     def _create_feature_names(self, n_features):
         # Create generic feature names and call target class
@@ -168,7 +183,8 @@ class DataLoader():
         file_path = os.path.join(self.csv_folder, "data.csv")
         if not os.path.exists(file_path):
             self._print_file_not_found(file_path)
-        self.data = pd.read_csv(file_path, header=self.header)
+        self.data = pd.read_csv(
+            file_path, header=self.header, na_values=self.na_values, sep=None)
 
     def _read_meta_data(self):
         # Read meta data from disk or create if not present
@@ -181,10 +197,18 @@ class DataLoader():
             self.feature_types = pd.Series(
                 meta_data["feature_types"], self.feature_names)
 
+    def _encode_nominal_features(self):
+        for i in range(self.data.shape[1]):
+            if self.feature_types[i] == "nominal":
+                self.data.iloc[:, i].fillna("?", inplace=True)
+                self.data.iloc[:, i] = self.data.iloc[:, i].apply(
+                    str).str.encode("utf-8")
+
     def _load_csv(self):
         # Read data and meta data and store them in class variables
         self._read_csv()
         self._read_meta_data()
+        self._encode_nominal_features()
 
         # Split data and labels
         self.data.columns = self.feature_names
@@ -192,22 +216,36 @@ class DataLoader():
         self.data = self.data.drop("class", axis=1)
         return self.data, self.labels, self.feature_types
 
+    def _remove_attributes(self, config):
+        ignored_attributes = [
+            config["row_id_attribute"], config["ignore_attribute"]
+        ]
+
+        for attribute in ignored_attributes:
+            if attribute in self.feature_names:
+                self.feature_names.remove(attribute)
+                self.data = self.data.drop(attribute, axis=1)
+                self.feature_types = self.feature_types.drop(attribute)
+
     def _load_arff(self):
         arff_file = os.path.join(
             self.arff_folder, "{:s}.arff".format(self.name))
         data, meta = arff.loadarff(arff_file)
 
-        self.feature_names = [name.lower() for name in meta.names()]
+        self.feature_names = meta.names()
         self.feature_types = pd.Series(meta.types(), self.feature_names)
         self.data = pd.DataFrame(data, columns=self.feature_names)
 
-        if "id" in self.feature_names:
-            self.feature_names.remove("id")
-            self.data = self.data.drop("id", axis=1)
-            self.feature_types = self.feature_types.drop("id")
+        arff_config = os.path.join(
+            self.arff_folder, "{:s}.json".format(self.name))
+        with open(arff_config) as json_data:
+            config = json.load(json_data)
 
-        self.labels = self.data["class"]
-        self.data = self.data.drop("class", axis=1)
+        self._remove_attributes(config)
+
+        target = config["default_target_attribute"]
+        self.labels = self.data[target]
+        self.data = self.data.drop(target, axis=1)
 
         return self.data, self.labels, self.feature_types
 
