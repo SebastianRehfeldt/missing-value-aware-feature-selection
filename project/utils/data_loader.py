@@ -20,19 +20,15 @@ from project.utils.csv_helper import CSVHelper
 
 
 class DataLoader():
-    def __init__(self, header=None, drop_unknown_samples=True, ignored_attributes=[], na_values=[], target_index=-1, nominal_thresh=10, feature_names=None, feature_types=None):
-        self.header = header
-        self.should_drop_unknown_samples = drop_unknown_samples
+    def __init__(self, ignored_attributes=[], na_values=[], target_index=-1, *args, **kwargs):
         self.ignored_attributes = ignored_attributes
         self.na_values = ["?", "na"]
         self.na_values.extend(na_values)
+        self.kwargs = kwargs
 
         # Parameters are ignored when data.csv and meta_data.json exist
         # Modify meta_data.json to apply changes
         self.target = -1 if target_index == "last" else target_index
-        self.nominal_thresh = nominal_thresh
-        self.feature_names = feature_names
-        self.feature_types = feature_types
 
     ####################################################################################
     ##########################           HELPER           ##############################
@@ -73,14 +69,13 @@ class DataLoader():
         path = os.path.join(self.downloader.folder, "data.csv")
         if not os.path.exists(path):
             self._print_file_not_found(path)
-        return pd.read_csv(path, header=self.header, na_values=self.na_values, sep=None)
+        return pd.read_csv(path, header=self.kwargs.get("header"), na_values=self.na_values, sep=None)
 
     def _read_csv_meta_data(self, data):
         # Read meta data from disk or create if not present
         path = os.path.join(self.downloader.folder, "meta_data.json")
         if not os.path.exists(path):
-            helper = CSVHelper(path, data, self.target, self.feature_names,
-                               self.feature_types, self.nominal_thresh)
+            helper = CSVHelper(path, data, self.target, self.kwargs)
             self.feature_names, self.feature_types = helper.create_meta_data()
 
         meta_data = json.load(open(path))
@@ -130,7 +125,7 @@ class DataLoader():
         self.data = self.data.drop(self.target, axis=1)
 
         # Remove samples with missing class information
-        if self.should_drop_unknown_samples:
+        if self.kwargs.get("drop_unknown_samples") == True:
             self._remove_samples_with_unknown_class()
         return self.data, self.labels, self.types
 
