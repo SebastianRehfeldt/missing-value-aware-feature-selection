@@ -216,6 +216,12 @@ class DataLoader():
         self.data = self.data.drop("class", axis=1)
         return self.data, self.labels, self.feature_types
 
+    def _remove_samples_with_unknown_class(self):
+        mask = np.logical_or(self.labels.isin(
+            [b"?", np.nan]), pd.isna(self.labels))
+        self.labels = self.labels.loc[~mask].reset_index(drop=True)
+        self.data = self.data.loc[~mask, :].reset_index(drop=True)
+
     def _remove_attributes(self, config):
         ignored_attributes = [
             config["row_id_attribute"], config["ignore_attribute"]
@@ -265,4 +271,6 @@ class DataLoader():
         return self._load_arff()
 
     def load_data(self, file_type="arff"):
-        return self.load_arff() if file_type == "arff" else self.load_csv()
+        self.load_arff() if file_type == "arff" else self.load_csv()
+        self._remove_samples_with_unknown_class()
+        return self.data, self.labels, self.feature_types
