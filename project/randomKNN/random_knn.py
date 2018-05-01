@@ -5,7 +5,9 @@ import numpy as np
 from sklearn.preprocessing import LabelEncoder
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import cross_val_score
-from fancyimpute import KNN as knn_impute
+from fancyimpute import KNN as knn_imputer
+
+from project.randomKNN.knn import KNN as knn_classifier
 
 
 class RKNN():
@@ -47,7 +49,6 @@ class RKNN():
         subspaces.sort()
         subspaces = list(subspaces for subspaces,
                          _ in itertools.groupby(subspaces))
-
         return subspaces
 
     def _evaluate_subspaces(self, subspaces):
@@ -57,16 +58,18 @@ class RKNN():
             mean_score = self._calculate_subspace_score(features)
             for feature in features:
                 score_map[feature].append(mean_score)
-
         return score_map
 
     def _calculate_subspace_score(self, features):
         if self.method == "imputation":
-            features = knn_impute(k=3).complete(features)
+            if features.isnull().values.any():
+                features = knn_imputer(k=3, verbose=False).complete(features)
             knn_clf = KNeighborsClassifier(n_neighbors=self.n_neighbors)
         else:
-            pass
-        scores = cross_val_score(knn_clf, features, self.labels, cv=5)
+            knn_clf = knn_classifier(
+                self.feature_types, n_neigbors=self.n_neighbors)
+        scores = cross_val_score(
+            knn_clf, features, self.labels, cv=5, scoring="accuracy")
         return np.mean(scores)
 
     def _deduce_feature_importances(self, score_map):

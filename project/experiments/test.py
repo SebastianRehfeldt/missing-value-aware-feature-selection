@@ -20,5 +20,5 @@ features.head()
 
 # %%
 from project.randomKNN.random_knn import RKNN
-rknn = RKNN(features, labels, types)
+rknn = RKNN(features, labels, types, method="classifier")
 rknn.fit_transform()
