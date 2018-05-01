@@ -3,7 +3,6 @@ import itertools
 from collections import defaultdict
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import cross_val_score
 from fancyimpute import KNN as knn_imputer
 
@@ -62,13 +61,11 @@ class RKNN():
         return score_map
 
     def _calculate_subspace_score(self, features):
-        if self.method == "imputation":
-            if features.isnull().values.any():
-                features = knn_imputer(k=3, verbose=False).complete(features)
-            knn_clf = KNeighborsClassifier(n_neighbors=self.n_neighbors)
-        else:
-            knn_clf = knn_classifier(
-                self.feature_types, n_neigbors=self.n_neighbors)
+        if self.method == "imputation" and features.isnull().values.any():
+            features.update(knn_imputer(k=3, verbose=False).complete(features))
+
+        knn_clf = knn_classifier(
+            self.feature_types, n_neigbors=self.n_neighbors)
         scores = cross_val_score(
             knn_clf, features, self.labels, cv=3, scoring="accuracy")
         return np.mean(scores)
