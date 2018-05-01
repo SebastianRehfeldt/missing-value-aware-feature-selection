@@ -25,8 +25,6 @@ from project.utils.data_scaler import scale_data
 data = scale_data(features, types)
 data.head()
 
-# %%
-labels.describe()
 
 # %%
 from project.randomKNN.random_knn import RKNN
