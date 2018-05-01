@@ -14,7 +14,8 @@ class RKNN():
 
     def __init__(self, features, labels, feature_types, **kwargs):
         self.features = features
-        self.labels = LabelEncoder().fit_transform(labels)
+        self.encoder = LabelEncoder()
+        self.labels = self.encoder.fit_transform(labels)
         self.feature_types = feature_types
 
         self._init_parameters(kwargs)
@@ -69,7 +70,7 @@ class RKNN():
             knn_clf = knn_classifier(
                 self.feature_types, n_neigbors=self.n_neighbors)
         scores = cross_val_score(
-            knn_clf, features, self.labels, cv=5, scoring="accuracy")
+            knn_clf, features, self.labels, cv=3, scoring="accuracy")
         return np.mean(scores)
 
     def _deduce_feature_importances(self, score_map):
