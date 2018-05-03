@@ -14,8 +14,8 @@ class KNN():
         }
 
     def fit(self, features, labels):
-        self.data = Data(features, labels, self.types, features.shape)
-        self.Neighbors = Neighbors(self.data, params=self.params)
+        data = Data(features, labels, self.types, features.shape)
+        self.Neighbors = Neighbors(data, params=self.params)
         return self
 
     def predict(self, X):
