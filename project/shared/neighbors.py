@@ -26,7 +26,7 @@ class Neighbors:
             # only sum up distances between complete pairs
             if is_numerical and not np.isnan(x1[i]) and not np.isnan(x2[i]):
                 n_complete += 1
-                squared_dist += np.hypot(x1[i], x2[i])
+                squared_dist += (x1[i] - x2[i])**2
 
             if not is_numerical and not x1[i] == b'?' and not x2[i] == b'?':
                 n_complete += 1

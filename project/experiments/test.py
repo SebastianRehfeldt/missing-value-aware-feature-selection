@@ -28,5 +28,9 @@ data.features.head()
 
 # %%
 from project.randomKNN.random_knn import RKNN
-rknn = RKNN(data, method="classifier")
-rknn.fit_transform()
+rknn = RKNN(data, method="imputation")
+rknn.fit_transform().head()
+
+
+# %%
+rknn.ranking
