@@ -64,4 +64,4 @@ pipelines = [pipe1, pipe2, pipe3]
 
 for pipe in pipelines:
     print(cross_val_score(pipe, data.features, y,
-                          cv=cv, scoring="accuracy", n_jobs=-1, flush=True))
+                          cv=cv, scoring="accuracy", n_jobs=-1), flush=True)
