@@ -6,7 +6,7 @@
 import numpy as np
 
 
-def introduce_missing_values(data, feature_types, missing_rate=0.25, missing_type="MCAR"):
+def introduce_missing_values(data, missing_rate=0.25, missing_type="MCAR"):
     """
     Introduce missing values by a specified method
 
@@ -21,14 +21,13 @@ def introduce_missing_values(data, feature_types, missing_rate=0.25, missing_typ
     n_total_values = data.shape[0] * data.shape[1]
     n_removals = round(missing_rate * n_total_values)
 
-    incomplete_data = data.copy()
     if missing_type == "MCAR":
-        return _remove_with_mcar(incomplete_data, feature_types, n_total_values, n_removals)
+        return _remove_with_mcar(data, n_total_values, n_removals)
     else:
         raise NotImplementedError
 
 
-def _remove_with_mcar(data, feature_types, n_total_values, n_removals):
+def _remove_with_mcar(data, n_total_values, n_removals):
     """
     Insert missing values completely at random 
 
@@ -45,8 +44,8 @@ def _remove_with_mcar(data, feature_types, n_total_values, n_removals):
     mask = np.reshape(mask, data.shape)
 
     # Values in df with mask == True will be NaN
-    data = data.where(mask == False)
+    features = data.features.where(mask == False)
     for i in range(data.shape[1]):
-        if feature_types[i] == "nominal":
-            data.iloc[:, i].replace(np.nan, b"?", True)
-    return data
+        if data.types[i] == "nominal":
+            features[:, i].replace(np.nan, b"?", True)
+    return data._replace(features=features)
