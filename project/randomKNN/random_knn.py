@@ -15,34 +15,39 @@ class RKNN():
 
     def __init__(self, data, **kwargs):
         self.data = data
+        self.is_fitted = False
         self._init_parameters(kwargs)
 
     def _init_parameters(self, parameters):
-        self.n_samples, self.n_features = self.data.shape
-        self.n_knn = parameters.get("n_knn", self.n_features**2)
-        self.m = parameters.get("m", int(np.sqrt(self.n_features)))
-        self.n_neighbors = parameters.get("n_neighbors", 3)
-        self.k = parameters.get("k", 3)
-        self.method = parameters.get("method", "imputation")
-        self.is_fitted = False
+        self.params = {
+            "n_knn": parameters.get("n_knn", self.data.shape[1]**2),
+            "m": parameters.get("m", int(np.sqrt(self.data.shape[1]))),
+            "n_neighbors": parameters.get("n_neighbors", 3),
+            "k": parameters.get("k", 3),
+            "method": parameters.get("method", "imputation"),
+            "nominal_distance": parameters.get("nominal_distance", 1),
+        }
 
-    def fit(self):
+    def fit(self, X=None, y=None):
         if self.is_fitted:
             print("Selector is already fitted")
             return self
 
+        if not X is None and not y is None:
+            self.data = self.data._replace(features=X, labels=y)
         subspaces = self._get_unique_subscapes()
         score_map = self._evaluate_subspaces(subspaces)
         self.feature_importances = self._deduce_feature_importances(score_map)
 
         self.ranking = self.get_ranking()
-        self.selected_features = [kv[0] for kv in self.ranking[:self.k]]
+        self.selected_features = [kv[0]
+                                  for kv in self.ranking[:self.params["k"]]]
         self.is_fitted = True
         return self
 
     def _get_unique_subscapes(self):
-        subspaces = [list(np.random.choice(self.data.features.columns, self.m, replace=False))
-                     for i in range(self.n_knn)]
+        subspaces = [list(np.random.choice(self.data.features.columns, self.params["m"], replace=False))
+                     for i in range(self.params["n_knn"])]
         subspaces.sort()
         return list(subspaces for subspaces, _ in itertools.groupby(subspaces))
 
@@ -56,10 +61,11 @@ class RKNN():
         return score_map
 
     def _calculate_subspace_score(self, features):
-        if self.method == "imputation" and features.isnull().values.any():
+        if self.params["method"] == "imputation" and features.isnull().values.any():
             features.update(knn_imputer(k=3, verbose=False).complete(features))
 
-        clf = knn_classifier(self.data.types, n_neighbors=self.n_neighbors)
+        clf = knn_classifier(
+            self.data.types, n_neighbors=self.params["n_neighbors"])
         y = LabelEncoder().fit_transform(self.data.labels)
         y = pd.Series(y)
 
@@ -70,25 +76,26 @@ class RKNN():
     def _deduce_feature_importances(self, score_map):
         return dict((k, np.mean(v)) for k, v in score_map.items())
 
-    def transform(self):
+    def transform(self, X=None):
         if not self.is_fitted:
             sys.exit("Classifier not fitted yet")
-
+        if not X is None:
+            self.data = self.data._replace(features=X)
         return self.data.features[self.selected_features]
 
     def get_ranking(self):
         return sorted(self.feature_importances.items(),
                       key=lambda k_v: k_v[1], reverse=True)
 
-    def fit_transform(self):
-        self.fit()
-        return self.transform()
+    def fit_transform(self, X=None, y=None):
+        self.fit(X, y)
+        return self.transform(X)
 
     def get_support(self):
         return self.data.features.columns.isin(self.selected_features)
 
-    def set_params(self, **params):
-        pass
-
-    def get_params(self):
-        pass
+    def get_params(self, deep=False):
+        return {
+            "data": self.data,
+            **self.params,
+        }

@@ -29,8 +29,47 @@ data.features.head()
 # %%
 from project.randomKNN.random_knn import RKNN
 rknn = RKNN(data, method="imputation")
-rknn.fit_transform().head()
+# rknn.fit_transform().head()
 
 
 # %%
-rknn.ranking
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import LabelEncoder, Imputer
+from sklearn.cross_validation import cross_val_score
+from sklearn.cross_validation import StratifiedKFold
+from project.randomKNN.random_knn import RKNN
+from project.randomKNN.knn import KNN
+
+rknn = RKNN(data, method="imputation")
+knn = KNN(data.types)
+y = pd.Series(LabelEncoder().fit_transform(data.labels))
+cv = StratifiedKFold(y, n_folds=5, shuffle=True)
+
+pipe1 = Pipeline(steps=[
+    ('reduce', rknn),
+    ('classify', knn)
+])
+score1 = cross_val_score(pipe1, data.features, y, cv=cv,
+                         scoring="accuracy", n_jobs=-1)
+
+print("score1", score1, flush=True)
+
+
+# %%
+pipe2 = Pipeline(steps=[
+    ("imputer", Imputer(strategy="mean", axis=0)),
+    ('classify', knn)
+])
+score2 = cross_val_score(pipe2, data.features, y, cv=cv,
+                         scoring="accuracy", n_jobs=-1)
+print("score2", score2, flush=True)
+
+
+# %%
+pipe3 = Pipeline(steps=[
+    ('classify', knn)
+])
+
+score3 = cross_val_score(pipe3, data.features, y, cv=cv,
+                         scoring="accuracy", n_jobs=-1)
+print("score3", score3, flush=True)
