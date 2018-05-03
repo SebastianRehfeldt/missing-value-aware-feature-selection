@@ -1,7 +1,8 @@
 import sys
 import itertools
-from collections import defaultdict
 import numpy as np
+import pandas as pd
+from collections import defaultdict
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import cross_val_score
 from fancyimpute import KNN as knn_imputer
@@ -11,16 +12,12 @@ from project.randomKNN.knn import KNN as knn_classifier
 
 class RKNN():
 
-    def __init__(self, features, labels, feature_types, **kwargs):
-        self.features = features
-        self.encoder = LabelEncoder()
-        self.labels = self.encoder.fit_transform(labels)
-        self.feature_types = feature_types
-
+    def __init__(self, data, **kwargs):
+        self.data = data
         self._init_parameters(kwargs)
 
     def _init_parameters(self, parameters):
-        self.n_samples, self.n_features = self.features.shape
+        self.n_samples, self.n_features = self.data.shape
         self.n_knn = parameters.get("n_knn", self.n_features**2)
         self.m = parameters.get("m", int(np.sqrt(self.n_features)))
         self.n_neighbors = parameters.get("n_neighbors", 3)
@@ -40,21 +37,15 @@ class RKNN():
         return self
 
     def _get_unique_subscapes(self):
-        subspaces = []
-        for i in range(self.n_knn):
-            features = np.random.choice(
-                self.features.columns, self.m, replace=False)
-            subspaces.append(list(features))
-
+        subspaces = [list(np.random.choice(self.data.features.columns, self.m, replace=False))
+                     for i in range(self.n_knn)]
         subspaces.sort()
-        subspaces = list(subspaces for subspaces,
-                         _ in itertools.groupby(subspaces))
-        return subspaces
+        return list(subspaces for subspaces, _ in itertools.groupby(subspaces))
 
     def _evaluate_subspaces(self, subspaces):
         score_map = defaultdict(list)
         for subspace in subspaces:
-            features = self.features[subspace]
+            features = self.data.features[subspace]
             mean_score = self._calculate_subspace_score(features)
             for feature in features:
                 score_map[feature].append(mean_score)
@@ -64,18 +55,14 @@ class RKNN():
         if self.method == "imputation" and features.isnull().values.any():
             features.update(knn_imputer(k=3, verbose=False).complete(features))
 
-        knn_clf = knn_classifier(
-            self.feature_types, n_neigbors=self.n_neighbors)
-        scores = cross_val_score(
-            knn_clf, features, self.labels, cv=3, scoring="accuracy")
+        clf = knn_classifier(self.data.types, n_neighbors=self.n_neighbors)
+        y = LabelEncoder().fit_transform(self.data.labels)
+        y = pd.Series(y)
+        scores = cross_val_score(clf, features, y, cv=3, scoring="accuracy")
         return np.mean(scores)
 
     def _deduce_feature_importances(self, score_map):
-        feature_importances = defaultdict(float)
-        for key, values in score_map.items():
-            feature_importances[key] = np.mean(values)
-
-        return feature_importances
+        return dict((k, np.mean(v)) for k, v in score_map.items())
 
     def transform(self):
         if not self.is_fitted:
@@ -83,7 +70,7 @@ class RKNN():
 
         ranking = self.get_ranking()
         self.selected_features = list(ranking.keys())[:self.k]
-        return self.features[self.selected_features]
+        return self.data.features[self.selected_features]
 
     def get_ranking(self):
         ranking = sorted(self.feature_importances.items(),
@@ -95,7 +82,7 @@ class RKNN():
         return self.transform()
 
     def get_support(self):
-        return self.features.columns.isin(self.selected_features)
+        return self.data.features.columns.isin(self.selected_features)
 
     def set_params(self, **params):
         pass

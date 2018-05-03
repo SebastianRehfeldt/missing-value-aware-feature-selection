@@ -13,6 +13,7 @@ import json
 import pandas as pd
 import numpy as np
 from scipy.io import arff
+from project import Data
 from project.utils.downloader import Downloader
 from project.utils.csv_helper import CSVHelper
 
@@ -80,7 +81,8 @@ class DataLoader():
         # Remove samples with missing class information
         if self.kwargs.get("drop_unknown_samples") == True:
             self._remove_samples_with_unknown_class()
-        return self.data, self.labels, self.types
+
+        return Data(self.data, self.labels, self.types, self.data.shape)
 
     ####################################################################################
     ###########################           ARFF           ###############################
