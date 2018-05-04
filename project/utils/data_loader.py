@@ -193,8 +193,6 @@ class DataLoader():
         """
         Remove samples when their class label is missing
         """
-        print("rmeove")
-
         # Create mask for missing labels
         nominal_mask = self.labels.isin([b"?", np.nan])
         numerical_mask = pd.isna(self.labels)
