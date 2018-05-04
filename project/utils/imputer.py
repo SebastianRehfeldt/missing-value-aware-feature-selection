@@ -12,9 +12,7 @@ class Imputer():
         return self
 
     def transform(self, X, y=None):
-        imputer = self._get_imputer()
-        complete_features = imputer.complete(X)
-        return pd.DataFrame(complete_features, columns=self.data.features.columns)
+        return self._complete(pd.DataFrame(X, columns=self.data.features.columns))
 
     def fit_transform(self, X, y=None):
         self.fit()
@@ -26,8 +24,18 @@ class Imputer():
             "method": self.method,
         }
 
+    def _complete(self, X):
+        # Complete numeric features
+        numeric_cols = self.data.types.loc[self.data.types == "numeric"].index
+        if X[numeric_cols].isnull().values.any():
+            X[numeric_cols] = self._get_imputer().complete(X[numeric_cols])
+
+        # Fancy impute does not handle nominal features
+        # TODO: Implement a replace strategy for nominal features using Categorical Encoder
+        return X
+
     def complete(self):
-        complete_features = self._get_imputer().complete(self.data.features)
+        complete_features = self._complete(self.data.features)
         return self.data._replace(features=complete_features)
 
     def _get_imputer(self):

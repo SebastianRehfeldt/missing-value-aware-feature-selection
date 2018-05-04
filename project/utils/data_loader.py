@@ -79,7 +79,7 @@ class DataLoader():
         self.data = self.data.drop(self.target, axis=1)
 
         # Remove samples with missing class information
-        if self.kwargs.get("drop_unknown_samples") == True:
+        if self.kwargs.get("drop_unknown_samples", True):
             self._remove_samples_with_unknown_class()
 
         return Data(self.data, self.labels, self.types, self.data.shape)
@@ -193,6 +193,8 @@ class DataLoader():
         """
         Remove samples when their class label is missing
         """
+        print("rmeove")
+
         # Create mask for missing labels
         nominal_mask = self.labels.isin([b"?", np.nan])
         numerical_mask = pd.isna(self.labels)
@@ -207,7 +209,7 @@ class DataLoader():
         Error handling when folder exists, but without data.csv
 
         Arguments:
-            file_path {str} -- Path to file
+            file_path {str} - - Path to file
         """
         print("Could not find file: {:s}".format(file_path))
         sys.exit("File not found error")
