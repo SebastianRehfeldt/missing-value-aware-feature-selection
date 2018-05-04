@@ -28,7 +28,7 @@ class Neighbors:
                 n_complete += 1
                 squared_dist += (x1[i] - x2[i])**2
 
-            if not is_numerical and not x1[i] == b'?' and not x2[i] == b'?':
+            if not is_numerical:
                 n_complete += 1
                 if x1[i] == x2[i]:
                     squared_dist += self.params["nominal_distance"]

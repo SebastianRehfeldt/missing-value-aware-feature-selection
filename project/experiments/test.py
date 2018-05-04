@@ -7,9 +7,9 @@ data_loader = DataLoader()
 data = data_loader.load_data("iris", "arff")
 
 """
-print(data.features.head())
-print(data.labels.head())
-print(data.types.head())
+data.labels.head()
+data.features.head()
+data.types.head()
 """
 
 
@@ -22,14 +22,9 @@ data.features.head()
 
 # %%
 from project.utils.data_scaler import scale_data
+
 data = scale_data(data)
 data.features.head()
-
-
-# %%
-from project.randomKNN.random_knn import RKNN
-rknn = RKNN(data, method="imputation")
-rknn.fit_transform().head()
 
 
 # %%
@@ -44,7 +39,6 @@ rknn = RKNN(data, method="imputation")
 knn = KNN(data.types)
 y = pd.Series(LabelEncoder().fit_transform(data.labels))
 cv = StratifiedKFold(y, n_folds=5, shuffle=True)
-
 
 pipe1 = Pipeline(steps=[
     ('reduce', rknn),
@@ -62,6 +56,10 @@ pipe3 = Pipeline(steps=[
 
 pipelines = [pipe1, pipe2, pipe3]
 
+scores = []
 for pipe in pipelines:
-    print(cross_val_score(pipe, data.features, y,
-                          cv=cv, scoring="accuracy", n_jobs=-1), flush=True)
+    scores.append(cross_val_score(pipe, data.features, y,
+                                  cv=cv, scoring="accuracy", n_jobs=-1))
+
+for score in scores:
+    print(np.mean(score), score)

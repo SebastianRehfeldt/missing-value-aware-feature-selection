@@ -20,7 +20,7 @@ class RKNN():
 
     def _init_parameters(self, parameters):
         self.params = {
-            "n_knn": parameters.get("n_knn", self.data.shape[1]**2),
+            "n_knn": parameters.get("n_knn", int(self.data.shape[1]**2 / 2)),
             "m": parameters.get("m", int(np.sqrt(self.data.shape[1]))),
             "n_neighbors": parameters.get("n_neighbors", 3),
             "k": parameters.get("k", 3),
