@@ -16,13 +16,13 @@ class Neighbors:
         return self.data.labels.iloc[indices]
 
     def partial_distances(self, sample):
-        return [self.partial_distance(sample, self.data.features.iloc[i, :]) for i in range(self.data.shape[0])]
+        return [self.partial_distance(sample, self.data.features.iloc[row, :]) for row in range(self.data.shape[0])]
 
     def partial_distance(self, x1, x2):
         squared_dist = n_complete = 0
 
         for i in range(len(x1)):
-            is_numerical = self.data.types[i] == "numeric"
+            is_numerical = self.data.f_types[i] == "numeric"
 
             # only sum up distances between complete pairs
             if is_numerical and not np.isnan(x1[i]) and not np.isnan(x2[i]):
