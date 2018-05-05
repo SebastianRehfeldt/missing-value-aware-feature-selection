@@ -1,33 +1,25 @@
 # %%
+import sys
 import numpy as np
 import pandas as pd
 from project.utils.data_loader import DataLoader
+from project.utils.data_modifier import introduce_missing_values
+from project.utils.data_scaler import scale_data
+from project.shared.neighbors import Neighbors
 
 data_loader = DataLoader()
 data = data_loader.load_data("analcatdata_reviewer", "arff")
 data = data_loader.load_data("iris", "arff")
-
-
-# %%
-from project.utils.data_modifier import introduce_missing_values
-
 data = introduce_missing_values(data)
-
-
-# %%
-from project.utils.data_scaler import scale_data
-
 data = scale_data(data)
 data.features.head()
 
-
 # %%
-from project.shared.neighbors import Neighbors
+from scipy.special import digamma
+from project import Data
 
 
 def _get_mi_cc(data):
-    from scipy.special import digamma
-
     nn_x = Neighbors(data)
 
     new_types = data.types.copy()
@@ -39,11 +31,11 @@ def _get_mi_cc(data):
     nx = np.ones(data.shape[0]) * k
     ny = np.ones(data.shape[0]) * k
     for i in range(data.shape[0]):
-        sample_x = np.asarray([data.features.iloc[i]])
+        sample_x = data.features.iloc[i]
         dist_x = nn_x.partial_distances(sample_x)
         dist_x.sort()
 
-        sample_y = np.asarray([data.labels[i]])
+        sample_y = data.labels[i]
         dist_y = nn_y.partial_distances(sample_y)
         dist_y.sort()
 
@@ -59,28 +51,25 @@ def _get_mi_cc(data):
 
 
 def _get_mi_cd(data):
-    from scipy.special import digamma
-    from project import Data
-
     nn = Neighbors(data)
     k = 6
     n = np.ones(data.shape[0]) * k
     m = np.ones(data.shape[0]) * k
     for i in range(data.shape[0]):
+        # We are interested in nearest neighbors within same class
         label = data.labels[i]
-        new_features = data.features[data.labels ==
-                                     label].reset_index(drop=True)
-        new_data = Data(new_features, data.labels,
-                        data.types, new_features.shape)
+        features = data.features[data.labels == label].reset_index(drop=True)
+        new_data = data._replace(features=features, shape=features.shape)
         nn_cond = Neighbors(new_data)
 
-        sample = np.asarray([data.features.iloc[i]])
+        sample = data.features.iloc[i]
         dist_cond = nn_cond.partial_distances(sample)
         dist_cond.sort()
         max_dist = dist_cond[k + 1]
 
         dist_full = nn.partial_distances(sample)
-        if not np.isnan(sample):
+
+        if not np.isnan(sample).all():
             m[i] = (dist_full <= max_dist).sum() - 1
             n[i] = new_data.features.shape[0]
 
@@ -96,14 +85,38 @@ def _get_mi_dd(data):
     return mi
 
 
-def get_mi(data):
+def get_mutual_information(data):
+    # Gets a dataframe as input which has >= 1 columns
+    if not "nominal" in data.f_types:
+        if data.l_type == "nominal":
+            return _get_mi_cd(data)
+        else:
+            return _get_mi_cc(data)
+    else:
+        is_1d = len(data.f_types) == 1
+        if is_1d:
+            return _get_mi_dd(data)
+        else:
+            raise NotImplementedError
+
+    print(data)
+    sys.exit("MI messed up types")
+    return -1
+
+
+def get_mis(data):
     mi_s = np.zeros(data.shape[1])
-    for i in range(data.shape[1]):
-        feature = data.features.iloc[:, i].to_frame()
-        selected_data = data._replace(features=feature, shape=feature.shape)
-        mi_s[i] = _get_mi_cd(selected_data)
+    for i, col in enumerate(data.features):
+        col = ["sepallength", "sepalwidth"]
+        features = data.features[col]  # .to_frame()
+        types = pd.Series(data.f_types[col])
+        selected_data = data._replace(
+            features=features, f_types=types, shape=features.shape)
+
+        print(get_mutual_information(selected_data))
+        print(1/0)
+        mi_s[i] = get_mutual_information(selected_data)
     return mi_s
 
 
-scores = get_mi(data)
-scores
+get_mis(data)
