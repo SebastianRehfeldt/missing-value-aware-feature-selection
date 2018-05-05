@@ -6,4 +6,4 @@ PROJECT_PATH = os.path.abspath(os.path.join(
 ROOT_PATH = os.path.abspath(os.path.join(PROJECT_PATH, os.pardir))
 DATA_PATH = os.path.join(ROOT_PATH, "data")
 
-Data = namedtuple("Data", ["features", "labels", "types", "shape"])
+Data = namedtuple("Data", ["features", "labels", "f_types", "l_type", "shape"])

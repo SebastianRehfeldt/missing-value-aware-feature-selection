@@ -7,9 +7,10 @@ data_loader = DataLoader()
 data = data_loader.load_data("iris", "arff")
 
 """
-data.labels.head()
-data.features.head()
-data.types.head()
+print(data.labels.head())
+print(data.features.head())
+print(data.f_types.head())
+print(data.l_type)
 """
 
 
@@ -25,6 +26,14 @@ from project.utils.data_scaler import scale_data
 
 data = scale_data(data)
 data.features.head()
+
+
+# %%
+from project.utils.imputer import Imputer
+
+imputer = Imputer(data)
+data_complete = imputer.complete()
+data_complete.features.head()
 
 
 # %%

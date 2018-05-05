@@ -26,9 +26,9 @@ class Imputer():
 
     def _complete(self, X):
         # Complete numeric features
-        numeric_cols = self.data.types.loc[self.data.types == "numeric"].index
-        if X[numeric_cols].isnull().values.any():
-            X[numeric_cols] = self._get_imputer().complete(X[numeric_cols])
+        cols = self.data.f_types.loc[self.data.f_types == "numeric"].index
+        if X[cols].isnull().values.any():
+            X[cols] = self._get_imputer().complete(X[cols])
 
         # Fancy impute does not handle nominal features
         # TODO: Implement a replace strategy for nominal features using Categorical Encoder
