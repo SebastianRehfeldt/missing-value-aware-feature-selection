@@ -76,13 +76,15 @@ class DataLoader():
 
         # Split features and labels
         self.labels = self.data[self.target]
+        self.label_type = self.types[self.target]
         self.data = self.data.drop(self.target, axis=1)
+        self.types = self.types.drop(self.target)
 
         # Remove samples with missing class information
         if self.kwargs.get("drop_unknown_samples", True):
             self._remove_samples_with_unknown_class()
 
-        return Data(self.data, self.labels, self.types, self.data.shape)
+        return Data(self.data, self.labels, self.types, self.label_type, self.data.shape)
 
     ####################################################################################
     ###########################           ARFF           ###############################

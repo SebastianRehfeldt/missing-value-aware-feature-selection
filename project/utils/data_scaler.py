@@ -8,13 +8,13 @@ def scale_data(data, method="standard"):
     }.get(method, StandardScaler)()
 
     new_features = data.features
-    for col in range(data.shape[1]):
+    for col in data.features:
         # Do not scale nominal features
-        if data.types.iloc[col] == "nominal":
+        if data.f_types[col] == "nominal":
             continue
 
         # Fit scaler on complete data
-        feature = data.features.iloc[:, col]
+        feature = data.features[col]
         complete_cases = feature.dropna()
         scaler.fit(complete_cases.reshape(-1, 1))
 
@@ -25,6 +25,6 @@ def scale_data(data, method="standard"):
 
         # Set missing values nan again and update dataframe
         feature[missing_indices] = np.nan
-        new_features.iloc[:, col] = feature
+        new_features[col] = feature
 
     return data._replace(features=new_features)
