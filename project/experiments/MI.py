@@ -5,6 +5,7 @@ from project.utils.data_loader import DataLoader
 
 data_loader = DataLoader()
 data = data_loader.load_data("analcatdata_reviewer", "arff")
+data = data_loader.load_data("iris", "arff")
 
 
 # %%
@@ -28,21 +29,22 @@ def _get_mi_cc(data):
     from scipy.special import digamma
 
     nn_x = Neighbors(data)
-    new_types = data.labels
-    new_types[0], new_types[len(new_types)-1] = new_types[len(
-        new_types)-1], new_types[0]
-    nn_y = Neighbors(data._replace(features=data.labels,
-                                   types=new_types))
+
+    new_types = data.types.copy()
+    new_types.iloc[0] = "nominal"
+    new_data = data._replace(features=data.labels.to_frame(), types=new_types)
+    nn_y = Neighbors(new_data)
+
     k = 6
     nx = np.ones(data.shape[0]) * k
     ny = np.ones(data.shape[0]) * k
     for i in range(data.shape[0]):
-        sample_x = data.features.iloc[i]
-        dist_x = nn_x.partial_distances(sample_x, True)
+        sample_x = np.asarray([data.features.iloc[i]])
+        dist_x = nn_x.partial_distances(sample_x)
         dist_x.sort()
 
-        sample_y = data.labels[i]
-        dist_y = nn_y.partial_distances(sample_y, True)
+        sample_y = np.asarray([data.labels[i]])
+        dist_y = nn_y.partial_distances(sample_y)
         dist_y.sort()
 
         if not np.isnan(sample_x):
@@ -72,12 +74,12 @@ def _get_mi_cd(data):
                         data.types, new_features.shape)
         nn_cond = Neighbors(new_data)
 
-        sample = data.features.iloc[i]
-        dist_cond = nn_cond.partial_distances(sample, True)
+        sample = np.asarray([data.features.iloc[i]])
+        dist_cond = nn_cond.partial_distances(sample)
         dist_cond.sort()
         max_dist = dist_cond[k + 1]
 
-        dist_full = nn.partial_distances(sample, True)
+        dist_full = nn.partial_distances(sample)
         if not np.isnan(sample):
             m[i] = (dist_full <= max_dist).sum() - 1
             n[i] = new_data.features.shape[0]
@@ -88,17 +90,20 @@ def _get_mi_cd(data):
 
 
 def _get_mi_dd(data):
+    # Works for 1d only
     from sklearn.metrics import mutual_info_score
-    mi = mutual_info_score(data.features, data.labels)
+    mi = mutual_info_score(data.features.iloc[:, 0], data.labels)
     return mi
 
 
 def get_mi(data):
     mi_s = np.zeros(data.shape[1])
     for i in range(data.shape[1]):
-        selected_data = data._replace(features=data.features.iloc[:, i])
-        mi_s[i] = _get_mi_dd(selected_data)
+        feature = data.features.iloc[:, i].to_frame()
+        selected_data = data._replace(features=feature, shape=feature.shape)
+        mi_s[i] = _get_mi_cd(selected_data)
     return mi_s
 
 
-get_mi(data)
+scores = get_mi(data)
+scores
