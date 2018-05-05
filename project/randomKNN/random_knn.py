@@ -64,8 +64,8 @@ class RKNN():
         if self.params["method"] == "imputation" and features.isnull().values.any():
             features.update(knn_imputer(k=3, verbose=False).complete(features))
 
-        clf = knn_classifier(
-            self.data.types, n_neighbors=self.params["n_neighbors"])
+        clf = knn_classifier(self.data.f_types, self.data.l_type,
+                             n_neighbors=self.params["n_neighbors"])
         y = LabelEncoder().fit_transform(self.data.labels)
         y = pd.Series(y)
 

@@ -44,10 +44,10 @@ from project.randomKNN.random_knn import RKNN
 from project.randomKNN.knn import KNN
 from project.utils.imputer import Imputer
 
-rknn = RKNN(data, method="imputation")
-knn = KNN(data.types)
+rknn = RKNN(data, method="classifier")
+knn = KNN(data.f_types, data.l_type)
 y = pd.Series(LabelEncoder().fit_transform(data.labels))
-cv = StratifiedKFold(y, n_folds=5, shuffle=True)
+cv = StratifiedKFold(y, n_folds=3, shuffle=True)
 
 pipe1 = Pipeline(steps=[
     ('reduce', rknn),
