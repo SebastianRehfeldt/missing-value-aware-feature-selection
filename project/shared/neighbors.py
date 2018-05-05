@@ -15,38 +15,23 @@ class Neighbors:
         indices = np.argsort(distances)[:self.params["n_neighbors"]]
         return self.data.labels.iloc[indices]
 
-    def partial_distances(self, sample, series=False):
-        if series:
-            return [self.partial_distance(sample, self.data.features[i], series) for i in range(self.data.shape[0])]
+    def partial_distances(self, sample):
         return [self.partial_distance(sample, self.data.features.iloc[i, :]) for i in range(self.data.shape[0])]
 
-    def partial_distance(self, x1, x2, series=False):
+    def partial_distance(self, x1, x2):
         squared_dist = n_complete = 0
 
-        if series:
-            is_numerical = self.data.types[0] == "numeric"
+        for i in range(len(x1)):
+            is_numerical = self.data.types[i] == "numeric"
 
             # only sum up distances between complete pairs
-            if is_numerical and not np.isnan(x1) and not np.isnan(x2):
+            if is_numerical and not np.isnan(x1[i]) and not np.isnan(x2[i]):
                 n_complete += 1
-                squared_dist += (x1 - x2)**2
+                squared_dist += (x1[i] - x2[i])**2
 
             if not is_numerical:
                 n_complete += 1
-                if x1 == x2:
+                if not x1[i] == x2[i]:
                     squared_dist += self.params["nominal_distance"]
-        else:
-            for i in range(len(x1)):
-                is_numerical = self.data.types[i] == "numeric"
-
-                # only sum up distances between complete pairs
-                if is_numerical and not np.isnan(x1[i]) and not np.isnan(x2[i]):
-                    n_complete += 1
-                    squared_dist += (x1[i] - x2[i])**2
-
-                if not is_numerical:
-                    n_complete += 1
-                    if x1[i] == x2[i]:
-                        squared_dist += self.params["nominal_distance"]
 
         return np.sqrt(squared_dist / n_complete) if n_complete > 0 else np.inf
