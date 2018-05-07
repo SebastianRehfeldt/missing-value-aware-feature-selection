@@ -76,6 +76,6 @@ class Subspacing(ABC):
 
             knowledgebase.append({
                 "features": subspace,
-                "score": self._evaluate_subspace(features)
+                "score": self._evaluate_subspace(subspace, features)
             })
         return knowledgebase

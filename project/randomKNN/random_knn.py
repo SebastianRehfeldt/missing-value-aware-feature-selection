@@ -11,7 +11,7 @@ from sklearn.cross_validation import StratifiedKFold
 from project.randomKNN.knn import KNN as knn_classifier
 from project.shared.selector import Selector
 from project.shared.subspacing import Subspacing
-from project.utils.assertions import assert_df
+from project.utils.assertions import assert_df, assert_types
 
 
 class RKNN(Selector, Subspacing):
@@ -49,11 +49,12 @@ class RKNN(Selector, Subspacing):
         score_map = self._evaluate_subspaces(subspaces)
         return self._deduce_feature_importances(score_map)
 
-    def _evaluate_subspace(self, features):
+    def _evaluate_subspace(self, subspace, features):
         """
         Evaluate a subspace using knn
 
         Arguments:
+            subspace {list} -- List of features in subspace
             features {df} -- Dataframe containing the features
         """
         features = assert_df(features)
@@ -62,9 +63,9 @@ class RKNN(Selector, Subspacing):
             features.update(knn_imputer(k=3, verbose=False).complete(features))
 
         y = self.data.labels
-        cv = StratifiedKFold(y, n_folds=3, shuffle=True)
+        types = assert_types(self.data.f_types[subspace], subspace)
 
-        clf = knn_classifier(self.data.f_types, self.data.l_type,
+        clf = knn_classifier(types, self.data.l_type,
                              n_neighbors=self.params["n_neighbors"])
 
         scoring = "mean_squared_error"
@@ -73,6 +74,7 @@ class RKNN(Selector, Subspacing):
             y = LabelEncoder().fit_transform(y)
             y = pd.Series(y)
 
+        cv = StratifiedKFold(y, n_folds=3, shuffle=True)
         scores = cross_val_score(clf, features, y, cv=cv, scoring=scoring)
         return np.mean(scores)
 

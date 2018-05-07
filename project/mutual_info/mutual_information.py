@@ -69,7 +69,9 @@ def _get_mi_cd(data):
         # Create neighbors object for samples of same class
         label = data.labels[i]
         features = data.features[data.labels == label].reset_index(drop=True)
-        new_data = data._replace(features=features, shape=features.shape)
+        labels = data.labels[data.labels == label].reset_index(drop=True)
+        new_data = data._replace(
+            features=features, labels=labels, shape=features.shape)
         new_data = assert_data(new_data)
         nn_cond = Neighbors(new_data)
 
