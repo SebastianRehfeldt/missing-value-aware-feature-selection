@@ -16,6 +16,7 @@ class MI_Filter(Selector):
     def calculate_feature_importances(self):
         scores = {}
         for col in self.data.features:
+            # TODO multi-d calls
             features = self.data.features[col].to_frame()
             types = pd.Series(self.data.f_types[col], [col])
 
