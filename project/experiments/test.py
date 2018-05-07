@@ -29,11 +29,13 @@ data.features.head()
 
 
 # %%
+"""
 from project.utils.imputer import Imputer
 
 imputer = Imputer(data)
 data_complete = imputer.complete()
 data_complete.features.head()
+"""
 
 
 # %%
@@ -43,8 +45,10 @@ from sklearn.cross_validation import cross_val_score, StratifiedKFold
 from project.randomKNN.random_knn import RKNN
 from project.randomKNN.knn import KNN
 from project.utils.imputer import Imputer
+from project.mutual_info.mi_filter import MI_Filter
 
 rknn = RKNN(data, method="classifier")
+mi = MI_Filter(data)
 knn = KNN(data.f_types, data.l_type)
 y = pd.Series(LabelEncoder().fit_transform(data.labels))
 cv = StratifiedKFold(y, n_folds=3, shuffle=True)
@@ -63,12 +67,17 @@ pipe3 = Pipeline(steps=[
     ('classify', knn)
 ])
 
-pipelines = [pipe1, pipe2, pipe3]
+pipe4 = Pipeline(steps=[
+    ('reduce', mi),
+    ('classify', knn)
+])
+
+pipelines = [pipe1, pipe2, pipe3, pipe4]
 
 scores = []
 for pipe in pipelines:
     scores.append(cross_val_score(pipe, data.features, y,
-                                  cv=cv, scoring="accuracy", n_jobs=-1))
+                                  cv=cv, scoring="accuracy", n_jobs=1))
 
 for score in scores:
     print(np.mean(score), score)
