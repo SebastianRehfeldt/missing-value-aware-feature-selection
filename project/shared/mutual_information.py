@@ -1,22 +1,9 @@
-# %%
 import sys
 import numpy as np
 import pandas as pd
-from project.utils.data_loader import DataLoader
-from project.utils.data_modifier import introduce_missing_values
-from project.utils.data_scaler import scale_data
-from project.shared.neighbors import Neighbors
-
-data_loader = DataLoader()
-data = data_loader.load_data("analcatdata_reviewer", "arff")
-data = data_loader.load_data("iris", "arff")
-data = scale_data(data)
-data = introduce_missing_values(data)
-data.features.head()
-
-# %%
 from scipy.special import digamma
 from project import Data
+from project.shared.neighbors import Neighbors
 
 
 def _get_mi_cc(data):
@@ -124,24 +111,3 @@ def get_mutual_information(data):
     print(data)
     sys.exit("MI messed up types")
     return -1
-
-
-def get_mis(data):
-    mi_s = np.zeros(data.shape[1])
-    for i, col in enumerate(data.features):
-        features = data.features[col].to_frame()
-        types = pd.Series(data.f_types[col], [col])
-
-        col = ["Film", "Jeffrey_Lyons"]
-        col = ["petallength", "petalwidth"]
-        features = data.features[col]
-        types = pd.Series(data.f_types[col])
-
-        selected_data = data._replace(
-            features=features, f_types=types, shape=features.shape)
-
-        mi_s[i] = get_mutual_information(selected_data)
-    return mi_s
-
-
-get_mis(data)
