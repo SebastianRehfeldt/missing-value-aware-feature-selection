@@ -30,11 +30,12 @@ class Subspacing(ABC):
         raise NotImplementedError("subclasses must override _init_parameters")
 
     @abstractmethod
-    def _evaluate_subspace(self, features):
+    def _evaluate_subspace(self, subspace, features):
         """
         Evaluate a feature subspace and return results as dict
 
         Arguments:
+            subspace {list} -- List of features in subspace
             features {df} -- Dataframe containing features
         """
         raise NotImplementedError(

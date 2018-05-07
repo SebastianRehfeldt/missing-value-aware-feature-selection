@@ -4,7 +4,7 @@
 
     from project.utils import DataLoader
     data_loader = DataLoader()
-    features, labels, types = data_loader.load_data("ionosphere", "arff)
+    data = data_loader.load_data("ionosphere", "arff)
 """
 
 import sys
@@ -16,6 +16,7 @@ from scipy.io import arff
 from project import Data
 from project.utils.downloader import Downloader
 from project.utils.csv_helper import CSVHelper
+from project.utils.assertions import assert_data
 
 
 class DataLoader():
@@ -37,7 +38,7 @@ class DataLoader():
         self.ignored_attributes = ignored_attributes
         self.na_values = ["?", "na"]
         self.na_values.extend(na_values)
-        self.kwargs = kwargs
+        self.params = kwargs
 
         # Parameters are ignored when data.csv and meta_data.json exist
         # Same for feature types and feature names
@@ -81,10 +82,13 @@ class DataLoader():
         self.types = self.types.drop(self.target)
 
         # Remove samples with missing class information
-        if self.kwargs.get("drop_unknown_samples", True):
+        if self.params.get("drop_unknown_samples", True):
             self._remove_samples_with_unknown_class()
 
-        return Data(self.data, self.labels, self.types, self.label_type, self.data.shape)
+        data = Data(self.data, self.labels, self.types,
+                    self.label_type, self.data.shape)
+        data = assert_data(data)
+        return data
 
     ####################################################################################
     ###########################           ARFF           ###############################
@@ -138,10 +142,10 @@ class DataLoader():
         if not os.path.exists(path):
             self._print_file_not_found(path)
 
-        data = pd.read_csv(path, header=self.kwargs.get("header"),
+        data = pd.read_csv(path, header=self.params.get("header"),
                            na_values=self.na_values, sep=None)
-        if not self.kwargs.get("header") is None:
-            self.kwargs["names"] = data.columns
+        if not self.params.get("header") is None:
+            self.params["names"] = data.columns
         return data
 
     def _read_csv_meta_data(self, data):
@@ -154,7 +158,7 @@ class DataLoader():
         # Create meta data if not existing
         path = os.path.join(self.downloader.folder, "meta_data.json")
         if not os.path.exists(path):
-            helper = CSVHelper(path, data, self.target, self.kwargs)
+            helper = CSVHelper(path, data, self.target, self.params)
             names, types = helper.create_meta_data()
 
         # Load meta data

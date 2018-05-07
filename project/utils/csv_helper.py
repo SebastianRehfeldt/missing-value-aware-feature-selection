@@ -9,13 +9,13 @@ import numpy as np
 
 class CSVHelper():
 
-    def __init__(self, path, data, target, *args, **kwargs):
+    def __init__(self, path, features, target, **kwargs):
         """
-        Class for creating csv met data
+        Class for creating csv meta data
 
         Arguments:
             path {str} -- Path to file
-            data {pd dataframe} -- Dataframe with features and labels
+            features {pd dataframe} -- Dataframe with features and labels
             target {int} -- Index of target
 
         Keyword Arguments:
@@ -24,17 +24,17 @@ class CSVHelper():
             types {list[str], optional} -- Feature types
         """
         self.path = path
-        self.data = data
-        self.n_features = data.shape[1]
+        self.features = features
+        self.n_features = features.shape[1]
         self.target = target
-        self.kwargs = kwargs
+        self.params = kwargs
 
     def create_meta_data(self):
         """
         Create and store meta data
         """
-        self.names = self.kwargs.get("names") or self._create_feature_names()
-        self.types = self.kwargs.get("types") or self._create_feature_types()
+        self.names = self.params.get("names") or self._create_feature_names()
+        self.types = self.params.get("types") or self._create_feature_types()
         self._store_meta_data()
         return self.names, self.types
 
@@ -55,7 +55,7 @@ class CSVHelper():
 
         # Try to guess and update type for nominal features
         for i in range(self.n_features):
-            feature = self.data.iloc[:, i]
+            feature = self.features.iloc[:, i]
             if self._feature_is_nominal(feature):
                 self.types[i] = "nominal"
 
@@ -73,7 +73,7 @@ class CSVHelper():
             return True
 
         # A sparse integer is also considered as nominal feature
-        return True if self._feature_is_sparse_int(feature) else False
+        return self._feature_is_sparse_int(feature)
 
     def _feature_is_sparse_int(self, feature, thresh=0.0001):
         """
@@ -94,7 +94,7 @@ class CSVHelper():
 
         # We need to count unique values on complete vector as np.nan is always unique
         n_unique_values = len(np.unique(complete_vector))
-        is_sparse = n_unique_values < (self.kwargs.get("nominal_thresh") or 10)
+        is_sparse = n_unique_values < (self.params.get("nominal_thresh") or 10)
         return is_sparse and is_int
 
     def _store_meta_data(self):

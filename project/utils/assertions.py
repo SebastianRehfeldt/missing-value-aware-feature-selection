@@ -5,29 +5,25 @@ import pandas as pd
 from project import Data
 
 
-def assert_df(data):
-    if isinstance(data, pd.DataFrame):
-        return data
+def assert_df(df):
+    if isinstance(df, pd.DataFrame):
+        return df
 
     try:
-        df = data.to_frame()
-        return df
+        return df.to_frame()
     except:
-        print("Data object is not a dataframe: ")
-        print(data)
+        print("Data object is not a dataframe:\n", df)
         raise
 
 
-def assert_series(data):
-    if isinstance(data, pd.Series):
-        return data
+def assert_series(series):
+    if isinstance(series, pd.Series):
+        return series
 
     try:
-        series = pd.Series(data)
-        return series
+        return pd.Series(series)
     except:
-        print("Data object is not a series: ")
-        print(data)
+        print("Data object is not a series:\n", series)
         raise
 
 
@@ -39,8 +35,7 @@ def assert_types(types, col):
         series = pd.Series(types, [col])
         return series
     except:
-        print("Selected feature types are not a series")
-        print(types, col)
+        print("Selected feature types are not a series:\n", types, col)
         raise
 
 
