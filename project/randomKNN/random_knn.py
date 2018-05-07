@@ -1,4 +1,3 @@
-import sys
 import itertools
 import numpy as np
 import pandas as pd
@@ -9,14 +8,13 @@ from sklearn.cross_validation import StratifiedKFold
 from fancyimpute import KNN as knn_imputer
 
 from project.randomKNN.knn import KNN as knn_classifier
+from project.shared.selector import Selector
 
 
-class RKNN():
+class RKNN(Selector):
 
     def __init__(self, data, **kwargs):
-        self.data = data
-        self.is_fitted = False
-        self._init_parameters(kwargs)
+        super().__init__(data)
 
     def _init_parameters(self, parameters):
         self.params = {
@@ -28,22 +26,10 @@ class RKNN():
             "nominal_distance": parameters.get("nominal_distance", 1),
         }
 
-    def fit(self, X=None, y=None):
-        if self.is_fitted:
-            print("Selector is already fitted")
-            return self
-
-        if not X is None and not y is None:
-            self.data = self.data._replace(features=X, labels=y)
+    def calculate_feature_importances(self):
         subspaces = self._get_unique_subscapes()
         score_map = self._evaluate_subspaces(subspaces)
-        self.feature_importances = self._deduce_feature_importances(score_map)
-
-        self.ranking = self.get_ranking()
-        self.selected_features = [kv[0]
-                                  for kv in self.ranking[:self.params["k"]]]
-        self.is_fitted = True
-        return self
+        return self._deduce_feature_importances(score_map)
 
     def _get_unique_subscapes(self):
         subspaces = [list(np.random.choice(self.data.features.columns, self.params["m"], replace=False))
@@ -81,27 +67,3 @@ class RKNN():
 
     def _deduce_feature_importances(self, score_map):
         return dict((k, np.mean(v)) for k, v in score_map.items())
-
-    def transform(self, X=None):
-        if not self.is_fitted:
-            sys.exit("Classifier not fitted yet")
-        if not X is None:
-            self.data = self.data._replace(features=X)
-        return self.data.features[self.selected_features]
-
-    def get_ranking(self):
-        return sorted(self.feature_importances.items(),
-                      key=lambda k_v: k_v[1], reverse=True)
-
-    def fit_transform(self, X=None, y=None):
-        self.fit(X, y)
-        return self.transform(X)
-
-    def get_support(self):
-        return self.data.features.columns.isin(self.selected_features)
-
-    def get_params(self, deep=False):
-        return {
-            "data": self.data,
-            **self.params,
-        }
