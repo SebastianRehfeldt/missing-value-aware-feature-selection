@@ -22,8 +22,11 @@ class KNN():
     def predict(self, X):
         y_pred = [None] * X.shape[0]
         for row in range(X.shape[0]):
-            classes = self.Neighbors.get_nearest_neighbors(X.iloc[row, :])
-            y_pred[row] = Counter(classes).most_common(1)[0][0]
+            nn = self.Neighbors.get_nearest_neighbors(X.iloc[row, :])
+            if self.l_type == "nominal":
+                y_pred[row] = Counter(nn).most_common(1)[0][0]
+            else:
+                y_pred[row] = np.mean(nn)
         return y_pred
 
     def get_params(self, deep=False):

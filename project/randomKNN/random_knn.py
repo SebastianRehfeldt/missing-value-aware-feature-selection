@@ -64,13 +64,19 @@ class RKNN():
         if self.params["method"] == "imputation" and features.isnull().values.any():
             features.update(knn_imputer(k=3, verbose=False).complete(features))
 
+        y = self.data.labels
+        cv = StratifiedKFold(y, n_folds=3, shuffle=True)
+
         clf = knn_classifier(self.data.f_types, self.data.l_type,
                              n_neighbors=self.params["n_neighbors"])
-        y = LabelEncoder().fit_transform(self.data.labels)
-        y = pd.Series(y)
 
-        cv = StratifiedKFold(y, n_folds=3, shuffle=True)
-        scores = cross_val_score(clf, features, y, cv=cv, scoring="accuracy")
+        scoring = "mean_squared_error"
+        if self.data.l_type == "nominal":
+            scoring = "accuracy"
+            y = LabelEncoder().fit_transform(y)
+            y = pd.Series(y)
+
+        scores = cross_val_score(clf, features, y, cv=cv, scoring=scoring)
         return np.mean(scores)
 
     def _deduce_feature_importances(self, score_map):

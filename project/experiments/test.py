@@ -27,6 +27,13 @@ from project.utils.data_scaler import scale_data
 data = scale_data(data)
 data.features.head()
 
+# %%
+"""
+from sklearn.preprocessing import LabelEncoder
+y = pd.Series(LabelEncoder().fit_transform(data.labels), name=data.labels.name)
+data = data._replace(labels=y, l_type="numeric")
+data.labels.head()
+"""
 
 # %%
 """
@@ -73,11 +80,12 @@ pipe4 = Pipeline(steps=[
 ])
 
 pipelines = [pipe1, pipe2, pipe3, pipe4]
+pipelines = [pipe1]
 
 scores = []
 for pipe in pipelines:
     scores.append(cross_val_score(pipe, data.features, y,
-                                  cv=cv, scoring="accuracy", n_jobs=1))
+                                  cv=cv, scoring="accuracy", n_jobs=-1))
 
 for score in scores:
     print(np.mean(score), score)
