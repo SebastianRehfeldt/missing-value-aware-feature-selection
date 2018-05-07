@@ -80,7 +80,6 @@ pipe4 = Pipeline(steps=[
 ])
 
 pipelines = [pipe1, pipe2, pipe3, pipe4]
-pipelines = [pipe1, pipe4]
 
 scores = []
 for pipe in pipelines:
