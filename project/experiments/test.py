@@ -80,12 +80,12 @@ pipe4 = Pipeline(steps=[
 ])
 
 pipelines = [pipe1, pipe2, pipe3, pipe4]
-pipelines = [pipe1]
+pipelines = [pipe1, pipe4]
 
 scores = []
 for pipe in pipelines:
     scores.append(cross_val_score(pipe, data.features, y,
-                                  cv=cv, scoring="accuracy", n_jobs=-1))
+                                  cv=cv, scoring="accuracy", n_jobs=1))
 
 for score in scores:
     print(np.mean(score), score)
