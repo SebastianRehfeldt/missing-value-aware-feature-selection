@@ -58,7 +58,7 @@ rknn = RKNN(data, method="classifier")
 mi = MI_Filter(data)
 knn = KNN(data.f_types, data.l_type)
 y = pd.Series(LabelEncoder().fit_transform(data.labels))
-cv = StratifiedKFold(y, n_folds=3, shuffle=True)
+cv = StratifiedKFold(y, n_folds=4, shuffle=True)
 
 pipe1 = Pipeline(steps=[
     ('reduce', rknn),
@@ -84,7 +84,7 @@ pipelines = [pipe1, pipe2, pipe3, pipe4]
 scores = []
 for pipe in pipelines:
     scores.append(cross_val_score(pipe, data.features, y,
-                                  cv=cv, scoring="accuracy", n_jobs=1))
+                                  cv=cv, scoring="accuracy", n_jobs=-1))
 
 for score in scores:
     print(np.mean(score), score)

@@ -5,7 +5,7 @@ import numpy as np
 from collections import Counter
 from project import Data
 from project.shared.neighbors import Neighbors
-from project.utils.assertions import assert_series, assert_data, assert_l_type, assert_df
+from project.utils.assertions import assert_series, assert_data, assert_l_type, assert_df, assert_types
 
 
 class KNN():
@@ -33,7 +33,8 @@ class KNN():
             X {[type]} -- [description]
             y {[type]} -- [description]
         """
-        data = Data(X, y, self.f_types, self.l_type, X.shape)
+        types = assert_types(self.f_types[X.columns.values], X.columns.values)
+        data = Data(X, y, types, self.l_type, X.shape)
         data = assert_data(data)
         self.Neighbors = Neighbors(data, params=self.params)
         return self
