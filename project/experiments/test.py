@@ -6,12 +6,10 @@ from project.utils.data_loader import DataLoader
 data_loader = DataLoader()
 data = data_loader.load_data("iris", "arff")
 
-"""
 print(data.labels.head())
 print(data.features.head())
 print(data.f_types.head())
 print(data.l_type)
-"""
 
 
 # %%
@@ -36,13 +34,11 @@ data.labels.head()
 """
 
 # %%
-"""
 from project.utils.imputer import Imputer
 
 imputer = Imputer(data)
 data_complete = imputer.complete()
 data_complete.features.head()
-"""
 
 
 # %%

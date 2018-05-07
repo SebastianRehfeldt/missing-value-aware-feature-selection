@@ -1,8 +1,21 @@
+"""
+    Utils class for scaling the data to achieve zero mean and unit deviation
+"""
 import numpy as np
 from sklearn.preprocessing import StandardScaler
+from project.utils.assertions import assert_data
 
 
 def scale_data(data, method="standard"):
+    """
+    Scale data using standard scaler
+
+    Arguments:
+        data {Data} -- Data object which should be scaled
+
+    Keyword Arguments:
+        method {str} -- [description] (default: {"standard"})
+    """
     scaler = {
         "standard": StandardScaler,
     }.get(method, StandardScaler)()
@@ -27,4 +40,6 @@ def scale_data(data, method="standard"):
         feature[missing_indices] = np.nan
         new_features[col] = feature
 
-    return data._replace(features=new_features)
+    new_data = data._replace(features=new_features)
+    new_data = assert_data(new_data)
+    return new_data

@@ -11,8 +11,7 @@ def introduce_missing_values(data, missing_rate=0.25, missing_type="MCAR"):
     Introduce missing values by a specified method
 
     Arguments:
-        data {pd dataframe} -- Dataframe where missing values should be inserted
-        feature_types {pd series} -- Feature types for given dataframe
+        data {Data} -- Data object where missing values should be inserted
 
     Keyword Arguments:
         missing_rate {float} -- Rate of how many missing values should be inserted (default: {0.25})
@@ -32,8 +31,7 @@ def _remove_with_mcar(data, n_total_values, n_removals):
     Insert missing values completely at random 
 
     Arguments:
-        data {pd dataframe} -- Dataframe where missing values should be inserted
-        feature_types {pd series} -- Feature types for given dataframe
+        data {Data} -- Data object where missing values should be inserted
         n_total_values {int} -- Number of total values in dataframe
         n_removals {int} -- Number of missing values being inserted
     """

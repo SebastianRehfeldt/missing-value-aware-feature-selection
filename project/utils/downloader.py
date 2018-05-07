@@ -30,11 +30,10 @@ class Downloader():
         """
         Downloads data from uci ("csv") or openml ("arff")
         """
-        source_dict = {
+        return {
             "csv": self._download_uci_data,
             "arff": self._download_openml_data,
-        }
-        return source_dict[self.file_type]()
+        }[self.file_type]()
 
     def _download_uci_data(self):
         """
