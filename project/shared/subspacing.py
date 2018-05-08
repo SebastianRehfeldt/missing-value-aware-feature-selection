@@ -56,9 +56,14 @@ class Subspacing(ABC):
         """
         Return unique feature subspaces
         """
-        # TODO allow a range for m
-        subspaces = [list(np.random.choice(self.data.features.columns, self.params["m"], replace=False))
-                     for i in range(self.params["n"])]
+        subspaces = [None] * self.params["n"]
+        names = self.data.features.columns
+        for i in range(self.params["n"]):
+            m = np.random.randint(0, self.params["m"], 1)[0] + 1
+            print(m)
+            f = list(np.random.choice(names, m, replace=False))
+            subspaces[i] = sorted(f)
+
         subspaces.sort()
         return list(subspaces for subspaces, _ in itertools.groupby(subspaces))
 
