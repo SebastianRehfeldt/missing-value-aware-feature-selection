@@ -8,7 +8,7 @@ from scipy.special import digamma
 from sklearn.metrics import mutual_info_score
 from project import Data
 from project.shared.neighbors import Neighbors
-from project.utils.assertions import assert_data, assert_df, assert_types
+from project.utils.assertions import assert_data
 
 
 def _get_mi_cc(data):
@@ -19,33 +19,31 @@ def _get_mi_cc(data):
     Arguments:
         data {data} -- Data Object for estimation
     """
-    new_data = data._replace(
-        features=data.labels.to_frame(), f_types=pd.Series(data.l_type))
-    new_data = assert_data(new_data)
 
     # Create Neighbor objects for features and labels
+    inversed_data = data.inverse()
     nn_x = Neighbors(data)
-    nn_y = Neighbors(new_data)
+    nn_y = Neighbors(inversed_data)
 
     k = 6
     nx = np.ones(data.shape[0]) * k
     ny = np.ones(data.shape[0]) * k
     for i in range(data.shape[0]):
         # Get distances inside features
-        sample_x = data.features.iloc[i]
+        sample_x = data.X.iloc[i]
         dist_x = nn_x.partial_distances(sample_x)
         dist_x.sort()
 
         # Get distances inside labels
-        sample_y = new_data.features.iloc[i]
+        sample_y = inversed_data.X.iloc[i]
         dist_y = nn_y.partial_distances(sample_y)
         dist_y.sort()
 
         # Update statistics if sample contains non-nan values
-        max_dist = max(dist_x[k+1], dist_y[k+1])
-        if not np.isinf(max_dist):
-            nx[i] = (dist_x <= max_dist).sum() - 1
-            ny[i] = (dist_y <= max_dist).sum() - 1
+        radius = max(dist_x[k+1], dist_y[k+1])
+        if not np.isinf(radius):
+            nx[i] = (dist_x <= radius).sum() - 1
+            ny[i] = (dist_y <= radius).sum() - 1
 
     mi = digamma(data.shape[0]) + digamma(k) - 1/k - \
         digamma(np.mean(nx)) - digamma(np.mean(ny))
@@ -67,28 +65,27 @@ def _get_mi_cd(data):
     m = np.ones(data.shape[0]) * k
     for i in range(data.shape[0]):
         # Create neighbors object for samples of same class
-        label = data.labels[i]
-        features = data.features[data.labels == label].reset_index(drop=True)
-        labels = data.labels[data.labels == label].reset_index(drop=True)
-        new_data = data._replace(
-            features=features, labels=labels, shape=features.shape)
-        new_data = assert_data(new_data)
+        label = data.y[i]
+        new_X = data.X[data.y == label].reset_index(drop=True)
+        new_y = data.y[data.y == label].reset_index(drop=True)
+        new_data = data.replace(X=new_X, y=new_y, shape=new_X.shape)
         nn_cond = Neighbors(new_data)
 
-        # Get radius for k nearest neighbors
-        sample = data.features.iloc[i]
+        # Get radius for k nearest neighbors within same class
+        sample = data.X.iloc[i]
         dist_cond = nn_cond.partial_distances(sample)
         dist_cond.sort()
+
         max_k = min(k+1, len(dist_cond) - 1)
-        max_dist = dist_cond[max_k]
+        radius = dist_cond[max_k]
 
         # Get distances for all samples
         dist_full = nn.partial_distances(sample)
 
         # Update statistics if sample contains non-nan values
-        if not np.isinf(max_dist):
-            m[i] = (dist_full <= max_dist).sum() - 1
-            n[i] = new_data.features.shape[0]
+        if not np.isinf(radius):
+            m[i] = (dist_full <= radius).sum() - 1
+            n[i] = new_data.X.shape[0]
 
     mi = digamma(data.shape[0]) - np.mean(digamma(n)) + \
         digamma(k) - np.mean(digamma(m))
@@ -103,7 +100,7 @@ def _get_mi_dd(data):
     Arguments:
         data {data} -- Data object used for estimation
     """
-    mi = mutual_info_score(data.features.iloc[:, 0], data.labels)
+    mi = mutual_info_score(data.X.iloc[:, 0], data.y)
     return max(mi, 0)
 
 
@@ -133,13 +130,8 @@ def get_mutual_information(data):
 
             # Estimate MI for each nominal feature and return mean
             mi_s = np.zeros(data.shape[1])
-            for i, col in enumerate(data.features):
-                features = assert_df(data.features[col])
-                types = assert_types(data.f_types[col], col)
-                selected_data = data._replace(
-                    features=features, f_types=types, shape=features.shape)
-
-                selected_data = assert_data(selected_data)
+            for i, col in enumerate(data.X):
+                selected_data = data.select(col)
                 mi_s[i] = _get_mi_dd(selected_data)
             return np.mean(mi_s)
 
@@ -152,18 +144,9 @@ def get_mutual_information(data):
                 # Estimate MI for each nominal feature and return mean
                 # Features and labels are flipped to match get_mi_cd
                 # TODO check symmilarity assumption for mi estimation
-                # TODO utils function
                 mi_s = np.zeros(data.shape[1])
-                for i, col in enumerate(data.features):
-                    new_X = data.labels.to_frame()
-                    new_X.columns = [col]
-                    new_y = data.features[col]
-                    f_types = assert_types(data.l_type, col)
-                    l_type = data.f_types[col]
-
-                    inversed_data = Data(
-                        new_X, new_y, f_types, l_type, new_X.shape)
-                    inversed_data = assert_data(inversed_data)
+                for i, col in enumerate(data.X):
+                    inversed_data = data.select_inverse(col)
                     mi_s[i] = _get_mi_cd(inversed_data)
                 return np.mean(mi_s)
 

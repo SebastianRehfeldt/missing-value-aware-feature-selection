@@ -20,14 +20,14 @@ def scale_data(data, method="standard"):
         "standard": StandardScaler,
     }.get(method, StandardScaler)()
 
-    new_features = data.features
-    for col in data.features:
+    new_features = data.X
+    for col in data.X:
         # Do not scale nominal features
         if data.f_types[col] == "nominal":
             continue
 
         # Fit scaler on complete data
-        feature = data.features[col]
+        feature = data.X[col]
         complete_cases = feature.dropna()
         scaler.fit(complete_cases.reshape(-1, 1))
 
@@ -40,6 +40,4 @@ def scale_data(data, method="standard"):
         feature[missing_indices] = np.nan
         new_features[col] = feature
 
-    new_data = data._replace(features=new_features)
-    new_data = assert_data(new_data)
-    return new_data
+    return data.replace(X=new_features)

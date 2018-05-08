@@ -30,7 +30,7 @@ class Neighbors:
         distances = self.partial_distances(sample)
         k = min(self.params["n_neighbors"], len(distances))
         indices = np.argsort(distances)[:k]
-        return self.data.labels.iloc[indices]
+        return self.data.y.iloc[indices]
 
     def partial_distances(self, sample):
         """
@@ -40,7 +40,7 @@ class Neighbors:
             sample {pd.series} -- Sample which is compared to trainings data
         """
         sample = assert_series(sample)
-        return [self.partial_distance(sample, self.data.features.iloc[row, :]) for row in range(self.data.shape[0])]
+        return [self.partial_distance(sample, self.data.X.iloc[row, :]) for row in range(self.data.shape[0])]
 
     def partial_distance(self, x1, x2):
         """
@@ -50,6 +50,8 @@ class Neighbors:
             x1 {pd.series} -- Sample
             x2 {pd.series} -- Sample
         """
+        # TODO check that f_type matches the right feature
+        #print(x1, self.data.f_types)
         x1 = assert_series(x1)
         x2 = assert_series(x2)
         assert (len(x1) == len(x2)), "samples have different lengths"

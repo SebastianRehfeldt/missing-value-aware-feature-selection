@@ -53,7 +53,7 @@ class Selector(ABC):
         if not X is None and not y is None:
             X = assert_df(X).reset_index(drop=True)
             y = assert_series(y).reset_index(drop=True)
-            self.data = self.data._replace(features=X, labels=y)
+            self.data = self.data.replace(X=X, y=y, shape=X.shape)
 
         # Calculate importanes and store ranking and selected features
         self.feature_importances = self.calculate_feature_importances()
@@ -86,10 +86,8 @@ class Selector(ABC):
             sys.exit("Classifier not fitted yet")
 
         # Update features when X not none (mostly in Pipeline)
-        if not X is None:
-            X = assert_df(X).reset_index(drop=True)
-            self.data = self.data._replace(features=X)
-        return self.data.features[self.selected_features]
+        X = self.data.X if X is None else assert_df(X).reset_index(drop=True)
+        return X[self.selected_features]
 
     def fit_transform(self, X=None, y=None):
         """
@@ -106,7 +104,7 @@ class Selector(ABC):
         """
         Returns boolean vector of selected features
         """
-        return self.data.features.columns.isin(self.selected_features)
+        return self.data.X.columns.isin(self.selected_features)
 
     def get_params(self, deep=False):
         """

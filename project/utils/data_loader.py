@@ -16,7 +16,6 @@ from scipy.io import arff
 from project import Data
 from project.utils.downloader import Downloader
 from project.utils.csv_helper import CSVHelper
-from project.utils.assertions import assert_data
 
 
 class DataLoader():
@@ -87,7 +86,6 @@ class DataLoader():
 
         data = Data(self.data, self.labels, self.types,
                     self.label_type, self.data.shape)
-        data = assert_data(data)
         return data
 
     ####################################################################################
@@ -158,7 +156,7 @@ class DataLoader():
         # Create meta data if not existing
         path = os.path.join(self.downloader.folder, "meta_data.json")
         if not os.path.exists(path):
-            helper = CSVHelper(path, data, self.target, self.params)
+            helper = CSVHelper(path, data, self.target, *self.params)
             names, types = helper.create_meta_data()
 
         # Load meta data
