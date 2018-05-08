@@ -2,7 +2,6 @@
     Util functions for asserting the right usage of datatypes
 """
 import pandas as pd
-from project import Data
 
 
 def assert_df(df):
@@ -45,12 +44,12 @@ def assert_l_type(l_type):
 
 
 def assert_data(data):
-    assert (isinstance(data.features, pd.DataFrame)), "Features are not a df"
-    assert (isinstance(data.labels, pd.Series)), "Labels are not a series"
+    assert (isinstance(data.X, pd.DataFrame)), "Features are not a df"
+    assert (isinstance(data.y, pd.Series)), "Labels are not a series"
     assert (isinstance(data.f_types, pd.Series)), "F_types are not a series"
     assert (isinstance(data.l_type, str)), "L_type is not string"
 
-    assert (data.features.shape == data.shape), "Data got inconsistent shape"
-    assert (data.shape[0] == len(data.labels)), "Inconsistent n_samples"
+    assert (data.X.shape == data.shape), "Data got inconsistent shape"
+    assert (data.shape[0] == len(data.y)), "Inconsistent n_samples"
     assert (len(data.f_types) == data.shape[1]), "Inconsistent feature types"
     return data

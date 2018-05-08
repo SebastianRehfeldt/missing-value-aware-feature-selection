@@ -42,8 +42,8 @@ def _remove_with_mcar(data, n_total_values, n_removals):
     mask = np.reshape(mask, data.shape)
 
     # Values in df with mask == True will be NaN
-    features = data.features.where(mask == False)
-    for col in data.features:
+    features = data.X.where(mask == False)
+    for col in data.X:
         if data.f_types[col] == "nominal":
             features[col].fillna(b"?", inplace=True)
-    return data._replace(features=features)
+    return data.replace(X=features)

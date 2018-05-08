@@ -4,7 +4,7 @@
 import pandas as pd
 from project.shared.selector import Selector
 from project.mutual_info.mutual_information import get_mutual_information
-from project.utils.assertions import assert_df, assert_types, assert_data, assert_series
+from project.utils.assertions import assert_df, assert_types
 
 
 class MI_Filter(Selector):
@@ -34,14 +34,8 @@ class MI_Filter(Selector):
         Calculate importances for each single feature
         """
         scores = {}
-        for col in self.data.features:
+        for col in self.data.X:
             # TODO test for mutli-d calls
-            features = assert_df(self.data.features[col])
-            types = assert_types(self.data.f_types[col], col)
-
-            selected_data = self.data._replace(
-                features=features, f_types=types, shape=features.shape)
-
-            selected_data = assert_data(selected_data)
-            scores[col] = get_mutual_information(selected_data)
+            new_data = self.data.select(col)
+            scores[col] = get_mutual_information(new_data)
         return scores

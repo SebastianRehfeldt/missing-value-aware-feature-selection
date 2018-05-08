@@ -35,7 +35,6 @@ class KNN():
         """
         types = assert_types(self.f_types[X.columns.values], X.columns.values)
         data = Data(X, y, types, self.l_type, X.shape)
-        data = assert_data(data)
         self.Neighbors = Neighbors(data, params=self.params)
         return self
 

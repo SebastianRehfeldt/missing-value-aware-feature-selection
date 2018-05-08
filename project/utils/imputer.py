@@ -41,7 +41,7 @@ class Imputer():
         Keyword Arguments:
             y {pd.series} -- Label vector (default: {None})
         """
-        return self._complete(pd.DataFrame(X, columns=self.data.features.columns))
+        return self._complete(pd.DataFrame(X, columns=self.data.X.columns))
 
     def fit_transform(self, X, y=None):
         """
@@ -87,10 +87,8 @@ class Imputer():
         """
         Complete features
         """
-        complete_features = self._complete(self.data.features)
-        complete_data = self.data._replace(features=complete_features)
-        complete_data = assert_data(complete_data)
-        return complete_data
+        complete_features = self._complete(self.data.X)
+        return self.data.replace(X=complete_features)
 
     def _get_imputer(self):
         """

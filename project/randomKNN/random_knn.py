@@ -11,7 +11,7 @@ from sklearn.cross_validation import StratifiedKFold
 from project.randomKNN.knn import KNN as knn_classifier
 from project.shared.selector import Selector
 from project.shared.subspacing import Subspacing
-from project.utils.assertions import assert_df, assert_types
+from project.utils.assertions import assert_series
 
 
 class RKNN(Selector, Subspacing):
@@ -49,33 +49,30 @@ class RKNN(Selector, Subspacing):
         score_map = self._evaluate_subspaces(subspaces)
         return self._deduce_feature_importances(score_map)
 
-    def _evaluate_subspace(self, subspace, features):
+    def _evaluate_subspace(self, X, types):
         """
         Evaluate a subspace using knn
 
         Arguments:
-            subspace {list} -- List of features in subspace
-            features {df} -- Dataframe containing the features
+            X {df} -- Dataframe containing the features
+            types {pd.series} -- Series containing the feature types
         """
-        features = assert_df(features)
-        if self.params["method"] == "imputation" and features.isnull().values.any():
+        if self.params["method"] == "imputation" and X.isnull().values.any():
             from fancyimpute import KNN as knn_imputer
-            features.update(knn_imputer(k=3, verbose=False).complete(features))
-
-        y = self.data.labels
-        types = assert_types(self.data.f_types[subspace], subspace)
+            X.update(knn_imputer(k=3, verbose=False).complete(X))
 
         clf = knn_classifier(types, self.data.l_type,
                              n_neighbors=self.params["n_neighbors"])
 
+        y = self.data.y
         scoring = "mean_squared_error"
         if self.data.l_type == "nominal":
             scoring = "accuracy"
             y = LabelEncoder().fit_transform(y)
-            y = pd.Series(y)
+            y = assert_series(y)
 
         cv = StratifiedKFold(y, n_folds=3, shuffle=True)
-        scores = cross_val_score(clf, features, y, cv=cv, scoring=scoring)
+        scores = cross_val_score(clf, X, y, cv=cv, scoring=scoring)
         return np.mean(scores)
 
     def _deduce_feature_importances(self, knowledgebase):
