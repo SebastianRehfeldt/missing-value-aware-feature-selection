@@ -34,11 +34,13 @@ data.labels.head()
 """
 
 # %%
+"""
 from project.utils.imputer import Imputer
 
 imputer = Imputer(data)
 data_complete = imputer.complete()
 data_complete.features.head()
+"""
 
 
 # %%
@@ -80,7 +82,7 @@ pipelines = [pipe1, pipe2, pipe3, pipe4]
 scores = []
 for pipe in pipelines:
     scores.append(cross_val_score(pipe, data.features, y,
-                                  cv=cv, scoring="accuracy", n_jobs=-1))
+                                  cv=cv, scoring="accuracy", n_jobs=1))
 
 for score in scores:
     print(np.mean(score), score)
