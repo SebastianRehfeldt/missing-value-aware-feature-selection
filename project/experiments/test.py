@@ -6,14 +6,14 @@ from project.utils.data_loader import DataLoader
 data_loader = DataLoader()
 data = data_loader.load_data("iris", "arff")
 data = data_loader.load_data("boston", "arff")
-data = data_loader.load_data("analcatdata_reviewer", "arff")
+data = data_loader.load_data("credit-approval", "arff")
 
 """
-print(data.X.head())
 print(data.y.head())
 print(data.f_types.head())
 print(data.l_type)
 """
+print(data.X.head())
 
 
 # %%
@@ -79,10 +79,10 @@ pipe4 = Pipeline(steps=[
 ])
 
 pipe5 = Pipeline(steps=[
-    ('classify', Tree(data.f_types, data.l_type))
+    ('classify', Tree(data))
 ])
 
-pipelines = [pipe1, pipe2, pipe3, pipe4]
+pipelines = [pipe1, pipe2, pipe3, pipe4, pipe5]
 pipelines = [pipe5]
 
 scores = []

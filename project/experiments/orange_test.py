@@ -7,7 +7,7 @@ from project.utils.data_scaler import scale_data
 from sklearn.preprocessing import LabelEncoder
 
 data_loader = DataLoader()
-data = data_loader.load_data("boston", "arff")
+data = data_loader.load_data("credit-approval", "arff")
 data = introduce_missing_values(data)
 data = scale_data(data)
 

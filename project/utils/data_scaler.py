@@ -29,12 +29,12 @@ def scale_data(data, method="standard"):
         # Fit scaler on complete data
         feature = data.X[col]
         complete_cases = feature.dropna()
-        scaler.fit(complete_cases.reshape(-1, 1))
+        scaler.fit(complete_cases.values.reshape(-1, 1))
 
         # Get indices of missing values, fill with zeros, scale
         missing_indices = feature.isnull()
         feature.fillna(0, inplace=True)
-        feature = scaler.transform(feature.reshape(-1, 1))
+        feature = scaler.transform(feature.values.reshape(-1, 1))
 
         # Set missing values nan again and update dataframe
         feature[missing_indices] = np.nan

@@ -81,8 +81,6 @@ class Data():
         else:
             class_var = ContinuousVariable(l_name)
 
-        combined = self.X
-        combined[self.y.name] = self.y.values
-
+        combined = pd.concat([self.X, self.y], axis=1)
         domain = Domain(f_array, class_vars=class_var)
         return Table.from_list(domain=domain, rows=combined.values.tolist())
