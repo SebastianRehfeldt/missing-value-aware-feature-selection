@@ -4,7 +4,6 @@
 import numpy as np
 import pandas as pd
 from collections import defaultdict
-from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import cross_val_score
 from sklearn.cross_validation import StratifiedKFold
 
@@ -37,9 +36,9 @@ class RKNN(Selector, Subspacing):
             "m": parameters.get("m", int(np.sqrt(self.data.shape[1]))),
             "n_neighbors": parameters.get("n_neighbors", 3),
             "k": parameters.get("k", 3),
-            "method": parameters.get("method", "imputation"),
             "nominal_distance": parameters.get("nominal_distance", 1),
         }
+        self.params["n"] = min(self.params["n"], 10)
 
     def calculate_feature_importances(self):
         """
@@ -57,22 +56,12 @@ class RKNN(Selector, Subspacing):
             X {df} -- Dataframe containing the features
             types {pd.series} -- Series containing the feature types
         """
-        if self.params["method"] == "imputation" and X.isnull().values.any():
-            from fancyimpute import KNN as knn_imputer
-            X.update(knn_imputer(k=3, verbose=False).complete(X))
-
         clf = knn_classifier(types, self.data.l_type,
                              n_neighbors=self.params["n_neighbors"])
 
-        y = self.data.y
-        scoring = "mean_squared_error"
-        if self.data.l_type == "nominal":
-            scoring = "accuracy"
-            y = LabelEncoder().fit_transform(y)
-            y = assert_series(y)
-
-        cv = StratifiedKFold(y, n_folds=3, shuffle=True)
-        scores = cross_val_score(clf, X, y, cv=cv, scoring=scoring)
+        scoring = "accuracy" if self.data.l_type == "nominal" else "mean_squared_error"
+        cv = StratifiedKFold(self.data.y, n_folds=3, shuffle=True)
+        scores = cross_val_score(clf, X, self.data.y, cv=cv, scoring=scoring)
         return np.mean(scores)
 
     def _deduce_feature_importances(self, knowledgebase):

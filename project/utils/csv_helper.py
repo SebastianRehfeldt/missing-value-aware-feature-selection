@@ -51,7 +51,6 @@ class CSVHelper():
         Creates and returns list of feature types
         """
         self.types = ["numeric"] * self.n_features
-        self.types[self.target] = "nominal"
 
         # Try to guess and update type for nominal features
         for i in range(self.n_features):

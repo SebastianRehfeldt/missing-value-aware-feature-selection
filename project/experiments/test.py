@@ -5,6 +5,8 @@ from project.utils.data_loader import DataLoader
 
 data_loader = DataLoader()
 data = data_loader.load_data("iris", "arff")
+data = data_loader.load_data("boston", "arff")
+data = data_loader.load_data("analcatdata_reviewer", "arff")
 
 """
 print(data.X.head())
@@ -48,7 +50,6 @@ data_complete.X.head()
 
 # %%
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import LabelEncoder
 from sklearn.cross_validation import cross_val_score, StratifiedKFold
 from project.randomKNN.random_knn import RKNN
 from project.randomKNN.knn import KNN
@@ -56,17 +57,10 @@ from project.tree.tree import Tree
 from project.utils.imputer import Imputer
 from project.mutual_info.mi_filter import MI_Filter
 
-rknn = RKNN(data, method="classifier")
-mi = MI_Filter(data)
 knn = KNN(data.f_types, data.l_type)
-tree = Tree(data.f_types, data.l_type)
-y = LabelEncoder().fit_transform(data.y)
-y = [str(l) for l in y]
-y = pd.Series(y)
-cv = StratifiedKFold(y, n_folds=4, shuffle=True)
 
 pipe1 = Pipeline(steps=[
-    ('reduce', rknn),
+    ('reduce', RKNN(data)),
     ('classify', knn)
 ])
 
@@ -80,21 +74,23 @@ pipe3 = Pipeline(steps=[
 ])
 
 pipe4 = Pipeline(steps=[
-    ('reduce', mi),
+    ('reduce', MI_Filter(data)),
     ('classify', knn)
 ])
 
 pipe5 = Pipeline(steps=[
-    ('classify', tree)
+    ('classify', Tree(data.f_types, data.l_type))
 ])
 
 pipelines = [pipe1, pipe2, pipe3, pipe4]
-pipelines = [pipe3, pipe5]
+pipelines = [pipe5]
 
 scores = []
+cv = StratifiedKFold(data.y, n_folds=2, shuffle=True)
+scoring = "accuracy" if data.l_type == "nominal" else "mean_squared_error"
 for pipe in pipelines:
-    scores.append(cross_val_score(pipe, data.X, y,
-                                  cv=cv, scoring="accuracy", n_jobs=-1))
+    scores.append(cross_val_score(pipe, data.X, data.y,
+                                  cv=cv, scoring=scoring, n_jobs=1))
 
 for score in scores:
     print(np.mean(score), score)
