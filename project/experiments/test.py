@@ -5,15 +5,15 @@ from project.utils.data_loader import DataLoader
 
 data_loader = DataLoader()
 data = data_loader.load_data("iris", "arff")
-data = data_loader.load_data("boston", "arff")
 data = data_loader.load_data("credit-approval", "arff")
+data = data_loader.load_data("boston", "arff")
 
 """
+print(data.X.head())
 print(data.y.head())
 print(data.f_types.head())
 print(data.l_type)
 """
-print(data.X.head())
 
 
 # %%
@@ -28,24 +28,6 @@ from project.utils.data_scaler import scale_data
 
 data = scale_data(data)
 data.X.head()
-
-# %%
-"""
-from sklearn.preprocessing import LabelEncoder
-y = pd.Series(LabelEncoder().fit_transform(data.y), name=data.y.name)
-data = data.replace(y=y, l_type="numeric")
-data.y.head()
-"""
-
-
-# %%
-"""
-from project.utils.imputer import Imputer
-
-imputer = Imputer(data)
-data_complete = imputer.complete()
-data_complete.X.head()
-"""
 
 
 # %%
@@ -87,7 +69,7 @@ pipelines = [pipe5]
 
 scores = []
 cv = StratifiedKFold(data.y, n_folds=2, shuffle=True)
-scoring = "accuracy" if data.l_type == "nominal" else "mean_squared_error"
+scoring = "accuracy" if data.l_type == "nominal" else "neg_mean_squared_error"
 for pipe in pipelines:
     scores.append(cross_val_score(pipe, data.X, data.y,
                                   cv=cv, scoring=scoring, n_jobs=1))

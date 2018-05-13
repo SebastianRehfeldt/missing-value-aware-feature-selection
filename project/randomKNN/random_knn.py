@@ -59,7 +59,7 @@ class RKNN(Selector, Subspacing):
         clf = knn_classifier(types, self.data.l_type,
                              n_neighbors=self.params["n_neighbors"])
 
-        scoring = "accuracy" if self.data.l_type == "nominal" else "mean_squared_error"
+        scoring = "accuracy" if self.data.l_type == "nominal" else "neg_mean_squared_error"
         cv = StratifiedKFold(self.data.y, n_folds=3, shuffle=True)
         scores = cross_val_score(clf, X, self.data.y, cv=cv, scoring=scoring)
         return np.mean(scores)
