@@ -1,5 +1,9 @@
 from copy import deepcopy
+import numpy as np
+import pandas as pd
 from project.utils.assertions import assert_data, assert_df, assert_types, assert_series
+from Orange.data.variable import DiscreteVariable, ContinuousVariable
+from Orange.data import Domain, Table
 
 
 class Data():
@@ -59,3 +63,26 @@ class Data():
 
         inversed = Data(new_X, new_y, f_types, l_type, new_X.shape)
         return assert_data(inversed)
+
+    def to_table(self):
+        f_array = []
+        for i, t in enumerate(self.f_types):
+            f_name = self.X.columns[i]
+            if t == "numeric":
+                f_array.append(ContinuousVariable(f_name))
+            else:
+                values = [v for v in np.unique(self.X[f_name])]
+                f_array.append(DiscreteVariable(f_name, values=values))
+
+        l_name = self.y.name
+        if self.l_type == "nominal":
+            values = [v for v in np.unique(self.y)]
+            class_var = DiscreteVariable(f_name, values=values)
+        else:
+            class_var = ContinuousVariable(l_name)
+
+        combined = self.X
+        combined[self.y.name] = self.y.values
+
+        domain = Domain(f_array, class_vars=class_var)
+        return Table.from_list(domain=domain, rows=combined.values.tolist())

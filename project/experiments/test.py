@@ -52,13 +52,17 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.cross_validation import cross_val_score, StratifiedKFold
 from project.randomKNN.random_knn import RKNN
 from project.randomKNN.knn import KNN
+from project.tree.tree import Tree
 from project.utils.imputer import Imputer
 from project.mutual_info.mi_filter import MI_Filter
 
 rknn = RKNN(data, method="classifier")
 mi = MI_Filter(data)
 knn = KNN(data.f_types, data.l_type)
-y = pd.Series(LabelEncoder().fit_transform(data.y))
+tree = Tree(data.f_types, data.l_type)
+y = LabelEncoder().fit_transform(data.y)
+y = [str(l) for l in y]
+y = pd.Series(y)
 cv = StratifiedKFold(y, n_folds=4, shuffle=True)
 
 pipe1 = Pipeline(steps=[
@@ -80,7 +84,12 @@ pipe4 = Pipeline(steps=[
     ('classify', knn)
 ])
 
+pipe5 = Pipeline(steps=[
+    ('classify', tree)
+])
+
 pipelines = [pipe1, pipe2, pipe3, pipe4]
+pipelines = [pipe3, pipe5]
 
 scores = []
 for pipe in pipelines:
