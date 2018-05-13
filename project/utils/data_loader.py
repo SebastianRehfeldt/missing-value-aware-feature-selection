@@ -72,6 +72,7 @@ class DataLoader():
             "arff": self._load_arff,
             "csv": self._load_csv,
         }[self.file_type]()
+        self._convert_nominal_to_str()
         self._remove_attributes()
 
         # Split features and labels
@@ -183,6 +184,11 @@ class DataLoader():
     ####################################################################################
     ##########################           HELPER           ##############################
     ####################################################################################
+
+    def _convert_nominal_to_str(self):
+        nominal_f = self.types.loc[self.types == "nominal"].index.tolist()
+        for f in nominal_f:
+            self.data[f] = self.data[f].str.decode('utf-8')
 
     def _remove_attributes(self):
         """
