@@ -5,8 +5,8 @@ from project.utils.data_loader import DataLoader
 
 data_loader = DataLoader()
 data = data_loader.load_data("iris", "arff")
-data = data_loader.load_data("credit-approval", "arff")
 data = data_loader.load_data("boston", "arff")
+data = data_loader.load_data("credit-approval", "arff")
 
 """
 print(data.X.head())

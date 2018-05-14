@@ -7,7 +7,7 @@ from project.utils.data_scaler import scale_data
 from sklearn.preprocessing import LabelEncoder
 
 data_loader = DataLoader()
-data = data_loader.load_data("credit-approval", "arff")
+data = data_loader.load_data("iris", "arff")
 data = introduce_missing_values(data)
 data = scale_data(data)
 
@@ -32,7 +32,11 @@ for attr, score in zip(train_table.domain.attributes, scores):
 # %%
 from Orange.distance import Euclidean
 from Orange.data import Table
+import time
 t = Table.from_numpy(None, train.X)
+
+# %%
+start = time.time()
 dist_model = Euclidean(normalize=True).fit(t)
-print(t.X.shape)
-dist_model(t)
+print(dist_model(t))
+print(time.time() - start)
