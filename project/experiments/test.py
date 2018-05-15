@@ -4,9 +4,10 @@ import pandas as pd
 from project.utils.data_loader import DataLoader
 
 data_loader = DataLoader()
-data = data_loader.load_data("iris", "arff")
 data = data_loader.load_data("boston", "arff")
+data = data_loader.load_data("ionosphere", "arff")
 data = data_loader.load_data("credit-approval", "arff")
+data = data_loader.load_data("iris", "arff")
 
 """
 print(data.X.head())
@@ -19,7 +20,7 @@ print(data.l_type)
 # %%
 from project.utils.data_modifier import introduce_missing_values
 
-data = introduce_missing_values(data)
+data = introduce_missing_values(data, missing_rate=0.5)
 data.X.head()
 
 
@@ -31,6 +32,7 @@ data.X.head()
 
 
 # %%
+from time import time
 from sklearn.pipeline import Pipeline
 from sklearn.cross_validation import cross_val_score, StratifiedKFold
 from project.randomKNN.random_knn import RKNN
@@ -38,6 +40,11 @@ from project.randomKNN.knn import KNN
 from project.tree.tree import Tree
 from project.utils.imputer import Imputer
 from project.mutual_info.mi_filter import MI_Filter
+
+X_new = RKNN(data).fit_transform()
+types = pd.Series(X_new.columns.values)
+data_new = data.replace(X=X_new, shape=X_new.shape, f_types=types)
+
 
 knn = KNN(data.f_types, data.l_type)
 
@@ -47,7 +54,7 @@ pipe1 = Pipeline(steps=[
 ])
 
 pipe2 = Pipeline(steps=[
-    ("imputer", Imputer(data)),
+    ("imputer", Imputer(data, method="mice")),
     ('classify', knn),
 ])
 
@@ -64,15 +71,37 @@ pipe5 = Pipeline(steps=[
     ('classify', Tree(data))
 ])
 
+pipe6 = Pipeline(steps=[
+    ("imputer", Imputer(data, method="mice")),
+    ('reduce', RKNN(data)),
+    ('classify', knn),
+])
+
+pipe7 = Pipeline(steps=[
+    ("imputer", Imputer(data_new, method="mice")),
+    ('classify', knn),
+])
+
+
+pipelines = [pipe4]
 pipelines = [pipe1, pipe2, pipe3, pipe4, pipe5]
-pipelines = [pipe5]
+pipelines = [pipe1, pipe2, pipe3, pipe5, pipe6, pipe7]
 
 scores = []
-cv = StratifiedKFold(data.y, n_folds=2, shuffle=True)
+times = []
+cv = StratifiedKFold(data.y, n_folds=4, shuffle=True)
 scoring = "accuracy" if data.l_type == "nominal" else "neg_mean_squared_error"
+
 for pipe in pipelines:
+    start = time()
     scores.append(cross_val_score(pipe, data.X, data.y,
                                   cv=cv, scoring=scoring, n_jobs=1))
+    times.append(time() - start)
 
-for score in scores:
-    print(np.mean(score), score)
+print("Results\n\n")
+for i, score in enumerate(scores):
+    print("Pipe{:d} with mean {:.3f} took {:.3f}s.".format(
+        i, np.mean(score), times[i]))
+    print("Detailed scores: ")
+    print(score)
+    print("\n")

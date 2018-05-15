@@ -3,6 +3,8 @@
 """
 import numpy as np
 from project.utils.assertions import assert_data, assert_series
+from scipy.spatial.distance import cdist
+from project.shared.c_distance import custom_distance as p_dist
 
 
 class Neighbors:
@@ -19,6 +21,23 @@ class Neighbors:
             "n_neighbors": kwargs.get("n_neighbors", 3),
             "nominal_distance": kwargs.get("nominal_distance", 1),
         }
+
+    def get_nearest_neighbors_fast(self, Y=None):
+        D = self.get_dist_matrix(Y)
+        N = np.argsort(D)
+        N = N[:, :self.params["n_neighbors"]]
+        return N, self.data.y
+
+    def get_dist_matrix(self, Y=None):
+        kwargs = {
+            "nominal_distance": self.params["nominal_distance"],
+            "f_types": self.data.f_types.values
+        }
+        if Y is None:
+            D = cdist(self.data.X, self.data.X, metric=p_dist, **kwargs)
+        else:
+            D = cdist(Y, self.data.X, metric=p_dist, **kwargs)
+        return D
 
     def get_nearest_neighbors(self, sample):
         """
@@ -51,7 +70,7 @@ class Neighbors:
             x2 {pd.series} -- Sample
         """
         # TODO check that f_type matches the right feature
-        #print(x1, self.data.f_types)
+        # print(x1, self.data.f_types)
         x1 = assert_series(x1)
         x2 = assert_series(x2)
         assert (len(x1) == len(x2)), "samples have different lengths"

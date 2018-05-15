@@ -5,11 +5,12 @@ from project.utils.data_loader import DataLoader
 from project.utils.data_modifier import introduce_missing_values
 from project.utils.data_scaler import scale_data
 
+
 data_loader = DataLoader()
 data = data_loader.load_data("iris", "arff")
 #data = introduce_missing_values(data)
 data = scale_data(data)
-data.X.head()
+# data.X.head()
 
 
 # %%
@@ -39,3 +40,10 @@ kwargs = {
 distances = pairwise_distances(data.X, metric=custom_distance, **kwargs)
 print(distances)
 print(time.time() - start)
+
+# %%
+start = time.time()
+from scipy.spatial.distance import cdist, pdist
+D = cdist(data.X, data.X, metric=custom_distance, **kwargs)
+print(time.time() - start)
+D

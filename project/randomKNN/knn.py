@@ -47,9 +47,19 @@ class KNN():
         """
         X = assert_df(X)
         y_pred = [None] * X.shape[0]
+        """
         for row in range(X.shape[0]):
             nn = self.Neighbors.get_nearest_neighbors(X.iloc[row, :])
             # Return most frequent class for nominal labels and mean for numerical
+            if self.l_type == "nominal":
+                y_pred[row] = Counter(nn).most_common(1)[0][0]
+            else:
+                y_pred[row] = np.mean(nn)
+        """
+        N, labels = self.Neighbors.get_nearest_neighbors_fast(X)
+        for row in range(X.shape[0]):
+            nn = N[row, :]
+            nn = labels.iloc[nn]
             if self.l_type == "nominal":
                 y_pred[row] = Counter(nn).most_common(1)[0][0]
             else:

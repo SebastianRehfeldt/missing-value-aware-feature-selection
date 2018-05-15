@@ -100,4 +100,4 @@ class Imputer():
             "matrix": MatrixFactorization,
             "simple": SimpleFill,
             "soft": SoftImpute,
-        }[self.method]()
+        }[self.method](verbose=False)
