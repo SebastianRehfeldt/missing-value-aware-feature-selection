@@ -76,8 +76,8 @@ class RKNN(Selector, Subspacing):
             y_pred = clf.predict(X_test)
             return {
                 "accuracy": accuracy_score,
-                "accuracy": mean_squared_error,
-            }[scoring]((y_test, y_pred))
+                "neg_mean_squared_error": mean_squared_error,
+            }[scoring](y_test, y_pred)
 
     def _deduce_feature_importances(self, knowledgebase):
         """
