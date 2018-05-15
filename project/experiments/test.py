@@ -4,10 +4,10 @@ import pandas as pd
 from project.utils.data_loader import DataLoader
 
 data_loader = DataLoader()
-data = data_loader.load_data("boston", "arff")
 data = data_loader.load_data("ionosphere", "arff")
-data = data_loader.load_data("credit-approval", "arff")
+data = data_loader.load_data("boston", "arff")
 data = data_loader.load_data("iris", "arff")
+data = data_loader.load_data("credit-approval", "arff")
 
 """
 print(data.X.head())
@@ -20,7 +20,7 @@ print(data.l_type)
 # %%
 from project.utils.data_modifier import introduce_missing_values
 
-data = introduce_missing_values(data, missing_rate=0.5)
+data = introduce_missing_values(data, missing_rate=0.25)
 data.X.head()
 
 
@@ -43,10 +43,10 @@ from project.mutual_info.mi_filter import MI_Filter
 
 X_new = RKNN(data).fit_transform()
 types = pd.Series(X_new.columns.values)
-data_new = data.replace(X=X_new, shape=X_new.shape, f_types=types)
-
+new_data = data.replace(X=X_new, shape=X_new.shape, f_types=types)
 
 knn = KNN(data.f_types, data.l_type)
+new_knn = KNN(new_data.f_types, new_data.l_type)
 
 pipe1 = Pipeline(steps=[
     ('reduce', RKNN(data)),
@@ -78,14 +78,13 @@ pipe6 = Pipeline(steps=[
 ])
 
 pipe7 = Pipeline(steps=[
-    ("imputer", Imputer(data_new, method="mice")),
-    ('classify', knn),
+    ("imputer", Imputer(new_data, method="mice")),
+    ('classify', new_knn),
 ])
 
 
-pipelines = [pipe4]
-pipelines = [pipe1, pipe2, pipe3, pipe4, pipe5]
-pipelines = [pipe1, pipe2, pipe3, pipe5, pipe6, pipe7]
+pipelines = [pipe7]
+pipelines = [pipe1, pipe2, pipe3, pipe4, pipe5, pipe6, pipe7]
 
 scores = []
 times = []
@@ -101,7 +100,7 @@ for pipe in pipelines:
 print("Results\n\n")
 for i, score in enumerate(scores):
     print("Pipe{:d} with mean {:.3f} took {:.3f}s.".format(
-        i, np.mean(score), times[i]))
+        i+1, np.mean(score), times[i]))
     print("Detailed scores: ")
     print(score)
     print("\n")

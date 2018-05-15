@@ -35,11 +35,12 @@ class RKNN(Selector, Subspacing):
             "n": parameters.get("n", int(self.data.shape[1]**2 / 2)),
             "m": parameters.get("m", int(np.sqrt(self.data.shape[1]))),
             "n_neighbors": parameters.get("n_neighbors", 3),
-            "k": parameters.get("k", int(np.sqrt(self.data.shape[1])+1)),
+            "k": parameters.get("k", int(self.data.shape[1] / 2 + 1)),
             "nominal_distance": parameters.get("nominal_distance", 1),
         }
         # TODO remove
         #self.params["n"] = min(self.params["n"], 10)
+        #self.params["k"] = 7
 
     def calculate_feature_importances(self):
         """

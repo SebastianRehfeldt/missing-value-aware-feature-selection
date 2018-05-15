@@ -19,7 +19,6 @@ def _get_mi_cc(data):
     Arguments:
         data {data} -- Data Object for estimation
     """
-
     # Create Neighbor objects for features and labels
     inversed_data = data.inverse()
     nn_x = Neighbors(data)
@@ -28,22 +27,22 @@ def _get_mi_cc(data):
     k = 6
     nx = np.ones(data.shape[0]) * k
     ny = np.ones(data.shape[0]) * k
-    for i in range(data.shape[0]):
-        # Get distances inside features
-        sample_x = data.X.iloc[i]
-        dist_x = nn_x.partial_distances(sample_x)
-        dist_x.sort()
 
-        # Get distances inside labels
-        sample_y = inversed_data.X.iloc[i]
-        dist_y = nn_y.partial_distances(sample_y)
-        dist_y.sort()
+    D_x = nn_x.get_dist_matrix()
+    D_y = nn_y.get_dist_matrix()
+    D_x.sort()
+    D_y.sort()
+
+    for row in range(data.shape[0]):
+        # Get distances inside features and labels
+        dist_x = D_x[row, :]
+        dist_y = D_y[row, :]
 
         # Update statistics if sample contains non-nan values
         radius = max(dist_x[k+1], dist_y[k+1])
         if not np.isinf(radius):
-            nx[i] = (dist_x <= radius).sum() - 1
-            ny[i] = (dist_y <= radius).sum() - 1
+            nx[row] = (dist_x <= radius).sum() - 1
+            ny[row] = (dist_y <= radius).sum() - 1
 
     mi = digamma(data.shape[0]) + digamma(k) - 1/k - \
         digamma(np.mean(nx)) - digamma(np.mean(ny))
@@ -60,32 +59,27 @@ def _get_mi_cd(data):
     """
     # Create neighbors object for all samples
     nn = Neighbors(data)
+
     k = 6
     n = np.ones(data.shape[0]) * k
     m = np.ones(data.shape[0]) * k
-    for i in range(data.shape[0]):
-        # Create neighbors object for samples of same class
-        label = data.y[i]
-        new_X = data.X[data.y == label].reset_index(drop=True)
-        new_y = data.y[data.y == label].reset_index(drop=True)
-        new_data = data.replace(X=new_X, y=new_y, shape=new_X.shape)
-        nn_cond = Neighbors(new_data)
 
+    D = nn.get_dist_matrix()
+    D.sort()
+
+    for row in range(data.shape[0]):
         # Get radius for k nearest neighbors within same class
-        sample = data.X.iloc[i]
-        dist_cond = nn_cond.partial_distances(sample)
-        dist_cond.sort()
-
+        dist_cond = D[row, data.y == data.y[row]]
         max_k = min(k+1, len(dist_cond) - 1)
         radius = dist_cond[max_k]
 
         # Get distances for all samples
-        dist_full = nn.partial_distances(sample)
+        dist_full = D[row, :]
 
         # Update statistics if sample contains non-nan values
         if not np.isinf(radius):
-            m[i] = (dist_full <= radius).sum() - 1
-            n[i] = new_data.X.shape[0]
+            m[row] = (dist_full <= radius).sum() - 1
+            n[row] = len(dist_cond)
 
     mi = digamma(data.shape[0]) - np.mean(digamma(n)) + \
         digamma(k) - np.mean(digamma(m))
