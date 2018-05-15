@@ -4,11 +4,10 @@ import pandas as pd
 from project.utils.data_loader import DataLoader
 
 data_loader = DataLoader()
-data = data_loader.load_data("isolet", "arff")
 data = data_loader.load_data("ionosphere", "arff")
 data = data_loader.load_data("boston", "arff")
-data = data_loader.load_data("iris", "arff")
 data = data_loader.load_data("credit-approval", "arff")
+data = data_loader.load_data("iris", "arff")
 
 """
 print(data.X.head())
@@ -21,7 +20,7 @@ print(data.l_type)
 # %%
 from project.utils.data_modifier import introduce_missing_values
 
-data = introduce_missing_values(data, missing_rate=0.25)
+data = introduce_missing_values(data, missing_rate=0.5)
 # data.X.head()
 
 
@@ -84,7 +83,7 @@ pipe7 = Pipeline(steps=[
 ])
 
 
-pipelines = [pipe6, pipe4]
+pipelines = [pipe3, pipe1]
 pipelines = [pipe1, pipe2, pipe3, pipe4, pipe5, pipe6, pipe7]
 
 scores = []
@@ -107,7 +106,3 @@ for i, score in enumerate(scores):
     print("\n")
 
 # 12.3
-
-
-# %%
-new_data.X
