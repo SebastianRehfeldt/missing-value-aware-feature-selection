@@ -107,3 +107,7 @@ for i, score in enumerate(scores):
     print("\n")
 
 # 12.3
+
+
+# %%
+new_data.X

@@ -4,10 +4,9 @@
 import numpy as np
 import pandas as pd
 from collections import defaultdict
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import cross_val_score, train_test_split
 from sklearn.cross_validation import StratifiedKFold
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, mean_squared_error
 
 from project.randomKNN.knn import KNN as knn_classifier
 from project.shared.selector import Selector
@@ -39,6 +38,7 @@ class RKNN(Selector, Subspacing):
             "n_neighbors": parameters.get("n_neighbors", 3),
             "k": parameters.get("k", int(self.data.shape[1] / 2 + 1)),
             "nominal_distance": parameters.get("nominal_distance", 1),
+            "use_cv": parameters.get("use_cv", False),
         }
         # TODO remove
         #self.params["n"] = min(self.params["n"], 10)
@@ -64,9 +64,7 @@ class RKNN(Selector, Subspacing):
                              n_neighbors=self.params["n_neighbors"])
 
         scoring = "accuracy" if self.data.l_type == "nominal" else "neg_mean_squared_error"
-
-        use_cv = False
-        if use_cv:
+        if self.params["use_cv"]:
             cv = StratifiedKFold(self.data.y, n_folds=3, shuffle=True)
             scores = cross_val_score(
                 clf, X, self.data.y, cv=cv, scoring=scoring)
@@ -76,7 +74,10 @@ class RKNN(Selector, Subspacing):
                 X, self.data.y, test_size=0.5, stratify=self.data.y)
             clf.fit(X_train, y_train)
             y_pred = clf.predict(X_test)
-            return accuracy_score(y_test, y_pred)
+            return {
+                "accuracy": accuracy_score,
+                "accuracy": mean_squared_error,
+            }[scoring]((y_test, y_pred))
 
     def _deduce_feature_importances(self, knowledgebase):
         """
