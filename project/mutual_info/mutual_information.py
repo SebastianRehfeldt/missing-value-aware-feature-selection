@@ -67,11 +67,18 @@ def _get_mi_cd(data):
     D = nn.get_dist_matrix()
     D.sort()
 
+    r_cache = {}
+    n_cache = {}
     for row in range(data.shape[0]):
         # Get radius for k nearest neighbors within same class
-        dist_cond = D[row, data.y == data.y[row]]
-        max_k = min(k+1, len(dist_cond) - 1)
-        radius = dist_cond[max_k]
+        label = data.y[row]
+        radius = r_cache.get(label)
+        if radius is None:
+            dist_cond = D[row, data.y == label]
+            max_k = min(k+1, len(dist_cond) - 1)
+            radius = dist_cond[max_k]
+            r_cache[label] = radius
+            n_cache[label] = len(dist_cond)
 
         # Get distances for all samples
         dist_full = D[row, :]
@@ -79,7 +86,7 @@ def _get_mi_cd(data):
         # Update statistics if sample contains non-nan values
         if not np.isinf(radius):
             m[row] = (dist_full <= radius).sum() - 1
-            n[row] = len(dist_cond)
+            n[row] = n_cache.get(label)
 
     mi = digamma(data.shape[0]) - np.mean(digamma(n)) + \
         digamma(k) - np.mean(digamma(m))
