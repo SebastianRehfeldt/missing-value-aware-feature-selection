@@ -4,6 +4,7 @@ import pandas as pd
 from project.utils.data_loader import DataLoader
 
 data_loader = DataLoader()
+data = data_loader.load_data("isolet", "arff")
 data = data_loader.load_data("ionosphere", "arff")
 data = data_loader.load_data("boston", "arff")
 data = data_loader.load_data("iris", "arff")
@@ -21,14 +22,14 @@ print(data.l_type)
 from project.utils.data_modifier import introduce_missing_values
 
 data = introduce_missing_values(data, missing_rate=0.25)
-data.X.head()
+# data.X.head()
 
 
 # %%
 from project.utils.data_scaler import scale_data
 
 data = scale_data(data)
-data.X.head()
+# data.X.head()
 
 
 # %%
@@ -44,9 +45,9 @@ from project.mutual_info.mi_filter import MI_Filter
 X_new = RKNN(data).fit_transform()
 types = pd.Series(X_new.columns.values)
 new_data = data.replace(X=X_new, shape=X_new.shape, f_types=types)
+new_knn = KNN(new_data.f_types, new_data.l_type)
 
 knn = KNN(data.f_types, data.l_type)
-new_knn = KNN(new_data.f_types, new_data.l_type)
 
 pipe1 = Pipeline(steps=[
     ('reduce', RKNN(data)),
@@ -83,7 +84,7 @@ pipe7 = Pipeline(steps=[
 ])
 
 
-pipelines = [pipe7]
+pipelines = [pipe6, pipe4]
 pipelines = [pipe1, pipe2, pipe3, pipe4, pipe5, pipe6, pipe7]
 
 scores = []
@@ -104,3 +105,5 @@ for i, score in enumerate(scores):
     print("Detailed scores: ")
     print(score)
     print("\n")
+
+# 12.3

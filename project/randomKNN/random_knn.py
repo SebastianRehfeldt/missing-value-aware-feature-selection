@@ -6,6 +6,8 @@ import pandas as pd
 from collections import defaultdict
 from sklearn.model_selection import cross_val_score
 from sklearn.cross_validation import StratifiedKFold
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
 
 from project.randomKNN.knn import KNN as knn_classifier
 from project.shared.selector import Selector
@@ -62,9 +64,19 @@ class RKNN(Selector, Subspacing):
                              n_neighbors=self.params["n_neighbors"])
 
         scoring = "accuracy" if self.data.l_type == "nominal" else "neg_mean_squared_error"
-        cv = StratifiedKFold(self.data.y, n_folds=3, shuffle=True)
-        scores = cross_val_score(clf, X, self.data.y, cv=cv, scoring=scoring)
-        return np.mean(scores)
+
+        use_cv = False
+        if use_cv:
+            cv = StratifiedKFold(self.data.y, n_folds=3, shuffle=True)
+            scores = cross_val_score(
+                clf, X, self.data.y, cv=cv, scoring=scoring)
+            return np.mean(scores)
+        else:
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, self.data.y, test_size=0.5, stratify=self.data.y)
+            clf.fit(X_train, y_train)
+            y_pred = clf.predict(X_test)
+            return accuracy_score(y_test, y_pred)
 
     def _deduce_feature_importances(self, knowledgebase):
         """
