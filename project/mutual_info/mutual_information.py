@@ -7,7 +7,7 @@ import pandas as pd
 from scipy.special import digamma
 from sklearn.metrics import mutual_info_score
 from project import Data
-from project.shared.neighbors import Neighbors
+from project.randomKNN.knn import KNN
 from project.utils.assertions import assert_data
 
 
@@ -19,17 +19,14 @@ def _get_mi_cc(data):
     Arguments:
         data {data} -- Data Object for estimation
     """
-    # Create Neighbor objects for features and labels
-    inversed_data = data.inverse()
-    nn_x = Neighbors(data)
-    nn_y = Neighbors(inversed_data)
-
     k = 6
     nx = np.ones(data.shape[0]) * k
     ny = np.ones(data.shape[0]) * k
 
-    D_x = nn_x.get_dist_matrix()
-    D_y = nn_y.get_dist_matrix()
+    D_x = KNN.get_dist_matrix(data.X, data.f_types, data.X)
+    inversed_data = data.inverse()
+    D_y = KNN.get_dist_matrix(
+        inversed_data.X, inversed_data.f_types, inversed_data.X)
     D_x.sort()
     D_y.sort()
 
@@ -57,14 +54,11 @@ def _get_mi_cd(data):
     Arguments:
         data {data} -- Data Object for estimation
     """
-    # Create neighbors object for all samples
-    nn = Neighbors(data)
-
     k = 6
     n = np.ones(data.shape[0]) * k
     m = np.ones(data.shape[0]) * k
 
-    D = nn.get_dist_matrix()
+    D = KNN.get_dist_matrix(data.X, data.f_types, data.X)
     D.sort()
 
     r_cache = {}

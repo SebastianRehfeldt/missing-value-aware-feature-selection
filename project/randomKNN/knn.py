@@ -6,7 +6,6 @@ from collections import Counter
 from scipy.spatial.distance import cdist
 
 from project import Data
-from project.shared.neighbors import Neighbors
 from project.utils.assertions import assert_series, assert_data, assert_l_type, assert_df, assert_types
 from project.shared.c_distance import custom_distance as p_dist
 
