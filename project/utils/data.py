@@ -29,6 +29,28 @@ class Data():
         new_types = assert_types(self.f_types[subspace], subspace)
         return new_X, new_types
 
+    def _add_salt_X(self):
+        cols = self.f_types.loc[self.f_types == "numeric"].index
+        if len(cols) > 0:
+            rn = np.random.randn(self.X.shape[0], len(cols))
+            noise = 1e-10 * self.X[cols].abs().mean()[0] * rn
+            salted = self.X.copy()
+            salted[cols] = self.X[cols] + noise
+            return salted
+        return self.X
+
+    def _add_salt_y(self):
+        if self.l_type == "numeric":
+            rn = np.random.randn(len(self.y))
+            noise = 1e-10 * self.y.abs().mean() * rn
+            return self.y + noise
+        return self.y
+
+    def add_salt(self, copy=True):
+        X_salted = self._add_salt_X()
+        y_salted = self._add_salt_y()
+        return self.replace(copy=copy, X=X_salted, y=y_salted)
+
     def to_table(self):
         attributes = [
             Data.get_variable(c_type, self.X.columns[i], self.X.iloc[:, i])
