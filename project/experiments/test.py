@@ -17,8 +17,15 @@ data = data_loader.load_data(name, "arff")
 from project.utils.data_modifier import introduce_missing_values
 from project.utils.data_scaler import scale_data
 
-data = introduce_missing_values(data, missing_rate=0.5)
+data = introduce_missing_values(data, missing_rate=0.25)
 data = scale_data(data)
+
+#%%
+from project.shared.sfs import SFS
+
+sfs = SFS(data.f_types, data.l_type, data.shape, method="mi")
+sfs.fit(data.X, data.y)
+sfs.get_ranking()
 
 # %%
 from time import time

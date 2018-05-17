@@ -46,7 +46,7 @@ class Data():
             return self.y + noise
         return self.y
 
-    def add_salt(self, copy=True):
+    def add_salt(self, copy=False):
         X_salted = self._add_salt_X()
         y_salted = self._add_salt_y()
         return self.replace(copy=copy, X=X_salted, y=y_salted)

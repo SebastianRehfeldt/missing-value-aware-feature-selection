@@ -35,7 +35,7 @@ class MI_Filter(Selector):
         Calculate importances for each single feature
         """
         # Add some noise to numerical features as advised by Kraskov + sklearn
-        self.data.add_salt(copy=True)
+        self.data.add_salt()
 
         scores = {}
         for col in self.data.X:
