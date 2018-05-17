@@ -4,16 +4,13 @@ import pandas as pd
 from project.utils.data_loader import DataLoader
 
 data_loader = DataLoader()
-data = data_loader.load_data("ionosphere", "arff")
-data = data_loader.load_data("boston", "arff")
-data = data_loader.load_data("iris", "arff")
-data = data_loader.load_data("credit-approval", "arff")
-"""
-print(data.X.head())
-print(data.y.head())
-print(data.f_types.head())
-print(data.l_type)
-"""
+name = "ionosphere"
+name = "boston"
+name = "credit-approval"
+name = "madelon"
+name = "semeion"
+name = "iris"
+data = data_loader.load_data(name, "arff")
 
 # %%
 from project.utils.data_modifier import introduce_missing_values
@@ -42,7 +39,7 @@ knn = KNN(data.f_types, data.l_type)
 pipe1 = Pipeline(steps=[('reduce', RKNN(data)), ('classify', knn)])
 
 pipe2 = Pipeline(steps=[
-    ("imputer", Imputer(data, method="mice")),
+    ("imputer", Imputer(data.f_types, method="mice")),
     ('classify', knn),
 ])
 
@@ -50,7 +47,7 @@ pipe3 = Pipeline(steps=[('classify', knn)])
 
 pipe4 = Pipeline(steps=[('reduce', MI_Filter(data)), ('classify', knn)])
 
-pipe5 = Pipeline(steps=[('classify', Tree(data))])
+pipe5 = Pipeline(steps=[('classify', Tree(data.to_table().domain))])
 
 pipe6 = Pipeline(steps=[
     ("imputer", Imputer(data, method="mice")),
@@ -70,7 +67,7 @@ pipe7 = Pipeline(steps=[
 """
 
 # pipelines = [pipe1, pipe2, pipe3, pipe4, pipe5, pipe6, pipe7]
-pipelines = [pipe4]
+pipelines = [pipe2, pipe5]
 
 scores = []
 times = []

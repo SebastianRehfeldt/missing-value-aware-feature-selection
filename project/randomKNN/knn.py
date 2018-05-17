@@ -5,13 +5,11 @@ import numpy as np
 from collections import Counter
 from scipy.spatial.distance import cdist
 
-from project import Data
-from project.utils.assertions import assert_series, assert_data, assert_l_type, assert_df, assert_types
+from project.utils import assert_series, assert_l_type, assert_df, assert_types
 from project.shared.c_distance import custom_distance as p_dist
 
 
 class KNN():
-
     def __init__(self, f_types, l_type, **kwargs):
         """
         Class which predicts label for unseen samples
@@ -36,8 +34,6 @@ class KNN():
             y {pd.series} -- Label vector
         """
         types = assert_types(self.f_types[X.columns.values], X.columns.values)
-        #data = Data(X, y, types, self.l_type, X.shape)
-        #self.Neighbors = Neighbors(data, params=self.params)
         self.f_types = types
         self.X_train = X
         self.y_train = y
@@ -51,8 +47,8 @@ class KNN():
             X {[df]} -- Dataframe containing the features
         """
         X_test = assert_df(X_test)
-        N = KNN.get_nearest_neighbors(
-            self.X_train, X_test, self.f_types, **self.params)
+        N = KNN.get_nearest_neighbors(self.X_train, X_test, self.f_types,
+                                      **self.params)
 
         y_pred = [None] * X_test.shape[0]
         for row in range(X_test.shape[0]):

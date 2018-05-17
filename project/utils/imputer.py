@@ -3,22 +3,20 @@
 """
 import pandas as pd
 from fancyimpute import KNN, MICE, MatrixFactorization, SimpleFill, SoftImpute
-from project.utils.assertions import assert_data
+from project.utils import assert_data
 
 
 class Imputer():
-
-    def __init__(self, data, method="knn"):
+    def __init__(self, f_types, method="knn"):
         """
         Imputer class for filling missing values
 
         Arguments:
-            data {Data} -- Data object which should be filled
-
+            f_types {pd.Series} -- Series containing the feature types
         Keyword Arguments:
             method {str} -- Imputation technique (default: {"knn"})
         """
-        self.data = assert_data(data)
+        self.f_types = f_types
         self.method = method
 
     def fit(self, X=None, y=None):
@@ -41,7 +39,8 @@ class Imputer():
         Keyword Arguments:
             y {pd.series} -- Label vector (default: {None})
         """
-        return self._complete(pd.DataFrame(X, columns=self.data.X.columns))
+        return self._complete(
+            pd.DataFrame(X, columns=self.f_types.index.tolist()))
 
     def fit_transform(self, X, y=None):
         """
@@ -64,7 +63,7 @@ class Imputer():
             deep {bool} -- Deep copy (default: {False})
         """
         return {
-            "data": self.data,
+            "f_types": self.f_types,
             "method": self.method,
         }
 
@@ -75,7 +74,7 @@ class Imputer():
         Arguments:
             X {df} -- Feature matrix which should be filled
         """
-        cols = self.data.f_types.loc[self.data.f_types == "numeric"].index
+        cols = self.f_types.loc[self.f_types == "numeric"].index
         if X[cols].isnull().values.any():
             X[cols] = self._get_imputer().complete(X[cols])
 
@@ -83,12 +82,13 @@ class Imputer():
         # TODO: Implement a replace strategy for nominal features using Categorical Encoder
         return X
 
-    def complete(self):
+    def complete(self, data):
         """
         Complete features
         """
-        complete_features = self._complete(self.data.X)
-        return self.data.replace(X=complete_features)
+        data = assert_data(data)
+        complete_features = self._complete(data.X)
+        return data.replace(copy=True, X=complete_features)
 
     def _get_imputer(self):
         """

@@ -2,24 +2,21 @@
     Tree Classifier class using Orange implementation
 """
 import pandas as pd
-from Orange.data import Table, Domain
+from Orange.data import Table, Domain, DiscreteVariable
 from Orange.classification import TreeLearner as TreeClassifier
 from Orange.regression import TreeLearner as TreeRegressor
-from project import Data
-from project.utils.assertions import assert_series, assert_data, assert_l_type, assert_df, assert_types
+from project.utils.assertions import assert_series, assert_df
 
 
 class Tree():
-
-    def __init__(self, data, **kwargs):
+    def __init__(self, domain):
         """
         Class which predicts label for unseen samples
 
         Arguments:
-            data {Data} -- Data Object
+            domain {Domain} -- Orange domain
         """
-        self.data = data
-        self.domain = data.to_table().domain
+        self.domain = domain
 
     def fit(self, X, y):
         """
@@ -30,14 +27,17 @@ class Tree():
             y {pd.series} -- Label vector
         """
 
+        X = assert_df(X)
+        y = assert_series(y)
         self.attributes = [
-            a for a in self.domain.attributes if a.name in X.columns.values]
+            a for a in self.domain.attributes if a.name in X.columns.values
+        ]
         s_domain = Domain(self.attributes, class_vars=self.domain.class_var)
 
         rows = pd.concat([X, y], axis=1).values.tolist()
         train = Table.from_list(domain=s_domain, rows=rows)
 
-        if self.data.l_type == "nominal":
+        if isinstance(self.domain.class_var, DiscreteVariable):
             self.tree = TreeClassifier().fit_storage(train)
         else:
             self.tree = TreeRegressor().fit_storage(train)
@@ -55,7 +55,7 @@ class Tree():
         test = Table.from_list(domain, X.values.tolist())
 
         predictions = self.tree(test.X)
-        if self.data.l_type == "nominal":
+        if isinstance(self.domain.class_var, DiscreteVariable):
             labels = self.domain.class_var.values
             predictions = [labels[pred] for pred in predictions]
         return predictions
@@ -68,5 +68,5 @@ class Tree():
             deep {bool} -- Deep copy (default: {False})
         """
         return {
-            "data": self.data,
+            "domain": self.domain,
         }
