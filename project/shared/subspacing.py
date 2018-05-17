@@ -15,9 +15,9 @@ class Subspacing(Selector):
         Arguments:
             f_types {pd.Series} -- Series containing feature types
             l_type {str} -- Type of label
+            shape {tuple} -- Tuple containing the shape of features
         """
-        self.shape = shape
-        super().__init__(f_types, l_type, **kwargs)
+        super().__init__(f_types, l_type, shape, **kwargs)
 
     @abstractmethod
     def _init_parameters(self, parameters):
@@ -80,17 +80,3 @@ class Subspacing(Selector):
             score = self._evaluate_subspace(features, types)
             knowledgebase.append({"features": subspace, "score": score})
         return knowledgebase
-
-    def get_params(self, deep=False):
-        """
-        Returns params used in sklearn to copy objects
-
-        Keyword Arguments:
-            deep {bool} -- Deep copy (default: {False})
-        """
-        return {
-            "f_types": self.f_types,
-            "l_type": self.l_type,
-            "shape": self.shape,
-            **self.params,
-        }
