@@ -3,7 +3,6 @@
 """
 import numpy as np
 from sklearn.preprocessing import StandardScaler
-from project.utils.assertions import assert_data
 
 
 def scale_data(data, method="standard"):

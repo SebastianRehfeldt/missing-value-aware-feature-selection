@@ -1,21 +1,21 @@
 """
-    Mutual Information Transformer class 
+    Mutual Information Transformer class
 """
-import pandas as pd
 from project.shared.selector import Selector
 from project.mutual_info.mutual_information import get_mutual_information
-from project.utils.assertions import assert_df, assert_types
 
 
 class MI_Filter(Selector):
-    def __init__(self, data, **kwargs):
+    def __init__(self, f_types, l_type, shape, **kwargs):
         """
-        Mutual Information FS class 
+        Mutual Information FS class
 
         Arguments:
-            data {data} -- Data object which is used for FS
+            f_types {pd.Series} -- Series containing feature types
+            l_type {str} -- Type of label
+            shape {tuple} -- Tuple containing the shape of features
         """
-        super().__init__(data)
+        super().__init__(f_types, l_type, shape, **kwargs)
 
     def _init_parameters(self, parameters):
         """
@@ -25,7 +25,7 @@ class MI_Filter(Selector):
             parameters {dict} -- Parameter dict
         """
         self.params = {
-            "k": parameters.get("k", 3),
+            "k": parameters.get("k", int(self.shape[1] / 2 + 1)),
             "nominal_distance": parameters.get("nominal_distance", 1),
         }
 
@@ -35,7 +35,7 @@ class MI_Filter(Selector):
         """
         scores = {}
         for col in self.data.X:
-            # TODO test for mutli-d calls
-            new_data = self.data.select(col)
-            scores[col] = get_mutual_information(new_data)
+            X, types = self.data.get_subspace(col)
+            scores[col] = get_mutual_information(X, self.data.y, types,
+                                                 self.data.l_type)
         return scores

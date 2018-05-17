@@ -4,27 +4,24 @@ import pandas as pd
 from project.utils.data_loader import DataLoader
 
 data_loader = DataLoader()
-name = "ionosphere"
 name = "boston"
 name = "credit-approval"
 name = "madelon"
 name = "semeion"
+name = "ionosphere"
 name = "iris"
 data = data_loader.load_data(name, "arff")
 
-# %%
 from project.utils.data_modifier import introduce_missing_values
 
-data = introduce_missing_values(data, missing_rate=0.5)
+data = introduce_missing_values(data, missing_rate=0.25)
 # data.X.head()
 
-# %%
 from project.utils.data_scaler import scale_data
 
 data = scale_data(data)
 # data.X.head()
 
-# %%
 from time import time
 from sklearn.pipeline import Pipeline
 from sklearn.cross_validation import cross_val_score, StratifiedKFold
@@ -35,6 +32,7 @@ from project.utils.imputer import Imputer
 from project.mutual_info.mi_filter import MI_Filter
 
 rknn = RKNN(data.f_types, data.l_type, data.shape)
+mi = MI_Filter(data.f_types, data.l_type, data.shape)
 knn = KNN(data.f_types, data.l_type)
 tree = Tree(data.to_table().domain)
 imputer = Imputer(data.f_types, method="mice")
@@ -45,7 +43,7 @@ pipe2 = Pipeline(steps=[
     ('classify', knn),
 ])
 pipe3 = Pipeline(steps=[('classify', knn)])
-pipe4 = Pipeline(steps=[('reduce', MI_Filter(data)), ('classify', knn)])
+pipe4 = Pipeline(steps=[('reduce', mi), ('classify', knn)])
 pipe5 = Pipeline(steps=[('classify', tree)])
 pipe6 = Pipeline(steps=[
     ("imputer", imputer),
@@ -63,7 +61,7 @@ pipe7 = Pipeline(steps=[
     ('classify', new_knn),
 ])
 """
-
+"""
 pipelines = [pipe1, pipe2, pipe3, pipe5, pipe6]  # , pipe7
 pipelines = [pipe4]
 
@@ -86,5 +84,7 @@ for i, score in enumerate(scores):
     print("Detailed scores: ")
     print(score)
     print("\n")
+"""
 
-# 12.3
+mi.fit(data.X, data.y)
+mi.feature_importances

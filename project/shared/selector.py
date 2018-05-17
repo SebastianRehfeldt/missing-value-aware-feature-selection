@@ -8,16 +8,18 @@ from project.utils import assert_data, assert_df, assert_series, assert_l_type
 
 
 class Selector(ABC):
-    def __init__(self, f_types, l_type, **kwargs):
+    def __init__(self, f_types, l_type, shape, **kwargs):
         """
         Base class for feature selection approaches
 
         Arguments:
             f_types {pd.Series} -- Series containing feature types
             l_type {str} -- Type of label
+            shape {tuple} -- Tuple containing the shape of features
         """
         self.f_types = assert_series(f_types)
         self.l_type = assert_l_type(l_type)
+        self.shape = shape
         self.is_fitted = False
         self._init_parameters(kwargs)
 
@@ -119,5 +121,6 @@ class Selector(ABC):
         return {
             "f_types": self.f_types,
             "l_type": self.l_type,
+            "shape": self.shape,
             **self.params,
         }

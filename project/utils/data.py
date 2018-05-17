@@ -29,39 +29,6 @@ class Data():
         new_types = assert_types(self.f_types[subspace], subspace)
         return new_X, new_types
 
-    def select_data(self, subspace, copy=False):
-        new_X, types = self.get_subspace(subspace)
-        return self.replace(copy, X=new_X, f_types=types, shape=new_X.shape)
-
-    def inverse_data(self, copy=False):
-        """
-        Replaces feature matrix with label vector
-        """
-        new_X = assert_df(self.y)
-        new_X.columns = [self.y.name]
-
-        new_types = assert_types(self.l_type, self.y.name)
-        return self.replace(copy, X=new_X, f_type=new_types)
-
-    def select_inverse(self, col):
-        """
-        Select exactly one column and flip X and y
-
-        Arguments:
-            col {str} -- Column name
-        """
-        new_X = assert_df(self.y)
-        new_X.columns = [self.y.name]
-
-        new_y = assert_series(self.X[col])
-        new_y.rename(col)
-
-        f_types = assert_types(self.l_type, self.y.name)
-        l_type = self.f_types[col]
-
-        inversed = Data(new_X, new_y, f_types, l_type, new_X.shape)
-        return assert_data(inversed)
-
     def to_table(self):
         attributes = [
             Data.get_variable(c_type, self.X.columns[i], self.X.iloc[:, i])
