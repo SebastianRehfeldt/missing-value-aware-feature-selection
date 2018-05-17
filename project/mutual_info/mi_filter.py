@@ -27,6 +27,7 @@ class MI_Filter(Selector):
         self.params = {
             "k": parameters.get("k", int(self.shape[1] / 2 + 1)),
             "nominal_distance": parameters.get("nominal_distance", 1),
+            "n_neighbors": parameters.get("n_neighbors", 6),
         }
 
     def calculate_feature_importances(self):
@@ -40,5 +41,6 @@ class MI_Filter(Selector):
         for col in self.data.X:
             X, types = self.data.get_subspace(col)
             scores[col] = get_mutual_information(X, self.data.y, types,
-                                                 self.data.l_type)
+                                                 self.data.l_type,
+                                                 self.params["n_neighbors"])
         return scores

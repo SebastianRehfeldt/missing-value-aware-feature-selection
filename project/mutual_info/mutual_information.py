@@ -10,7 +10,7 @@ from project.utils import assert_df, assert_series, assert_types
 from project.randomKNN.knn import KNN
 
 
-def _get_mi_cc(X, y, f_types, l_type):
+def _get_mi_cc(X, y, f_types, l_type, k):
     """
     Estimate mutual information for continous label types
     and at least one continous feature
@@ -19,7 +19,6 @@ def _get_mi_cc(X, y, f_types, l_type):
     Arguments:
         
     """
-    k = 6
     nx = np.ones(X.shape[0]) * k
     ny = np.ones(X.shape[0]) * k
     nx[:] = np.nan
@@ -52,7 +51,7 @@ def _get_mi_cc(X, y, f_types, l_type):
     return max(mi, 0)
 
 
-def _get_mi_cd(X, y, f_types):
+def _get_mi_cd(X, y, f_types, k):
     """
     Estimate mutual information for discrete label types
     and at least one continous feature
@@ -61,7 +60,6 @@ def _get_mi_cd(X, y, f_types):
     Arguments:
         
     """
-    k = 6
     n = np.ones(X.shape[0]) * k
     m = np.ones(X.shape[0]) * k
     n[:] = np.nan
@@ -104,7 +102,7 @@ def _get_mi_dd(X, y):
     return max(mi, 0)
 
 
-def get_mutual_information(X, y, f_types, l_type):
+def get_mutual_information(X, y, f_types, l_type, k=6):
     """
     Estimate mutual information using different approaches
 
@@ -128,15 +126,15 @@ def get_mutual_information(X, y, f_types, l_type):
                 new_X = assert_df(y)
                 new_X.columns = [y.name]
                 new_types = assert_types(l_type, y.name)
-                mi_s[i] = _get_mi_cd(new_X, y, new_types)
+                mi_s[i] = _get_mi_cd(new_X, y, new_types, k)
         return np.mean(mi_s)
 
     # Use standard estimators when numerical features are present
     ### CASE CC[D] - C/D ###
     if l_type == "nominal":
-        return _get_mi_cd(X, y, f_types)
+        return _get_mi_cd(X, y, f_types, k)
     else:
-        return _get_mi_cc(X, y, f_types, l_type)
+        return _get_mi_cc(X, y, f_types, l_type, k)
 
     sys.exit("MI messed up types")
     return -1
