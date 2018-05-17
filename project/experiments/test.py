@@ -4,24 +4,28 @@ import pandas as pd
 from project.utils.data_loader import DataLoader
 
 data_loader = DataLoader()
-name = "boston"
-name = "credit-approval"
 name = "madelon"
 name = "semeion"
 name = "ionosphere"
+name = "credit-approval"
+name = "analcatdata_reviewer"
+name = "boston"
 name = "iris"
 data = data_loader.load_data(name, "arff")
 
+# %%
 from project.utils.data_modifier import introduce_missing_values
 
 data = introduce_missing_values(data, missing_rate=0.25)
 # data.X.head()
 
+# %%
 from project.utils.data_scaler import scale_data
 
 data = scale_data(data)
 # data.X.head()
 
+# %%
 from time import time
 from sklearn.pipeline import Pipeline
 from sklearn.cross_validation import cross_val_score, StratifiedKFold
@@ -50,7 +54,7 @@ pipe6 = Pipeline(steps=[
     ('reduce', rknn),
     ('classify', knn),
 ])
-"""
+
 X_new = rknn.fit_transform(data.X, data.y)
 types = pd.Series(data.f_types, X_new.columns.values)
 new_data = data.replace(True, X=X_new, shape=X_new.shape, f_types=types)
@@ -60,10 +64,9 @@ pipe7 = Pipeline(steps=[
     ("imputer", Imputer(new_data.f_types, method="mice")),
     ('classify', new_knn),
 ])
-"""
-"""
-pipelines = [pipe1, pipe2, pipe3, pipe5, pipe6]  # , pipe7
+
 pipelines = [pipe4]
+pipelines = [pipe1, pipe2, pipe3, pipe4, pipe5, pipe6, pipe7]
 
 scores = []
 times = []
@@ -84,7 +87,3 @@ for i, score in enumerate(scores):
     print("Detailed scores: ")
     print(score)
     print("\n")
-"""
-
-mi.fit(data.X, data.y)
-mi.feature_importances

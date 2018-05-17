@@ -5,7 +5,7 @@ import sys
 import numpy as np
 from scipy.special import digamma
 from sklearn.metrics import mutual_info_score
-from project.utils import assert_df, assert_series
+from project.utils import assert_df, assert_series, assert_types
 
 from project.randomKNN.knn import KNN
 
@@ -22,6 +22,8 @@ def _get_mi_cc(X, y, f_types, l_type):
     k = 6
     nx = np.ones(X.shape[0]) * k
     ny = np.ones(X.shape[0]) * k
+    nx[:] = np.nan
+    ny[:] = np.nan
 
     D_x = KNN.get_dist_matrix(X, f_types)
     D_x.sort()
@@ -42,12 +44,15 @@ def _get_mi_cc(X, y, f_types, l_type):
             nx[row] = (dist_x <= radius).sum() - 1
             ny[row] = (dist_y <= radius).sum() - 1
 
-    mi = digamma(X.shape[0]) + digamma(k) - (1 / k) - \
+    nx = nx[~np.isnan(nx)]
+    ny = ny[~np.isnan(ny)]
+
+    mi = digamma(len(nx)) + digamma(k) - (1 / k) - \
         digamma(np.mean(nx)) - digamma(np.mean(ny))
     return max(mi, 0)
 
 
-def _get_mi_cd(X, y, f_types, l_type):
+def _get_mi_cd(X, y, f_types):
     """
     Estimate mutual information for discrete label types
     and at least one continous feature
@@ -59,11 +64,10 @@ def _get_mi_cd(X, y, f_types, l_type):
     k = 6
     n = np.ones(X.shape[0]) * k
     m = np.ones(X.shape[0]) * k
+    n[:] = np.nan
+    m[:] = np.nan
 
-    rn = np.random.randn(*X.shape)
-    noise = 1e-10 * X.abs().mean()[0] * rn
-    X_salted = X + noise
-    D = KNN.get_dist_matrix(X_salted, f_types)
+    D = KNN.get_dist_matrix(X, f_types)
 
     for row in range(X.shape[0]):
         # Get radius for k nearest neighbors within same class
@@ -79,16 +83,12 @@ def _get_mi_cd(X, y, f_types, l_type):
         if not np.isinf(radius):
             m[row] = (dist_full <= radius).sum() - 1
             n[row] = len(dist_cond)
-        else:
-            m[row] = np.nan
-            n[row] = np.nan
 
     m = m[~np.isnan(m)]
     n = n[~np.isnan(n)]
 
     mi = digamma(len(m)) - np.mean(digamma(n)) + \
         digamma(k) - np.mean(digamma(m))
-
     return max(mi, 0)
 
 
@@ -111,35 +111,32 @@ def get_mutual_information(X, y, f_types, l_type):
     Arguments:
 
     """
-    # Estimate MI for nominal targets
-    if l_type == "nominal":
-        # When numerical features are present, distances can be calculated
-        if "numeric" in f_types.values:
-            return _get_mi_cd(X, y, f_types, l_type)
+    # We do not have an estimator which takes multiple d's as X
+    # We also do not have an estimator for d -> c
+    # Split up features when only nominal features are present
+    # Inverse data when target is continous (assumes symmetric estimation)
 
-        # Estimate MI for each nominal feature and return mean
+    ### CASE DD - C/D ###
+    if "numeric" not in f_types.values:
         mi_s = np.zeros(X.shape[1])
         for i, col in enumerate(X):
-            # TODO
-            # selected_data = data.select(col)
-            mi_s[i] = _get_mi_dd(X, y)
+            if l_type == "nominal":
+                ### CASE D - D ###
+                mi_s[i] = _get_mi_dd(X[col], y)
+            else:
+                ### CASE D - C ###
+                new_X = assert_df(y)
+                new_X.columns = [y.name]
+                new_types = assert_types(l_type, y.name)
+                mi_s[i] = _get_mi_cd(new_X, y, new_types)
         return np.mean(mi_s)
 
-    # Estimate MI for numerical targets
+    # Use standard estimators when numerical features are present
+    ### CASE CC[D] - C/D ###
+    if l_type == "nominal":
+        return _get_mi_cd(X, y, f_types)
     else:
-        # When numerical features are present, distances can be calculated
-        if "numeric" in f_types.values:
-            return _get_mi_cc(X, y, f_types, l_type)
-        else:
-            # Estimate MI for each nominal feature and return mean
-            # Features and labels are flipped to match get_mi_cd
-            # TODO check symmilarity assumption for mi estimation
-            mi_s = np.zeros(X.shape[1])
-            for i, col in enumerate(X):
-                # TODO
-                # inversed_data = data.select_inverse(col)
-                mi_s[i] = _get_mi_cd(X, y, f_types, l_type)
-            return np.mean(mi_s)
+        return _get_mi_cc(X, y, f_types, l_type)
 
     sys.exit("MI messed up types")
     return -1

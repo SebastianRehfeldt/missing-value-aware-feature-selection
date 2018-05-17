@@ -61,8 +61,10 @@ class RKNN(Subspacing):
             types, self.data.l_type, n_neighbors=self.params["n_neighbors"])
 
         scoring = "accuracy"
+        stratify = self.data.y
         if self.data.l_type == "numeric":
             scoring = "neg_mean_squared_error"
+            stratify = None
 
         if self.params["use_cv"]:
             cv = StratifiedKFold(self.data.y, n_folds=3, shuffle=True)
@@ -71,7 +73,7 @@ class RKNN(Subspacing):
             return np.mean(scores)
         else:
             X_train, X_test, y_train, y_test = train_test_split(
-                X, self.data.y, test_size=0.5, stratify=self.data.y)
+                X, self.data.y, test_size=0.5, stratify=stratify)
             clf.fit(X_train, y_train)
             y_pred = clf.predict(X_test)
             return {
