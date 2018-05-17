@@ -2,28 +2,25 @@
     RKNN class for feature selection
 """
 import numpy as np
-import pandas as pd
 from collections import defaultdict
 from sklearn.model_selection import cross_val_score, train_test_split
 from sklearn.cross_validation import StratifiedKFold
 from sklearn.metrics import accuracy_score, mean_squared_error
 
 from project.randomKNN.knn import KNN as knn_classifier
-from project.shared.selector import Selector
 from project.shared.subspacing import Subspacing
-from project.utils.assertions import assert_series
 
 
-class RKNN(Selector, Subspacing):
-
-    def __init__(self, data, **kwargs):
+class RKNN(Subspacing):
+    def __init__(self, f_types, l_type, shape, **kwargs):
         """
         RKNN Class
 
         Arguments:
-            data {data} -- Data which should be fitted
+            f_types {pd.Series} -- Series containing feature types
+            l_type {str} -- Type of label
         """
-        super().__init__(data)
+        super().__init__(f_types, l_type, shape, **kwargs)
 
     def _init_parameters(self, parameters):
         """
@@ -33,16 +30,16 @@ class RKNN(Selector, Subspacing):
             parameters {dict} -- Parameter dict
         """
         self.params = {
-            "n": parameters.get("n", int(self.data.shape[1]**2 / 2)),
-            "m": parameters.get("m", int(np.sqrt(self.data.shape[1]))),
+            "n": parameters.get("n", int(self.shape[1]**2 / 2)),
+            "m": parameters.get("m", int(np.sqrt(self.shape[1]))),
             "n_neighbors": parameters.get("n_neighbors", 3),
-            "k": parameters.get("k", int(self.data.shape[1] / 2 + 1)),
+            "k": parameters.get("k", int(self.shape[1] / 2 + 1)),
             "nominal_distance": parameters.get("nominal_distance", 1),
             "use_cv": parameters.get("use_cv", False),
         }
         # TODO remove
-        #self.params["n"] = min(self.params["n"], 10)
-        #self.params["k"] = 7
+        # self.params["n"] = min(self.params["n"], 10)
+        # self.params["k"] = 7
 
     def calculate_feature_importances(self):
         """
@@ -60,10 +57,13 @@ class RKNN(Selector, Subspacing):
             X {df} -- Dataframe containing the features
             types {pd.series} -- Series containing the feature types
         """
-        clf = knn_classifier(types, self.data.l_type,
-                             n_neighbors=self.params["n_neighbors"])
+        clf = knn_classifier(
+            types, self.data.l_type, n_neighbors=self.params["n_neighbors"])
 
-        scoring = "accuracy" if self.data.l_type == "nominal" else "neg_mean_squared_error"
+        scoring = "accuracy"
+        if self.data.l_type == "numeric":
+            scoring = "neg_mean_squared_error"
+
         if self.params["use_cv"]:
             cv = StratifiedKFold(self.data.y, n_folds=3, shuffle=True)
             scores = cross_val_score(

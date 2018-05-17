@@ -2,20 +2,22 @@
     Base class for subspacing approaches.
 """
 import itertools
-from abc import ABC, abstractmethod
+from abc import abstractmethod
+from project.shared.selector import Selector
 import numpy as np
 
 
-class Subspacing(ABC):
-    def __init__(self, data, **kwargs):
+class Subspacing(Selector):
+    def __init__(self, f_types, l_type, shape, **kwargs):
         """
         Base class for subspacing approaches.
 
         Arguments:
-            data {Data} -- Data object
+            f_types {pd.Series} -- Series containing feature types
+            l_type {str} -- Type of label
         """
-        self.data = data
-        self._init_parameters(kwargs)
+        self.shape = shape
+        super().__init__(f_types, l_type, **kwargs)
 
     @abstractmethod
     def _init_parameters(self, parameters):
@@ -74,10 +76,21 @@ class Subspacing(ABC):
         """
         knowledgebase = []
         for subspace in subspaces:
-            features, types = self.data.get(subspace)
-
-            knowledgebase.append({
-                "features": subspace,
-                "score": self._evaluate_subspace(features, types)
-            })
+            features, types = self.data.get_subspace(subspace)
+            score = self._evaluate_subspace(features, types)
+            knowledgebase.append({"features": subspace, "score": score})
         return knowledgebase
+
+    def get_params(self, deep=False):
+        """
+        Returns params used in sklearn to copy objects
+
+        Keyword Arguments:
+            deep {bool} -- Deep copy (default: {False})
+        """
+        return {
+            "f_types": self.f_types,
+            "l_type": self.l_type,
+            "shape": self.shape,
+            **self.params,
+        }
