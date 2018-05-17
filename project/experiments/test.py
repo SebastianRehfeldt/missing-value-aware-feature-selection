@@ -7,23 +7,18 @@ data_loader = DataLoader()
 name = "madelon"
 name = "semeion"
 name = "ionosphere"
-name = "credit-approval"
 name = "analcatdata_reviewer"
 name = "boston"
+name = "credit-approval"
 name = "iris"
 data = data_loader.load_data(name, "arff")
 
 # %%
 from project.utils.data_modifier import introduce_missing_values
-
-data = introduce_missing_values(data, missing_rate=0.25)
-# data.X.head()
-
-# %%
 from project.utils.data_scaler import scale_data
 
+data = introduce_missing_values(data, missing_rate=0.5)
 data = scale_data(data)
-# data.X.head()
 
 # %%
 from time import time
@@ -65,8 +60,8 @@ pipe7 = Pipeline(steps=[
     ('classify', new_knn),
 ])
 
-pipelines = [pipe4]
 pipelines = [pipe1, pipe2, pipe3, pipe4, pipe5, pipe6, pipe7]
+pipelines = [pipe4]
 
 scores = []
 times = []
