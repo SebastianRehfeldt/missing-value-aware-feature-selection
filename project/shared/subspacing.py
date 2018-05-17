@@ -20,17 +20,6 @@ class Subspacing(Selector):
         super().__init__(f_types, l_type, shape, **kwargs)
 
     @abstractmethod
-    def _init_parameters(self, parameters):
-        """
-        Init parameters for subspacing approaches
-
-        Arguments:
-            parameters {dict} -- Parameter dict for subspacing
-        """
-        self.params = {}
-        raise NotImplementedError("subclasses must override _init_parameters")
-
-    @abstractmethod
     def _evaluate_subspace(self, X, types):
         """
         Evaluate a feature subspace and return results as dict
