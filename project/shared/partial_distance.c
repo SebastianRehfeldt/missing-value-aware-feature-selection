@@ -4,12 +4,12 @@
 {
     "distutils": {
         "depends": [],
-        "name": "project.shared.c_distance",
+        "name": "project.shared.partial_distance",
         "sources": [
-            "project/shared/c_distance.pyx"
+            "project/shared/partial_distance.pyx"
         ]
     },
-    "module_name": "project.shared.c_distance"
+    "module_name": "project.shared.partial_distance"
 }
 END: Cython Metadata */
 
@@ -571,8 +571,8 @@ static CYTHON_INLINE float __PYX_NAN() {
   #endif
 #endif
 
-#define __PYX_HAVE__project__shared__c_distance
-#define __PYX_HAVE_API__project__shared__c_distance
+#define __PYX_HAVE__project__shared__partial_distance
+#define __PYX_HAVE_API__project__shared__partial_distance
 /* Early includes */
 #include <math.h>
 #include "pythread.h"
@@ -783,7 +783,7 @@ static const char *__pyx_filename;
 
 
 static const char *__pyx_f[] = {
-  "project\\shared\\c_distance.pyx",
+  "project\\shared\\partial_distance.pyx",
   "stringsource",
 };
 /* MemviewSliceStruct.proto */
@@ -1613,7 +1613,7 @@ static PyObject *__pyx_memoryviewslice_assign_item_from_object(struct __pyx_memo
 
 /* Module declarations from 'libc.math' */
 
-/* Module declarations from 'project.shared.c_distance' */
+/* Module declarations from 'project.shared.partial_distance' */
 static PyTypeObject *__pyx_array_type = 0;
 static PyTypeObject *__pyx_MemviewEnum_type = 0;
 static PyTypeObject *__pyx_memoryview_type = 0;
@@ -1659,11 +1659,11 @@ static void __pyx_memoryview_slice_assign_scalar(__Pyx_memviewslice *, int, size
 static void __pyx_memoryview__slice_assign_scalar(char *, Py_ssize_t *, Py_ssize_t *, int, size_t, void *); /*proto*/
 static PyObject *__pyx_unpickle_Enum__set_state(struct __pyx_MemviewEnum_obj *, PyObject *); /*proto*/
 static __Pyx_TypeInfo __Pyx_TypeInfo_object = { "str object", NULL, sizeof(PyObject *), { 0 }, 0, 'O', 0, 0 };
-#define __Pyx_MODULE_NAME "project.shared.c_distance"
-extern int __pyx_module_is_main_project__shared__c_distance;
-int __pyx_module_is_main_project__shared__c_distance = 0;
+#define __Pyx_MODULE_NAME "project.shared.partial_distance"
+extern int __pyx_module_is_main_project__shared__partial_distance;
+int __pyx_module_is_main_project__shared__partial_distance = 0;
 
-/* Implementation of 'project.shared.c_distance' */
+/* Implementation of 'project.shared.partial_distance' */
 static PyObject *__pyx_builtin_range;
 static PyObject *__pyx_builtin_ValueError;
 static PyObject *__pyx_builtin_MemoryError;
@@ -1742,11 +1742,11 @@ static const char __pyx_k_pyx_getbuffer[] = "__pyx_getbuffer";
 static const char __pyx_k_reduce_cython[] = "__reduce_cython__";
 static const char __pyx_k_View_MemoryView[] = "View.MemoryView";
 static const char __pyx_k_allocate_buffer[] = "allocate_buffer";
-static const char __pyx_k_custom_distance[] = "custom_distance";
 static const char __pyx_k_dtype_is_object[] = "dtype_is_object";
 static const char __pyx_k_pyx_PickleError[] = "__pyx_PickleError";
 static const char __pyx_k_setstate_cython[] = "__setstate_cython__";
 static const char __pyx_k_nominal_distance[] = "nominal_distance";
+static const char __pyx_k_partial_distance[] = "partial_distance";
 static const char __pyx_k_pyx_unpickle_Enum[] = "__pyx_unpickle_Enum";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
 static const char __pyx_k_strided_and_direct[] = "<strided and direct>";
@@ -1757,11 +1757,10 @@ static const char __pyx_k_MemoryView_of_r_at_0x_x[] = "<MemoryView of %r at 0x%x
 static const char __pyx_k_contiguous_and_indirect[] = "<contiguous and indirect>";
 static const char __pyx_k_Cannot_index_with_type_s[] = "Cannot index with type '%s'";
 static const char __pyx_k_Invalid_shape_in_axis_d_d[] = "Invalid shape in axis %d: %d.";
-static const char __pyx_k_project_shared_c_distance[] = "project.shared.c_distance";
 static const char __pyx_k_itemsize_0_for_cython_array[] = "itemsize <= 0 for cython.array";
-static const char __pyx_k_project_shared_c_distance_pyx[] = "project\\shared\\c_distance.pyx";
 static const char __pyx_k_unable_to_allocate_array_data[] = "unable to allocate array data.";
 static const char __pyx_k_strided_and_direct_or_indirect[] = "<strided and direct or indirect>";
+static const char __pyx_k_project_shared_partial_distance[] = "project\\shared\\partial_distance.pyx";
 static const char __pyx_k_Buffer_view_does_not_expose_stri[] = "Buffer view does not expose strides";
 static const char __pyx_k_Can_only_create_a_buffer_that_is[] = "Can only create a buffer that is contiguous in memory.";
 static const char __pyx_k_Cannot_assign_to_read_only_memor[] = "Cannot assign to read-only memoryview";
@@ -1775,6 +1774,7 @@ static const char __pyx_k_Unable_to_convert_item_to_object[] = "Unable to conver
 static const char __pyx_k_got_differing_extents_in_dimensi[] = "got differing extents in dimension %d (got %d and %d)";
 static const char __pyx_k_no_default___reduce___due_to_non[] = "no default __reduce__ due to non-trivial __cinit__";
 static const char __pyx_k_unable_to_allocate_shape_and_str[] = "unable to allocate shape and strides.";
+static const char __pyx_k_project_shared_partial_distance_2[] = "project.shared.partial_distance";
 static PyObject *__pyx_n_s_ASCII;
 static PyObject *__pyx_kp_s_Buffer_view_does_not_expose_stri;
 static PyObject *__pyx_kp_s_Can_only_create_a_buffer_that_is;
@@ -1806,7 +1806,6 @@ static PyObject *__pyx_n_s_class;
 static PyObject *__pyx_n_s_cline_in_traceback;
 static PyObject *__pyx_kp_s_contiguous_and_direct;
 static PyObject *__pyx_kp_s_contiguous_and_indirect;
-static PyObject *__pyx_n_s_custom_distance;
 static PyObject *__pyx_n_s_dict;
 static PyObject *__pyx_n_s_dist;
 static PyObject *__pyx_n_s_dtype_is_object;
@@ -1845,9 +1844,10 @@ static PyObject *__pyx_n_s_numeric;
 static PyObject *__pyx_n_s_numpy;
 static PyObject *__pyx_n_s_obj;
 static PyObject *__pyx_n_s_pack;
+static PyObject *__pyx_n_s_partial_distance;
 static PyObject *__pyx_n_s_pickle;
-static PyObject *__pyx_n_s_project_shared_c_distance;
-static PyObject *__pyx_kp_s_project_shared_c_distance_pyx;
+static PyObject *__pyx_kp_s_project_shared_partial_distance;
+static PyObject *__pyx_n_s_project_shared_partial_distance_2;
 static PyObject *__pyx_n_s_pyx_PickleError;
 static PyObject *__pyx_n_s_pyx_checksum;
 static PyObject *__pyx_n_s_pyx_getbuffer;
@@ -1880,7 +1880,7 @@ static PyObject *__pyx_n_s_unpack;
 static PyObject *__pyx_n_s_update;
 static PyObject *__pyx_n_s_x1;
 static PyObject *__pyx_n_s_x2;
-static PyObject *__pyx_pf_7project_6shared_10c_distance_custom_distance(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_x1, PyObject *__pyx_v_x2, PyObject *__pyx_v_kwargs); /* proto */
+static PyObject *__pyx_pf_7project_6shared_16partial_distance_partial_distance(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_x1, PyObject *__pyx_v_x2, PyObject *__pyx_v_kwargs); /* proto */
 static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __pyx_array_obj *__pyx_v_self, PyObject *__pyx_v_shape, Py_ssize_t __pyx_v_itemsize, PyObject *__pyx_v_format, PyObject *__pyx_v_mode, int __pyx_v_allocate_buffer); /* proto */
 static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array_2__getbuffer__(struct __pyx_array_obj *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
 static void __pyx_array___pyx_pf_15View_dot_MemoryView_5array_4__dealloc__(struct __pyx_array_obj *__pyx_v_self); /* proto */
@@ -1964,24 +1964,24 @@ static PyObject *__pyx_codeobj__23;
 static PyObject *__pyx_codeobj__30;
 /* Late includes */
 
-/* "project/shared/c_distance.pyx":4
+/* "project/shared/partial_distance.pyx":4
  * from libc.math cimport isnan, sqrt
  * 
- * def custom_distance(x1, x2, **kwargs):             # <<<<<<<<<<<<<<
+ * def partial_distance(x1, x2, **kwargs):             # <<<<<<<<<<<<<<
  *     cdef str[:] f_types = kwargs.get("f_types")
  *     cdef int nominal_distance = kwargs.get("nominal_distance", 1)
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_7project_6shared_10c_distance_1custom_distance(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_7project_6shared_10c_distance_1custom_distance = {"custom_distance", (PyCFunction)__pyx_pw_7project_6shared_10c_distance_1custom_distance, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_7project_6shared_10c_distance_1custom_distance(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7project_6shared_16partial_distance_1partial_distance(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_7project_6shared_16partial_distance_1partial_distance = {"partial_distance", (PyCFunction)__pyx_pw_7project_6shared_16partial_distance_1partial_distance, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_7project_6shared_16partial_distance_1partial_distance(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_x1 = 0;
   PyObject *__pyx_v_x2 = 0;
   PyObject *__pyx_v_kwargs = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("custom_distance (wrapper)", 0);
+  __Pyx_RefNannySetupContext("partial_distance (wrapper)", 0);
   __pyx_v_kwargs = PyDict_New(); if (unlikely(!__pyx_v_kwargs)) return NULL;
   __Pyx_GOTREF(__pyx_v_kwargs);
   {
@@ -2007,11 +2007,11 @@ static PyObject *__pyx_pw_7project_6shared_10c_distance_1custom_distance(PyObjec
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_x2)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("custom_distance", 1, 2, 2, 1); __PYX_ERR(0, 4, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("partial_distance", 1, 2, 2, 1); __PYX_ERR(0, 4, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, __pyx_v_kwargs, values, pos_args, "custom_distance") < 0)) __PYX_ERR(0, 4, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, __pyx_v_kwargs, values, pos_args, "partial_distance") < 0)) __PYX_ERR(0, 4, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -2024,14 +2024,14 @@ static PyObject *__pyx_pw_7project_6shared_10c_distance_1custom_distance(PyObjec
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("custom_distance", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 4, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("partial_distance", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 4, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_DECREF(__pyx_v_kwargs); __pyx_v_kwargs = 0;
-  __Pyx_AddTraceback("project.shared.c_distance.custom_distance", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("project.shared.partial_distance.partial_distance", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_7project_6shared_10c_distance_custom_distance(__pyx_self, __pyx_v_x1, __pyx_v_x2, __pyx_v_kwargs);
+  __pyx_r = __pyx_pf_7project_6shared_16partial_distance_partial_distance(__pyx_self, __pyx_v_x1, __pyx_v_x2, __pyx_v_kwargs);
 
   /* function exit code */
   __Pyx_XDECREF(__pyx_v_kwargs);
@@ -2039,7 +2039,7 @@ static PyObject *__pyx_pw_7project_6shared_10c_distance_1custom_distance(PyObjec
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_7project_6shared_10c_distance_custom_distance(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_x1, PyObject *__pyx_v_x2, PyObject *__pyx_v_kwargs) {
+static PyObject *__pyx_pf_7project_6shared_16partial_distance_partial_distance(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_x1, PyObject *__pyx_v_x2, PyObject *__pyx_v_kwargs) {
   __Pyx_memviewslice __pyx_v_f_types = { 0, 0, { 0 }, { 0 }, { 0 } };
   int __pyx_v_nominal_distance;
   double __pyx_v_squared_dist;
@@ -2064,11 +2064,11 @@ static PyObject *__pyx_pf_7project_6shared_10c_distance_custom_distance(CYTHON_U
   PyObject *__pyx_t_12 = NULL;
   PyObject *__pyx_t_13 = NULL;
   double __pyx_t_14;
-  __Pyx_RefNannySetupContext("custom_distance", 0);
+  __Pyx_RefNannySetupContext("partial_distance", 0);
 
-  /* "project/shared/c_distance.pyx":5
+  /* "project/shared/partial_distance.pyx":5
  * 
- * def custom_distance(x1, x2, **kwargs):
+ * def partial_distance(x1, x2, **kwargs):
  *     cdef str[:] f_types = kwargs.get("f_types")             # <<<<<<<<<<<<<<
  *     cdef int nominal_distance = kwargs.get("nominal_distance", 1)
  * 
@@ -2081,8 +2081,8 @@ static PyObject *__pyx_pf_7project_6shared_10c_distance_custom_distance(CYTHON_U
   __pyx_t_2.memview = NULL;
   __pyx_t_2.data = NULL;
 
-  /* "project/shared/c_distance.pyx":6
- * def custom_distance(x1, x2, **kwargs):
+  /* "project/shared/partial_distance.pyx":6
+ * def partial_distance(x1, x2, **kwargs):
  *     cdef str[:] f_types = kwargs.get("f_types")
  *     cdef int nominal_distance = kwargs.get("nominal_distance", 1)             # <<<<<<<<<<<<<<
  * 
@@ -2094,7 +2094,7 @@ static PyObject *__pyx_pf_7project_6shared_10c_distance_custom_distance(CYTHON_U
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_nominal_distance = __pyx_t_3;
 
-  /* "project/shared/c_distance.pyx":8
+  /* "project/shared/partial_distance.pyx":8
  *     cdef int nominal_distance = kwargs.get("nominal_distance", 1)
  * 
  *     cdef double squared_dist = 0             # <<<<<<<<<<<<<<
@@ -2103,7 +2103,7 @@ static PyObject *__pyx_pf_7project_6shared_10c_distance_custom_distance(CYTHON_U
  */
   __pyx_v_squared_dist = 0.0;
 
-  /* "project/shared/c_distance.pyx":9
+  /* "project/shared/partial_distance.pyx":9
  * 
  *     cdef double squared_dist = 0
  *     cdef int n_complete = 0             # <<<<<<<<<<<<<<
@@ -2112,7 +2112,7 @@ static PyObject *__pyx_pf_7project_6shared_10c_distance_custom_distance(CYTHON_U
  */
   __pyx_v_n_complete = 0;
 
-  /* "project/shared/c_distance.pyx":10
+  /* "project/shared/partial_distance.pyx":10
  *     cdef double squared_dist = 0
  *     cdef int n_complete = 0
  *     cdef int n = len(x1)             # <<<<<<<<<<<<<<
@@ -2122,7 +2122,7 @@ static PyObject *__pyx_pf_7project_6shared_10c_distance_custom_distance(CYTHON_U
   __pyx_t_4 = PyObject_Length(__pyx_v_x1); if (unlikely(__pyx_t_4 == ((Py_ssize_t)-1))) __PYX_ERR(0, 10, __pyx_L1_error)
   __pyx_v_n = __pyx_t_4;
 
-  /* "project/shared/c_distance.pyx":11
+  /* "project/shared/partial_distance.pyx":11
  *     cdef int n_complete = 0
  *     cdef int n = len(x1)
  *     cdef double dist = 0             # <<<<<<<<<<<<<<
@@ -2131,7 +2131,7 @@ static PyObject *__pyx_pf_7project_6shared_10c_distance_custom_distance(CYTHON_U
  */
   __pyx_v_dist = 0.0;
 
-  /* "project/shared/c_distance.pyx":12
+  /* "project/shared/partial_distance.pyx":12
  *     cdef int n = len(x1)
  *     cdef double dist = 0
  *     for i in range(n):             # <<<<<<<<<<<<<<
@@ -2143,7 +2143,7 @@ static PyObject *__pyx_pf_7project_6shared_10c_distance_custom_distance(CYTHON_U
   for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
     __pyx_v_i = __pyx_t_6;
 
-    /* "project/shared/c_distance.pyx":13
+    /* "project/shared/partial_distance.pyx":13
  *     cdef double dist = 0
  *     for i in range(n):
  *         is_numerical = f_types[i] == "numeric"             # <<<<<<<<<<<<<<
@@ -2169,7 +2169,7 @@ static PyObject *__pyx_pf_7project_6shared_10c_distance_custom_distance(CYTHON_U
     __Pyx_XDECREF_SET(__pyx_v_is_numerical, __pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "project/shared/c_distance.pyx":16
+    /* "project/shared/partial_distance.pyx":16
  * 
  *         # Only sum up distances between complete pairs
  *         if is_numerical and not isnan(x1[i]) and not isnan(x2[i]):             # <<<<<<<<<<<<<<
@@ -2201,7 +2201,7 @@ static PyObject *__pyx_pf_7project_6shared_10c_distance_custom_distance(CYTHON_U
     __pyx_L6_bool_binop_done:;
     if (__pyx_t_9) {
 
-      /* "project/shared/c_distance.pyx":17
+      /* "project/shared/partial_distance.pyx":17
  *         # Only sum up distances between complete pairs
  *         if is_numerical and not isnan(x1[i]) and not isnan(x2[i]):
  *             n_complete += 1             # <<<<<<<<<<<<<<
@@ -2210,7 +2210,7 @@ static PyObject *__pyx_pf_7project_6shared_10c_distance_custom_distance(CYTHON_U
  */
       __pyx_v_n_complete = (__pyx_v_n_complete + 1);
 
-      /* "project/shared/c_distance.pyx":18
+      /* "project/shared/partial_distance.pyx":18
  *         if is_numerical and not isnan(x1[i]) and not isnan(x2[i]):
  *             n_complete += 1
  *             dist = x1[i] - x2[i]             # <<<<<<<<<<<<<<
@@ -2229,7 +2229,7 @@ static PyObject *__pyx_pf_7project_6shared_10c_distance_custom_distance(CYTHON_U
       __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
       __pyx_v_dist = __pyx_t_14;
 
-      /* "project/shared/c_distance.pyx":19
+      /* "project/shared/partial_distance.pyx":19
  *             n_complete += 1
  *             dist = x1[i] - x2[i]
  *             squared_dist += dist**2             # <<<<<<<<<<<<<<
@@ -2238,7 +2238,7 @@ static PyObject *__pyx_pf_7project_6shared_10c_distance_custom_distance(CYTHON_U
  */
       __pyx_v_squared_dist = (__pyx_v_squared_dist + pow(__pyx_v_dist, 2.0));
 
-      /* "project/shared/c_distance.pyx":16
+      /* "project/shared/partial_distance.pyx":16
  * 
  *         # Only sum up distances between complete pairs
  *         if is_numerical and not isnan(x1[i]) and not isnan(x2[i]):             # <<<<<<<<<<<<<<
@@ -2247,7 +2247,7 @@ static PyObject *__pyx_pf_7project_6shared_10c_distance_custom_distance(CYTHON_U
  */
     }
 
-    /* "project/shared/c_distance.pyx":21
+    /* "project/shared/partial_distance.pyx":21
  *             squared_dist += dist**2
  * 
  *         if not is_numerical:             # <<<<<<<<<<<<<<
@@ -2258,7 +2258,7 @@ static PyObject *__pyx_pf_7project_6shared_10c_distance_custom_distance(CYTHON_U
     __pyx_t_10 = ((!__pyx_t_9) != 0);
     if (__pyx_t_10) {
 
-      /* "project/shared/c_distance.pyx":22
+      /* "project/shared/partial_distance.pyx":22
  * 
  *         if not is_numerical:
  *             n_complete += 1             # <<<<<<<<<<<<<<
@@ -2267,7 +2267,7 @@ static PyObject *__pyx_pf_7project_6shared_10c_distance_custom_distance(CYTHON_U
  */
       __pyx_v_n_complete = (__pyx_v_n_complete + 1);
 
-      /* "project/shared/c_distance.pyx":23
+      /* "project/shared/partial_distance.pyx":23
  *         if not is_numerical:
  *             n_complete += 1
  *             if not x1[i] == x2[i]:             # <<<<<<<<<<<<<<
@@ -2286,7 +2286,7 @@ static PyObject *__pyx_pf_7project_6shared_10c_distance_custom_distance(CYTHON_U
       __pyx_t_9 = ((!__pyx_t_10) != 0);
       if (__pyx_t_9) {
 
-        /* "project/shared/c_distance.pyx":24
+        /* "project/shared/partial_distance.pyx":24
  *             n_complete += 1
  *             if not x1[i] == x2[i]:
  *                 squared_dist += nominal_distance             # <<<<<<<<<<<<<<
@@ -2295,7 +2295,7 @@ static PyObject *__pyx_pf_7project_6shared_10c_distance_custom_distance(CYTHON_U
  */
         __pyx_v_squared_dist = (__pyx_v_squared_dist + __pyx_v_nominal_distance);
 
-        /* "project/shared/c_distance.pyx":23
+        /* "project/shared/partial_distance.pyx":23
  *         if not is_numerical:
  *             n_complete += 1
  *             if not x1[i] == x2[i]:             # <<<<<<<<<<<<<<
@@ -2304,7 +2304,7 @@ static PyObject *__pyx_pf_7project_6shared_10c_distance_custom_distance(CYTHON_U
  */
       }
 
-      /* "project/shared/c_distance.pyx":21
+      /* "project/shared/partial_distance.pyx":21
  *             squared_dist += dist**2
  * 
  *         if not is_numerical:             # <<<<<<<<<<<<<<
@@ -2314,7 +2314,7 @@ static PyObject *__pyx_pf_7project_6shared_10c_distance_custom_distance(CYTHON_U
     }
   }
 
-  /* "project/shared/c_distance.pyx":26
+  /* "project/shared/partial_distance.pyx":26
  *                 squared_dist += nominal_distance
  * 
  *     return sqrt(squared_dist / n_complete) if n_complete > 0 else np.inf             # <<<<<<<<<<<<<<
@@ -2342,10 +2342,10 @@ static PyObject *__pyx_pf_7project_6shared_10c_distance_custom_distance(CYTHON_U
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "project/shared/c_distance.pyx":4
+  /* "project/shared/partial_distance.pyx":4
  * from libc.math cimport isnan, sqrt
  * 
- * def custom_distance(x1, x2, **kwargs):             # <<<<<<<<<<<<<<
+ * def partial_distance(x1, x2, **kwargs):             # <<<<<<<<<<<<<<
  *     cdef str[:] f_types = kwargs.get("f_types")
  *     cdef int nominal_distance = kwargs.get("nominal_distance", 1)
  */
@@ -2356,7 +2356,7 @@ static PyObject *__pyx_pf_7project_6shared_10c_distance_custom_distance(CYTHON_U
   __PYX_XDEC_MEMVIEW(&__pyx_t_2, 1);
   __Pyx_XDECREF(__pyx_t_12);
   __Pyx_XDECREF(__pyx_t_13);
-  __Pyx_AddTraceback("project.shared.c_distance.custom_distance", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("project.shared.partial_distance.partial_distance", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&__pyx_v_f_types, 1);
@@ -15404,7 +15404,7 @@ static PyBufferProcs __pyx_tp_as_buffer_array = {
 
 static PyTypeObject __pyx_type___pyx_array = {
   PyVarObject_HEAD_INIT(0, 0)
-  "project.shared.c_distance.array", /*tp_name*/
+  "project.shared.partial_distance.array", /*tp_name*/
   sizeof(struct __pyx_array_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_array, /*tp_dealloc*/
@@ -15512,7 +15512,7 @@ static PyMethodDef __pyx_methods_Enum[] = {
 
 static PyTypeObject __pyx_type___pyx_MemviewEnum = {
   PyVarObject_HEAD_INIT(0, 0)
-  "project.shared.c_distance.Enum", /*tp_name*/
+  "project.shared.partial_distance.Enum", /*tp_name*/
   sizeof(struct __pyx_MemviewEnum_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_Enum, /*tp_dealloc*/
@@ -15762,7 +15762,7 @@ static PyBufferProcs __pyx_tp_as_buffer_memoryview = {
 
 static PyTypeObject __pyx_type___pyx_memoryview = {
   PyVarObject_HEAD_INIT(0, 0)
-  "project.shared.c_distance.memoryview", /*tp_name*/
+  "project.shared.partial_distance.memoryview", /*tp_name*/
   sizeof(struct __pyx_memoryview_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_memoryview, /*tp_dealloc*/
@@ -15889,7 +15889,7 @@ static struct PyGetSetDef __pyx_getsets__memoryviewslice[] = {
 
 static PyTypeObject __pyx_type___pyx_memoryviewslice = {
   PyVarObject_HEAD_INIT(0, 0)
-  "project.shared.c_distance._memoryviewslice", /*tp_name*/
+  "project.shared.partial_distance._memoryviewslice", /*tp_name*/
   sizeof(struct __pyx_memoryviewslice_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc__memoryviewslice, /*tp_dealloc*/
@@ -15960,17 +15960,17 @@ static PyMethodDef __pyx_methods[] = {
 #if PY_MAJOR_VERSION >= 3
 #if CYTHON_PEP489_MULTI_PHASE_INIT
 static PyObject* __pyx_pymod_create(PyObject *spec, PyModuleDef *def); /*proto*/
-static int __pyx_pymod_exec_c_distance(PyObject* module); /*proto*/
+static int __pyx_pymod_exec_partial_distance(PyObject* module); /*proto*/
 static PyModuleDef_Slot __pyx_moduledef_slots[] = {
   {Py_mod_create, (void*)__pyx_pymod_create},
-  {Py_mod_exec, (void*)__pyx_pymod_exec_c_distance},
+  {Py_mod_exec, (void*)__pyx_pymod_exec_partial_distance},
   {0, NULL}
 };
 #endif
 
 static struct PyModuleDef __pyx_moduledef = {
     PyModuleDef_HEAD_INIT,
-    "c_distance",
+    "partial_distance",
     0, /* m_doc */
   #if CYTHON_PEP489_MULTI_PHASE_INIT
     0, /* m_size */
@@ -16021,7 +16021,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_cline_in_traceback, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
   {&__pyx_kp_s_contiguous_and_direct, __pyx_k_contiguous_and_direct, sizeof(__pyx_k_contiguous_and_direct), 0, 0, 1, 0},
   {&__pyx_kp_s_contiguous_and_indirect, __pyx_k_contiguous_and_indirect, sizeof(__pyx_k_contiguous_and_indirect), 0, 0, 1, 0},
-  {&__pyx_n_s_custom_distance, __pyx_k_custom_distance, sizeof(__pyx_k_custom_distance), 0, 0, 1, 1},
   {&__pyx_n_s_dict, __pyx_k_dict, sizeof(__pyx_k_dict), 0, 0, 1, 1},
   {&__pyx_n_s_dist, __pyx_k_dist, sizeof(__pyx_k_dist), 0, 0, 1, 1},
   {&__pyx_n_s_dtype_is_object, __pyx_k_dtype_is_object, sizeof(__pyx_k_dtype_is_object), 0, 0, 1, 1},
@@ -16060,9 +16059,10 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_numpy, __pyx_k_numpy, sizeof(__pyx_k_numpy), 0, 0, 1, 1},
   {&__pyx_n_s_obj, __pyx_k_obj, sizeof(__pyx_k_obj), 0, 0, 1, 1},
   {&__pyx_n_s_pack, __pyx_k_pack, sizeof(__pyx_k_pack), 0, 0, 1, 1},
+  {&__pyx_n_s_partial_distance, __pyx_k_partial_distance, sizeof(__pyx_k_partial_distance), 0, 0, 1, 1},
   {&__pyx_n_s_pickle, __pyx_k_pickle, sizeof(__pyx_k_pickle), 0, 0, 1, 1},
-  {&__pyx_n_s_project_shared_c_distance, __pyx_k_project_shared_c_distance, sizeof(__pyx_k_project_shared_c_distance), 0, 0, 1, 1},
-  {&__pyx_kp_s_project_shared_c_distance_pyx, __pyx_k_project_shared_c_distance_pyx, sizeof(__pyx_k_project_shared_c_distance_pyx), 0, 0, 1, 0},
+  {&__pyx_kp_s_project_shared_partial_distance, __pyx_k_project_shared_partial_distance, sizeof(__pyx_k_project_shared_partial_distance), 0, 0, 1, 0},
+  {&__pyx_n_s_project_shared_partial_distance_2, __pyx_k_project_shared_partial_distance_2, sizeof(__pyx_k_project_shared_partial_distance_2), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_PickleError, __pyx_k_pyx_PickleError, sizeof(__pyx_k_pyx_PickleError), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_checksum, __pyx_k_pyx_checksum, sizeof(__pyx_k_pyx_checksum), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_getbuffer, __pyx_k_pyx_getbuffer, sizeof(__pyx_k_pyx_getbuffer), 0, 0, 1, 1},
@@ -16340,17 +16340,17 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__21);
   __Pyx_GIVEREF(__pyx_tuple__21);
 
-  /* "project/shared/c_distance.pyx":4
+  /* "project/shared/partial_distance.pyx":4
  * from libc.math cimport isnan, sqrt
  * 
- * def custom_distance(x1, x2, **kwargs):             # <<<<<<<<<<<<<<
+ * def partial_distance(x1, x2, **kwargs):             # <<<<<<<<<<<<<<
  *     cdef str[:] f_types = kwargs.get("f_types")
  *     cdef int nominal_distance = kwargs.get("nominal_distance", 1)
  */
   __pyx_tuple__22 = PyTuple_Pack(11, __pyx_n_s_x1, __pyx_n_s_x2, __pyx_n_s_kwargs, __pyx_n_s_f_types, __pyx_n_s_nominal_distance, __pyx_n_s_squared_dist, __pyx_n_s_n_complete, __pyx_n_s_n, __pyx_n_s_dist, __pyx_n_s_i, __pyx_n_s_is_numerical); if (unlikely(!__pyx_tuple__22)) __PYX_ERR(0, 4, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__22);
   __Pyx_GIVEREF(__pyx_tuple__22);
-  __pyx_codeobj__23 = (PyObject*)__Pyx_PyCode_New(2, 0, 11, 0, CO_OPTIMIZED|CO_NEWLOCALS|CO_VARKEYWORDS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__22, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_project_shared_c_distance_pyx, __pyx_n_s_custom_distance, 4, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__23)) __PYX_ERR(0, 4, __pyx_L1_error)
+  __pyx_codeobj__23 = (PyObject*)__Pyx_PyCode_New(2, 0, 11, 0, CO_OPTIMIZED|CO_NEWLOCALS|CO_VARKEYWORDS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__22, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_project_shared_partial_distance, __pyx_n_s_partial_distance, 4, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__23)) __PYX_ERR(0, 4, __pyx_L1_error)
 
   /* "View.MemoryView":285
  *         return self.name
@@ -16576,11 +16576,11 @@ static int __Pyx_modinit_function_import_code(void) {
 
 
 #if PY_MAJOR_VERSION < 3
-__Pyx_PyMODINIT_FUNC initc_distance(void) CYTHON_SMALL_CODE; /*proto*/
-__Pyx_PyMODINIT_FUNC initc_distance(void)
+__Pyx_PyMODINIT_FUNC initpartial_distance(void) CYTHON_SMALL_CODE; /*proto*/
+__Pyx_PyMODINIT_FUNC initpartial_distance(void)
 #else
-__Pyx_PyMODINIT_FUNC PyInit_c_distance(void) CYTHON_SMALL_CODE; /*proto*/
-__Pyx_PyMODINIT_FUNC PyInit_c_distance(void)
+__Pyx_PyMODINIT_FUNC PyInit_partial_distance(void) CYTHON_SMALL_CODE; /*proto*/
+__Pyx_PyMODINIT_FUNC PyInit_partial_distance(void)
 #if CYTHON_PEP489_MULTI_PHASE_INIT
 {
   return PyModuleDef_Init(&__pyx_moduledef);
@@ -16620,7 +16620,7 @@ bad:
 }
 
 
-static int __pyx_pymod_exec_c_distance(PyObject *__pyx_pyinit_module) CYTHON_SMALL_CODE 
+static int __pyx_pymod_exec_partial_distance(PyObject *__pyx_pyinit_module) CYTHON_SMALL_CODE 
 #endif
 #endif
 {
@@ -16641,7 +16641,7 @@ if (!__Pyx_RefNanny) {
       Py_FatalError("failed to import 'refnanny' module");
 }
 #endif
-  __Pyx_RefNannySetupContext("__Pyx_PyMODINIT_FUNC PyInit_c_distance(void)", 0);
+  __Pyx_RefNannySetupContext("__Pyx_PyMODINIT_FUNC PyInit_partial_distance(void)", 0);
   if (__Pyx_check_binary_version() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_empty_tuple = PyTuple_New(0); if (unlikely(!__pyx_empty_tuple)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_empty_bytes = PyBytes_FromStringAndSize("", 0); if (unlikely(!__pyx_empty_bytes)) __PYX_ERR(0, 1, __pyx_L1_error)
@@ -16677,7 +16677,7 @@ if (!__Pyx_RefNanny) {
   Py_INCREF(__pyx_m);
   #else
   #if PY_MAJOR_VERSION < 3
-  __pyx_m = Py_InitModule4("c_distance", __pyx_methods, 0, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
+  __pyx_m = Py_InitModule4("partial_distance", __pyx_methods, 0, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
   #else
   __pyx_m = PyModule_Create(&__pyx_moduledef);
   #endif
@@ -16696,14 +16696,14 @@ if (!__Pyx_RefNanny) {
   #if PY_MAJOR_VERSION < 3 && (__PYX_DEFAULT_STRING_ENCODING_IS_ASCII || __PYX_DEFAULT_STRING_ENCODING_IS_DEFAULT)
   if (__Pyx_init_sys_getdefaultencoding_params() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
-  if (__pyx_module_is_main_project__shared__c_distance) {
+  if (__pyx_module_is_main_project__shared__partial_distance) {
     if (PyObject_SetAttrString(__pyx_m, "__name__", __pyx_n_s_main) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   }
   #if PY_MAJOR_VERSION >= 3
   {
     PyObject *modules = PyImport_GetModuleDict(); if (unlikely(!modules)) __PYX_ERR(0, 1, __pyx_L1_error)
-    if (!PyDict_GetItemString(modules, "project.shared.c_distance")) {
-      if (unlikely(PyDict_SetItemString(modules, "project.shared.c_distance", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
+    if (!PyDict_GetItemString(modules, "project.shared.partial_distance")) {
+      if (unlikely(PyDict_SetItemString(modules, "project.shared.partial_distance", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
     }
   }
   #endif
@@ -16724,7 +16724,7 @@ if (!__Pyx_RefNanny) {
   if (__Pyx_patch_abc() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
 
-  /* "project/shared/c_distance.pyx":1
+  /* "project/shared/partial_distance.pyx":1
  * import numpy as np             # <<<<<<<<<<<<<<
  * from libc.math cimport isnan, sqrt
  * 
@@ -16734,19 +16734,19 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_np, __pyx_t_1) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "project/shared/c_distance.pyx":4
+  /* "project/shared/partial_distance.pyx":4
  * from libc.math cimport isnan, sqrt
  * 
- * def custom_distance(x1, x2, **kwargs):             # <<<<<<<<<<<<<<
+ * def partial_distance(x1, x2, **kwargs):             # <<<<<<<<<<<<<<
  *     cdef str[:] f_types = kwargs.get("f_types")
  *     cdef int nominal_distance = kwargs.get("nominal_distance", 1)
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_7project_6shared_10c_distance_1custom_distance, NULL, __pyx_n_s_project_shared_c_distance); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 4, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_7project_6shared_16partial_distance_1partial_distance, NULL, __pyx_n_s_project_shared_partial_distance_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 4, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_custom_distance, __pyx_t_1) < 0) __PYX_ERR(0, 4, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_partial_distance, __pyx_t_1) < 0) __PYX_ERR(0, 4, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "project/shared/c_distance.pyx":1
+  /* "project/shared/partial_distance.pyx":1
  * import numpy as np             # <<<<<<<<<<<<<<
  * from libc.math cimport isnan, sqrt
  * 
@@ -16916,11 +16916,11 @@ if (!__Pyx_RefNanny) {
   __Pyx_XDECREF(__pyx_t_1);
   if (__pyx_m) {
     if (__pyx_d) {
-      __Pyx_AddTraceback("init project.shared.c_distance", 0, __pyx_lineno, __pyx_filename);
+      __Pyx_AddTraceback("init project.shared.partial_distance", 0, __pyx_lineno, __pyx_filename);
     }
     Py_DECREF(__pyx_m); __pyx_m = 0;
   } else if (!PyErr_Occurred()) {
-    PyErr_SetString(PyExc_ImportError, "init project.shared.c_distance");
+    PyErr_SetString(PyExc_ImportError, "init project.shared.partial_distance");
   }
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();

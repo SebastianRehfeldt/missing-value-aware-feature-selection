@@ -1,7 +1,7 @@
 # %%
 import numpy as np
 import pandas as pd
-from project.utils.data_loader import DataLoader
+from project.utils import DataLoader
 
 data_loader = DataLoader()
 name = "madelon"
@@ -15,8 +15,8 @@ data = data_loader.load_data(name, "arff")
 data.shape
 
 # %%
-from project.utils.data_modifier import introduce_missing_values
-from project.utils.data_scaler import scale_data
+from project.utils import introduce_missing_values
+from project.utils import scale_data
 
 data = introduce_missing_values(data, missing_rate=0.25)
 data = scale_data(data)
@@ -25,12 +25,9 @@ data = scale_data(data)
 from time import time
 from sklearn.pipeline import Pipeline
 from sklearn.cross_validation import cross_val_score, StratifiedKFold
-from project.randomKNN.random_knn import RKNN
-from project.randomKNN.knn import KNN
-from project.tree.tree import Tree
-from project.utils.imputer import Imputer
-from project.mutual_info.mi_filter import MI_Filter
-from project.shared.sfs import SFS
+from project.feature_selection import RKNN, MI_Filter, SFS
+from project.classifier import KNN, Tree
+from project.utils import Imputer
 
 rknn = RKNN(data.f_types, data.l_type, data.shape)
 mi = MI_Filter(data.f_types, data.l_type, data.shape)

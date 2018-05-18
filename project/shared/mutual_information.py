@@ -5,9 +5,9 @@ import sys
 import numpy as np
 from scipy.special import digamma
 from sklearn.metrics import mutual_info_score
-from project.utils import assert_df, assert_series, assert_types
 
-from project.randomKNN.knn import KNN
+from project.utils import assert_df, assert_series, assert_types
+from project.shared import get_dist_matrix
 
 
 def _get_mi_cc(X, y, f_types, l_type, k):
@@ -24,12 +24,12 @@ def _get_mi_cc(X, y, f_types, l_type, k):
     nx[:] = np.nan
     ny[:] = np.nan
 
-    D_x = KNN.get_dist_matrix(X, f_types)
+    D_x = get_dist_matrix(X, f_types)
     D_x.sort()
 
     new_y = assert_df(y)
     new_types = assert_series(l_type)
-    D_y = KNN.get_dist_matrix(new_y, new_types)
+    D_y = get_dist_matrix(new_y, new_types)
     D_y.sort()
 
     for row in range(X.shape[0]):
@@ -65,7 +65,7 @@ def _get_mi_cd(X, y, f_types, k):
     n[:] = np.nan
     m[:] = np.nan
 
-    D = KNN.get_dist_matrix(X, f_types)
+    D = get_dist_matrix(X, f_types)
 
     for row in range(X.shape[0]):
         # Get radius for k nearest neighbors within same class

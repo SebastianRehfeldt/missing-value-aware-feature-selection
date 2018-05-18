@@ -3,7 +3,7 @@
 """
 import sys
 from abc import ABC, abstractmethod
-from project import Data
+from project.utils import Data
 from project.utils import assert_data, assert_df, assert_series, assert_l_type
 
 

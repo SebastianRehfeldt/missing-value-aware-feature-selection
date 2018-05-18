@@ -1,8 +1,8 @@
 """
     Mutual Information Transformer class
 """
-from project.shared.selector import Selector
-from project.mutual_info.mutual_information import get_mutual_information
+from project.base import Selector
+from project.shared import get_mutual_information
 
 
 class MI_Filter(Selector):

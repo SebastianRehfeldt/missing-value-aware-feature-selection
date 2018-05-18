@@ -3,7 +3,7 @@
 """
 import itertools
 from abc import abstractmethod
-from project.shared.selector import Selector
+from project.base import Selector
 import numpy as np
 
 

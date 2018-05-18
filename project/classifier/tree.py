@@ -5,7 +5,8 @@ import pandas as pd
 from Orange.data import Table, Domain, DiscreteVariable
 from Orange.classification import TreeLearner as TreeClassifier
 from Orange.regression import TreeLearner as TreeRegressor
-from project.utils.assertions import assert_series, assert_df
+
+from project.utils import assert_series, assert_df
 
 
 class Tree():

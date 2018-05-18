@@ -1,9 +1,10 @@
-from copy import deepcopy
 import numpy as np
 import pandas as pd
-from project.utils import assert_data, assert_df, assert_types, assert_series
+from copy import deepcopy
 from Orange.data.variable import DiscreteVariable, ContinuousVariable
 from Orange.data import Domain, Table
+
+from .assertions import assert_data, assert_df, assert_types
 
 
 class Data():
