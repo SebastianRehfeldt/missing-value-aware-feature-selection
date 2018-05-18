@@ -1,10 +1,5 @@
 # %%
-import numpy as np
-import pandas as pd
-from project.utils.data_loader import DataLoader
-from project.utils.data_modifier import introduce_missing_values
-from project.utils.data_scaler import scale_data
-from sklearn.preprocessing import LabelEncoder
+from project.utils import DataLoader, introduce_missing_values, scale_data
 
 data_loader = DataLoader()
 data = data_loader.load_data("iris", "arff")
@@ -19,7 +14,6 @@ train_X = data.X.iloc[10:, :].reset_index(drop=True)
 train_y = data.y.iloc[10:].reset_index(drop=True)
 train = data.replace(X=train_X, y=train_y, shape=train_X.shape)
 
-
 train_table = train.to_table()
 
 # %%
@@ -27,7 +21,6 @@ from Orange.preprocess.score import ReliefF
 scores = ReliefF(train_table)
 for attr, score in zip(train_table.domain.attributes, scores):
     print('%.3f' % score, attr.name)
-
 
 # %%
 from Orange.distance import Euclidean
