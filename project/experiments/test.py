@@ -53,7 +53,6 @@ pipe7 = Pipeline(steps=[
     ('reduce', rknn),
     ('classify', knn),
 ])
-"""
 X_new = rknn.fit_transform(data.X, data.y)
 types = pd.Series(data.f_types, X_new.columns.values)
 new_data = data.replace(True, X=X_new, shape=X_new.shape, f_types=types)
@@ -64,9 +63,8 @@ pipe8 = Pipeline(steps=[
     ('classify', new_knn),
 ])
 
-pipelines = [pipe1, pipe2, pipe3, pipe4, pipe5, pipe6, pipe7, pipe8]
-"""
 pipelines = [pipe4, pipe5]
+pipelines = [pipe1, pipe2, pipe3, pipe4, pipe5, pipe6, pipe7, pipe8]
 
 scores = []
 times = []

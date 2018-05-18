@@ -35,12 +35,11 @@ class Selector(ABC):
         raise NotImplementedError("subclasses must override _init_parameters")
 
     @abstractmethod
-    def calculate_feature_importances(self):
+    def _fit(self):
         """
-        Calculate feature importances
+        Fit data to data object
         """
-        raise NotImplementedError(
-            "subclasses must override calculate_feature_importances")
+        raise NotImplementedError("subclasses must override _fit")
 
     def fit(self, X, y):
         """
@@ -58,30 +57,14 @@ class Selector(ABC):
         y = assert_series(y).reset_index(drop=True)
         data = Data(X, y, self.f_types, self.l_type, X.shape)
         self.data = assert_data(data)
+        self.domain = self.data.to_table().domain
 
-        # Calculate importanes and store ranking and selected features
-        self.feature_importances = self.calculate_feature_importances()
-        self.ranking = self.get_ranking()
-        self.selected_features = self.get_selected_features()
+        self.feature_importances = {}
+        self._fit()
         self.is_fitted = True
         return self
 
-    def get_ranking(self):
-        """
-        Return features sorted by their importances
-        """
-        return sorted(
-            self.feature_importances.items(),
-            key=lambda k_v: k_v[1],
-            reverse=True)
-
-    def get_selected_features(self):
-        """
-        Returns k best features
-        """
-        return [kv[0] for kv in self.ranking[:self.params["k"]]]
-
-    def transform(self, X):
+    def transform(self, X, k=None):
         """
         Returns dataframe with best features
 
@@ -92,9 +75,9 @@ class Selector(ABC):
             sys.exit("Classifier not fitted yet")
 
         X = assert_df(X).reset_index(drop=True)
-        return X[self.selected_features]
+        return X[self.get_selected_features(k)]
 
-    def fit_transform(self, X, y):
+    def fit_transform(self, X, y, k=None):
         """
         Fit selector and return transformed data
 
@@ -105,11 +88,21 @@ class Selector(ABC):
         self.fit(X, y)
         return self.transform(X)
 
-    def get_support(self):
+    def get_ranking(self):
+        return sorted(
+            self.feature_importances.items(),
+            key=lambda k_v: k_v[1],
+            reverse=True)
+
+    def get_selected_features(self, k=None):
+        k = k or self.params["k"]
+        return [kv[0] for kv in self.get_ranking()[:k]]
+
+    def get_support(self, k=None):
         """
         Returns boolean vector of selected features
         """
-        return self.data.X.columns.isin(self.selected_features)
+        return self.data.X.columns.isin(self.get_selected_features(k))
 
     def get_params(self, deep=False):
         """

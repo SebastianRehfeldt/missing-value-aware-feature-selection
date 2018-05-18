@@ -41,14 +41,6 @@ class RKNN(Subspacing):
         # self.params["n"] = min(self.params["n"], 10)
         # self.params["k"] = 7
 
-    def calculate_feature_importances(self):
-        """
-        Calculate feature importances in different subspaces and combine them 
-        """
-        subspaces = self._get_unique_subscapes()
-        score_map = self._evaluate_subspaces(subspaces)
-        return self._deduce_feature_importances(score_map)
-
     def _evaluate_subspace(self, X, types):
         """
         Evaluate a subspace using knn

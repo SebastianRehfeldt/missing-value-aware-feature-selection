@@ -42,6 +42,11 @@ class Subspacing(Selector):
         raise NotImplementedError(
             "subclasses must implement _deduce_feature_importances")
 
+    def _fit(self):
+        subspaces = self._get_unique_subscapes()
+        score_map = self._evaluate_subspaces(subspaces)
+        self.feature_importances = self._deduce_feature_importances(score_map)
+
     def _get_unique_subscapes(self):
         """
         Return unique feature subspaces
