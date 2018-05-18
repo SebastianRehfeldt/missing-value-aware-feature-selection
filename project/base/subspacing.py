@@ -8,17 +8,6 @@ import numpy as np
 
 
 class Subspacing(Selector):
-    def __init__(self, f_types, l_type, shape, **kwargs):
-        """
-        Base class for subspacing approaches.
-
-        Arguments:
-            f_types {pd.Series} -- Series containing feature types
-            l_type {str} -- Type of label
-            shape {tuple} -- Tuple containing the shape of features
-        """
-        super().__init__(f_types, l_type, shape, **kwargs)
-
     @abstractmethod
     def _evaluate_subspace(self, X, types):
         """
@@ -41,6 +30,11 @@ class Subspacing(Selector):
         """
         raise NotImplementedError(
             "subclasses must implement _deduce_feature_importances")
+
+    def _init_parameters(self, **kwargs):
+        super()._init_parameters(**kwargs)
+        self.params["n"] = kwargs.get("n", int(self.shape[1]**2 / 2))
+        self.params["m"] = kwargs.get("m", int(np.sqrt(self.shape[1])))
 
     def _fit(self):
         subspaces = self._get_unique_subscapes()

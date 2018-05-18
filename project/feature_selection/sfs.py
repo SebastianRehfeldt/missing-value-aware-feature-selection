@@ -8,42 +8,10 @@ from project.shared import evaluate_subspace
 
 
 class SFS(Selector):
-    def __init__(self, f_types, l_type, shape, **kwargs):
-        """
-        RKNN Class
-
-        Arguments:
-            f_types {pd.Series} -- Series containing feature types
-            l_type {str} -- Type of label
-            shape {tuple} -- Shape of feature matrix
-        """
-        super().__init__(f_types, l_type, shape, **kwargs)
-
-    def _init_parameters(self, parameters):
-        """
-        Initialize params
-
-        Arguments:
-            parameters {dict} -- Parameter dict
-        """
-        self.params = {
-            "n": parameters.get("n", int(self.shape[1]**2 / 2)),
-            "m": parameters.get("m", int(np.sqrt(self.shape[1]))),
-            "n_neighbors": parameters.get("n_neighbors", 3),
-            "mi_neighbors": parameters.get("mi_neighbors", 6),
-            "k": parameters.get("k", int(self.shape[1] / 2 + 1)),
-            "nominal_distance": parameters.get("nominal_distance", 1),
-            "use_cv": parameters.get("use_cv", False),
-            "method": parameters.get("method", "mi"),
-        }
-
     def _fit(self):
         """
         Calculate feature importances using sfs
         """
-        if self.params["method"] == "mi":
-            self.data.add_salt()
-
         score_map = {}
         open_features = self.data.X.columns.tolist()
 

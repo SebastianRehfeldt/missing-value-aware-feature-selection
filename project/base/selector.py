@@ -8,6 +8,13 @@ from project.utils import assert_data, assert_df, assert_series, assert_l_type
 
 
 class Selector(ABC):
+    @abstractmethod
+    def _fit(self):
+        """
+        Fit data to data object
+        """
+        raise NotImplementedError("subclasses must override _fit")
+
     def __init__(self, f_types, l_type, shape, **kwargs):
         """
         Base class for feature selection approaches
@@ -21,25 +28,23 @@ class Selector(ABC):
         self.l_type = assert_l_type(l_type)
         self.shape = shape
         self.is_fitted = False
-        self._init_parameters(kwargs)
+        self._init_parameters(**kwargs)
 
-    @abstractmethod
-    def _init_parameters(self, parameters):
+    def _init_parameters(self, **kwargs):
         """
         Initialize parameters for selector
 
         Arguments:
-            parameters {dict} -- Parameter dict
+            kwargs {dict} -- Parameter dict
         """
-        self.params = {}
-        raise NotImplementedError("subclasses must override _init_parameters")
-
-    @abstractmethod
-    def _fit(self):
-        """
-        Fit data to data object
-        """
-        raise NotImplementedError("subclasses must override _fit")
+        self.params = {
+            "n_neighbors": kwargs.get("n_neighbors", 3),
+            "mi_neighbors": kwargs.get("mi_neighbors", 6),
+            "k": kwargs.get("k", int(self.shape[1] / 2 + 1)),
+            "nominal_distance": kwargs.get("nominal_distance", 1),
+            "use_cv": kwargs.get("use_cv", False),
+            "method": kwargs.get("method", "mi"),
+        }
 
     def fit(self, X, y):
         """
@@ -58,6 +63,9 @@ class Selector(ABC):
         data = Data(X, y, self.f_types, self.l_type, X.shape)
         self.data = assert_data(data)
         self.domain = self.data.to_table().domain
+
+        if self.params["method"] == "mi":
+            self.data = self.data.add_salt()
 
         self.feature_importances = {}
         self._fit()
