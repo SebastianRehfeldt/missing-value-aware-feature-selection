@@ -14,8 +14,8 @@ def introduce_missing_values(data, missing_rate=0.25, missing_type="MCAR"):
         data {Data} -- Data object where missing values should be inserted
 
     Keyword Arguments:
-        missing_rate {float} -- Rate of how many missing values should be inserted (default: {0.25})
-        missing_type {str} -- Approach for inserting missing values (default: {"MCAR"})
+        missing_rate {float} -- Rate of inserted nan's (default: {0.25})
+        missing_type {str} -- Meachnism for missingness (default: {"MCAR"})
     """
     n_total_values = data.shape[0] * data.shape[1]
     n_removals = round(missing_rate * n_total_values)
@@ -28,7 +28,7 @@ def introduce_missing_values(data, missing_rate=0.25, missing_type="MCAR"):
 
 def _remove_with_mcar(data, n_total_values, n_removals):
     """
-    Insert missing values completely at random 
+    Insert missing values completely at random
 
     Arguments:
         data {Data} -- Data object where missing values should be inserted
@@ -42,7 +42,7 @@ def _remove_with_mcar(data, n_total_values, n_removals):
     mask = np.reshape(mask, data.shape)
 
     # Values in df with mask == True will be NaN
-    features = data.X.where(mask == False)
+    features = data.X.where(mask is False)
     for col in data.X:
         if data.f_types[col] == "nominal":
             features[col].fillna("?", inplace=True)

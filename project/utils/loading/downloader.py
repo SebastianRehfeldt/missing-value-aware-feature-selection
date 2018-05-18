@@ -1,6 +1,6 @@
 """
-    This class is responsible for downloading data from UCI ML or openml repository.
-    The first is used to get csv data and the second for arff files which are recommended.
+    This class is responsible for downloading data from UCI ML or openml.
+    The first is used for csv and the second for arff which are recommended.
 """
 import sys
 import os
@@ -11,16 +11,15 @@ from project import DATA_PATH
 
 
 class Downloader():
-
     def __init__(self, name, file_type="arff"):
         """
         Class for obtaining data from UCI or openml.
 
         Arguments:
-            name {str} -- The name of the dataset. Must match the in the repository.
+            name {str} -- Name of the dataset.
 
         Keyword Arguments:
-            file_type {str} -- Specify if "arff" or "csv" file shouldl be downloaded (default: {"arff"})
+            file_type {str} -- Specify if "arff" or "csv" (default: {"arff"})
         """
         self.name = name
         self.file_type = file_type
@@ -62,14 +61,15 @@ class Downloader():
         """
         Downloads data from UCI and stores it in data folder.
         """
-        info_url = 'https://www.openml.org/api/v1/json/data/list/data_name/' + self.name
+        info_url = 'https://www.openml.org/api/v1/json/data/list/data_name/'
+        info_url += self.name
 
         try:
             # Get dataset id using api
             info_res = json.loads(requests.get(info_url).content)
             d_id = info_res["data"]["dataset"][0]["did"]
 
-            # Get the details from website which includes also download link in url attribute
+            # Get the details from website
             details_url = "https://www.openml.org/d/{:d}/json".format(d_id)
             dataset_infos = json.loads(requests.get(details_url).content)
 
@@ -112,7 +112,7 @@ class Downloader():
 
     def _print_download_error(self, url):
         """
-        UCI is inconsistent in their naming and some datasets need to be loaded manually
+        UCI has no api and some datasets need to be loaded manually
 
         Arguments:
             url {str} -- Url to the file at UCI which is not existing

@@ -8,8 +8,8 @@ name = "madelon"
 name = "semeion"
 name = "ionosphere"
 name = "analcatdata_reviewer"
-name = "boston"
 name = "credit-approval"
+name = "boston"
 name = "iris"
 data = data_loader.load_data(name, "arff")
 data.shape
