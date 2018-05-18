@@ -3,12 +3,9 @@
 """
 import numpy as np
 from collections import defaultdict
-from sklearn.model_selection import cross_val_score, train_test_split
-from sklearn.cross_validation import StratifiedKFold
-from sklearn.metrics import accuracy_score, mean_squared_error
 
-from project.classifier import KNN
 from project.base import Subspacing
+from project.shared import evaluate_subspace
 
 
 class RKNN(Subspacing):
@@ -36,6 +33,7 @@ class RKNN(Subspacing):
             "k": parameters.get("k", int(self.shape[1] / 2 + 1)),
             "nominal_distance": parameters.get("nominal_distance", 1),
             "use_cv": parameters.get("use_cv", False),
+            "method": parameters.get("method", "knn"),
         }
         # TODO remove
         # self.params["n"] = min(self.params["n"], 10)
@@ -49,29 +47,8 @@ class RKNN(Subspacing):
             X {df} -- Dataframe containing the features
             types {pd.series} -- Series containing the feature types
         """
-        clf = KNN(
-            types, self.data.l_type, n_neighbors=self.params["n_neighbors"])
-
-        scoring = "accuracy"
-        stratify = self.data.y
-        if self.data.l_type == "numeric":
-            scoring = "neg_mean_squared_error"
-            stratify = None
-
-        if self.params["use_cv"]:
-            cv = StratifiedKFold(self.data.y, n_folds=3, shuffle=True)
-            scores = cross_val_score(
-                clf, X, self.data.y, cv=cv, scoring=scoring)
-            return np.mean(scores)
-        else:
-            X_train, X_test, y_train, y_test = train_test_split(
-                X, self.data.y, test_size=0.5, stratify=stratify)
-            clf.fit(X_train, y_train)
-            y_pred = clf.predict(X_test)
-            return {
-                "accuracy": accuracy_score,
-                "neg_mean_squared_error": mean_squared_error,
-            }[scoring](y_test, y_pred)
+        return evaluate_subspace(X, self.data.y, types, self.l_type,
+                                 self.domain, **self.params)
 
     def _deduce_feature_importances(self, knowledgebase):
         """
