@@ -2,10 +2,10 @@
     Mutual Information Transformer class
 """
 from project.base import Selector
-from project.shared import get_mutual_information
+from project.shared import evaluate_subspace
 
 
-class MI_Filter(Selector):
+class Filter(Selector):
     def __init__(self, f_types, l_type, shape, **kwargs):
         """
         Mutual Information FS class
@@ -28,6 +28,7 @@ class MI_Filter(Selector):
             "k": parameters.get("k", int(self.shape[1] / 2 + 1)),
             "nominal_distance": parameters.get("nominal_distance", 1),
             "n_neighbors": parameters.get("n_neighbors", 6),
+            "method": parameters.get("method", "mi"),
         }
 
     def _fit(self):
@@ -35,6 +36,5 @@ class MI_Filter(Selector):
 
         for col in self.data.X:
             X, types = self.data.get_subspace(col)
-            self.feature_importances[col] = get_mutual_information(
-                X, self.data.y, types, self.data.l_type,
-                self.params["n_neighbors"])
+            self.feature_importances[col] = evaluate_subspace(
+                X, self.data.y, types, self.l_type, self.domain, **self.params)
