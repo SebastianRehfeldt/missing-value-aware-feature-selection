@@ -35,6 +35,7 @@ class SFS(Selector):
             "n": parameters.get("n", int(self.shape[1]**2 / 2)),
             "m": parameters.get("m", int(np.sqrt(self.shape[1]))),
             "n_neighbors": parameters.get("n_neighbors", 3),
+            "mi_neighbors": parameters.get("mi_neighbors", 6),
             "k": parameters.get("k", int(self.shape[1] / 2 + 1)),
             "nominal_distance": parameters.get("nominal_distance", 1),
             "use_cv": parameters.get("use_cv", False),
@@ -82,7 +83,7 @@ class SFS(Selector):
         X_sel, types = self.data.get_subspace(features)
         return get_mutual_information(X_sel, self.data.y, types,
                                       self.data.l_type,
-                                      self.params["n_neighbors"])
+                                      self.params["mi_neighbors"])
 
     def _evaluate_subspace_clf(self, features):
         """
