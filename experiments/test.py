@@ -74,6 +74,7 @@ for pipe in pipelines:
         pipe, data.X, data.y, cv=cv, scoring=scoring, n_jobs=1)
     scores.append(score)
     times.append(time() - start)
+    print("Pipe done", flush=True)
 
 print("Results\n\n")
 for i, score in enumerate(scores):
