@@ -7,8 +7,8 @@ from sklearn.model_selection import cross_val_score, train_test_split
 from sklearn.cross_validation import StratifiedKFold
 from sklearn.metrics import accuracy_score, mean_squared_error
 
-from project.randomKNN.knn import KNN as knn_classifier
-from project.shared.subspacing import Subspacing
+from project.classifier import KNN
+from project.base import Subspacing
 
 
 class RKNN(Subspacing):
@@ -49,7 +49,7 @@ class RKNN(Subspacing):
             X {df} -- Dataframe containing the features
             types {pd.series} -- Series containing the feature types
         """
-        clf = knn_classifier(
+        clf = KNN(
             types, self.data.l_type, n_neighbors=self.params["n_neighbors"])
 
         scoring = "accuracy"

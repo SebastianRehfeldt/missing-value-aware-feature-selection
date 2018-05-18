@@ -3,10 +3,9 @@
 """
 import numpy as np
 from collections import Counter
-from scipy.spatial.distance import cdist
 
 from project.utils import assert_series, assert_l_type, assert_df, assert_types
-from project.shared.c_distance import custom_distance as p_dist
+from project.shared import get_dist_matrix
 
 
 class KNN():
@@ -47,8 +46,7 @@ class KNN():
             X {[df]} -- Dataframe containing the features
         """
         X_test = assert_df(X_test)
-        N = KNN.get_nearest_neighbors(self.X_train, X_test, self.f_types,
-                                      **self.params)
+        N = self.get_nearest_neighbors(X_test)
 
         y_pred = [None] * X_test.shape[0]
         for row in range(X_test.shape[0]):
@@ -72,22 +70,7 @@ class KNN():
             **self.params,
         }
 
-    @staticmethod
-    def get_nearest_neighbors(XA, XB, f_types, **kwargs):
-        n_neighbors = kwargs.get("n_neighbors", 6)
-        D = KNN.get_dist_matrix(XA, f_types, XB, **kwargs)
+    def get_nearest_neighbors(self, X_test):
+        D = get_dist_matrix(self.X_train, self.f_types, X_test, **self.params)
         N = np.argsort(D)
-        return N[:, :n_neighbors]
-
-    @staticmethod
-    def get_dist_matrix(XA, f_types, XB=None, **kwargs):
-        dist_params = {
-            "nominal_distance": kwargs.get("nominal_distance", 1),
-            "f_types": f_types.values,
-        }
-        if XB is None:
-            D = cdist(XA, XA, metric=p_dist, **dist_params)
-        else:
-            # TODO: check order
-            D = cdist(XB, XA, metric=p_dist, **dist_params)
-        return D
+        return N[:, :self.params["n_neighbors"]]

@@ -6,10 +6,9 @@ from sklearn.model_selection import cross_val_score, train_test_split
 from sklearn.cross_validation import StratifiedKFold
 from sklearn.metrics import accuracy_score, mean_squared_error
 
-from project.randomKNN.knn import KNN as knn_classifier
-from project.shared.selector import Selector
-from project.tree.tree import Tree
-from project.mutual_info.mutual_information import get_mutual_information
+from project.base import Selector
+from project.classifier import KNN, Tree
+from project.shared import get_mutual_information
 
 
 class SFS(Selector):
@@ -95,7 +94,7 @@ class SFS(Selector):
         Arguments:
         """
         if self.params["method"] == "knn":
-            clf = knn_classifier(
+            clf = KNN(
                 types, self.l_type, n_neighbors=self.params["n_neighbors"])
         else:
             clf = Tree(self.domain)

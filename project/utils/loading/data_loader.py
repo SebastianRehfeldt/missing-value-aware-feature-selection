@@ -13,14 +13,19 @@ import json
 import pandas as pd
 import numpy as np
 from scipy.io import arff
-from project import Data
-from project.utils.downloader import Downloader
-from project.utils.csv_helper import CSVHelper
+
+from project.utils import Data
+from .downloader import Downloader
+from .csv_helper import CSVHelper
 
 
 class DataLoader():
-
-    def __init__(self, ignored_attributes=[], na_values=[], target_index=-1, *args, **kwargs):
+    def __init__(self,
+                 ignored_attributes=[],
+                 na_values=[],
+                 target_index=-1,
+                 *args,
+                 **kwargs):
         """
         Class for loading data
 
@@ -85,8 +90,8 @@ class DataLoader():
         if self.params.get("drop_unknown_samples", True):
             self._remove_samples_with_unknown_class()
 
-        data = Data(self.data, self.labels, self.types,
-                    self.label_type, self.data.shape)
+        data = Data(self.data, self.labels, self.types, self.label_type,
+                    self.data.shape)
         return data
 
     ####################################################################################
@@ -141,8 +146,11 @@ class DataLoader():
         if not os.path.exists(path):
             self._print_file_not_found(path)
 
-        data = pd.read_csv(path, header=self.params.get("header"),
-                           na_values=self.na_values, sep=None)
+        data = pd.read_csv(
+            path,
+            header=self.params.get("header"),
+            na_values=self.na_values,
+            sep=None)
         if not self.params.get("header") is None:
             self.params["names"] = data.columns
         return data
