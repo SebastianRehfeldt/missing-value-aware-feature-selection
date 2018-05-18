@@ -9,35 +9,15 @@ from project.shared import evaluate_subspace
 
 
 class RKNN(Subspacing):
-    def __init__(self, f_types, l_type, shape, **kwargs):
-        """
-        RKNN Class
-
-        Arguments:
-            f_types {pd.Series} -- Series containing feature types
-            l_type {str} -- Type of label
-        """
-        super().__init__(f_types, l_type, shape, **kwargs)
-
-    def _init_parameters(self, parameters):
+    def _init_parameters(self, **kwargs):
         """
         Initialize params
 
         Arguments:
             parameters {dict} -- Parameter dict
         """
-        self.params = {
-            "n": parameters.get("n", int(self.shape[1]**2 / 2)),
-            "m": parameters.get("m", int(np.sqrt(self.shape[1]))),
-            "n_neighbors": parameters.get("n_neighbors", 3),
-            "k": parameters.get("k", int(self.shape[1] / 2 + 1)),
-            "nominal_distance": parameters.get("nominal_distance", 1),
-            "use_cv": parameters.get("use_cv", False),
-            "method": parameters.get("method", "knn"),
-        }
-        # TODO remove
-        # self.params["n"] = min(self.params["n"], 10)
-        # self.params["k"] = 7
+        super()._init_parameters(**kwargs)
+        self.params["method"] = kwargs.get("method", "knn")
 
     def _evaluate_subspace(self, X, types):
         """
