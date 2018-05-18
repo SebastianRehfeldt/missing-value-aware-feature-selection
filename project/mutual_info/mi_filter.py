@@ -30,17 +30,11 @@ class MI_Filter(Selector):
             "n_neighbors": parameters.get("n_neighbors", 6),
         }
 
-    def calculate_feature_importances(self):
-        """
-        Calculate importances for each single feature
-        """
-        # Add some noise to numerical features as advised by Kraskov + sklearn
+    def _fit(self):
         self.data.add_salt()
 
-        scores = {}
         for col in self.data.X:
             X, types = self.data.get_subspace(col)
-            scores[col] = get_mutual_information(X, self.data.y, types,
-                                                 self.data.l_type,
-                                                 self.params["n_neighbors"])
-        return scores
+            self.feature_importances[col] = get_mutual_information(
+                X, self.data.y, types, self.data.l_type,
+                self.params["n_neighbors"])

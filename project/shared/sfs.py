@@ -42,62 +42,63 @@ class SFS(Selector):
             "method": parameters.get("method", "knn"),
         }
 
-    def calculate_feature_importances(self):
+    def _fit(self):
         """
         Calculate feature importances using sfs
         """
-        score_map = {}
-        open_features = self.data.X.columns.tolist()
-
         if self.params["method"] == "mi":
             self.data.add_salt()
+
+        score_map = {}
+        open_features = self.data.X.columns.tolist()
 
         features = []
         while len(features) < self.params["k"]:
             scores = []
             for feature in open_features:
-                if self.params["method"] == "mi":
-                    s = self._evaluate_subspace_mi(features + [feature])
-                else:
-                    s = self._evaluate_subspace_clf(features + [feature])
-                scores.append(s)
+                score = self._evaluate(features + [feature])
+                scores.append(score)
 
                 if len(features) == 0:
-                    score_map[feature] = s
+                    score_map[feature] = score
 
-            best_index = np.argsort(scores)[-1]
-            next_f = open_features[best_index]
-            features.append(next_f)
-            open_features.remove(next_f)
+            next_feature = open_features[np.argsort(scores)[-1]]
+            features.append(next_feature)
+            open_features.remove(next_feature)
 
         for f in open_features:
             score_map[f] = -1 * score_map[f]
-        return score_map
+        self.feature_importances = score_map
 
-    def _evaluate_subspace_mi(self, features):
+    def _evaluate(self, features):
+        X_sel, types = self.data.get_subspace(features)
+        return {
+            "mi": self._evaluate_subspace_mi,
+            "knn": self._evaluate_subspace_clf,
+            "tree": self._evaluate_subspace_clf,
+        }[self.params["method"]](X_sel, types)
+
+    def _evaluate_subspace_mi(self, X_sel, types):
         """
         Evaluate a subspace using knn
 
         Arguments:
         """
-        X_sel, types = self.data.get_subspace(features)
         return get_mutual_information(X_sel, self.data.y, types,
                                       self.data.l_type,
                                       self.params["mi_neighbors"])
 
-    def _evaluate_subspace_clf(self, features):
+    def _evaluate_subspace_clf(self, X_sel, types):
         """
         Evaluate a subspace using knn
 
         Arguments:
         """
-        X_sel, types = self.data.get_subspace(features)
-
         if self.params["method"] == "knn":
             clf = knn_classifier(
                 types, self.l_type, n_neighbors=self.params["n_neighbors"])
         else:
-            clf = Tree(self.data.to_table().domain)
+            clf = Tree(self.domain)
 
         scoring = "accuracy"
         stratify = self.data.y
