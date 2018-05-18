@@ -12,6 +12,7 @@ name = "boston"
 name = "credit-approval"
 name = "iris"
 data = data_loader.load_data(name, "arff")
+data.shape
 
 # %%
 from project.utils.data_modifier import introduce_missing_values
@@ -19,13 +20,6 @@ from project.utils.data_scaler import scale_data
 
 data = introduce_missing_values(data, missing_rate=0.25)
 data = scale_data(data)
-
-#%%
-from project.shared.sfs import SFS
-
-sfs = SFS(data.f_types, data.l_type, data.shape, method="mi")
-sfs.fit(data.X, data.y)
-sfs.get_ranking()
 
 # %%
 from time import time
@@ -36,9 +30,11 @@ from project.randomKNN.knn import KNN
 from project.tree.tree import Tree
 from project.utils.imputer import Imputer
 from project.mutual_info.mi_filter import MI_Filter
+from project.shared.sfs import SFS
 
 rknn = RKNN(data.f_types, data.l_type, data.shape)
 mi = MI_Filter(data.f_types, data.l_type, data.shape)
+sfs = SFS(data.f_types, data.l_type, data.shape, method="mi")
 knn = KNN(data.f_types, data.l_type)
 tree = Tree(data.to_table().domain)
 imputer = Imputer(data.f_types, method="mice")
@@ -50,25 +46,27 @@ pipe2 = Pipeline(steps=[
 ])
 pipe3 = Pipeline(steps=[('classify', knn)])
 pipe4 = Pipeline(steps=[('reduce', mi), ('classify', knn)])
-pipe5 = Pipeline(steps=[('classify', tree)])
-pipe6 = Pipeline(steps=[
+pipe5 = Pipeline(steps=[('reduce', sfs), ('classify', knn)])
+pipe6 = Pipeline(steps=[('classify', tree)])
+pipe7 = Pipeline(steps=[
     ("imputer", imputer),
     ('reduce', rknn),
     ('classify', knn),
 ])
-
+"""
 X_new = rknn.fit_transform(data.X, data.y)
 types = pd.Series(data.f_types, X_new.columns.values)
 new_data = data.replace(True, X=X_new, shape=X_new.shape, f_types=types)
 new_knn = KNN(new_data.f_types, new_data.l_type)
 
-pipe7 = Pipeline(steps=[
+pipe8 = Pipeline(steps=[
     ("imputer", Imputer(new_data.f_types, method="mice")),
     ('classify', new_knn),
 ])
 
-pipelines = [pipe1, pipe2, pipe3, pipe4, pipe5, pipe6, pipe7]
-pipelines = [pipe4]
+pipelines = [pipe1, pipe2, pipe3, pipe4, pipe5, pipe6, pipe7, pipe8]
+"""
+pipelines = [pipe4, pipe5]
 
 scores = []
 times = []
