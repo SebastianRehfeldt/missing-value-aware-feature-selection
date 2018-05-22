@@ -8,16 +8,16 @@ name = "madelon"
 name = "semeion"
 name = "ionosphere"
 name = "analcatdata_reviewer"
-name = "credit-approval"
 name = "boston"
 name = "iris"
+name = "credit-approval"
 data = data_loader.load_data(name, "arff")
 data.shape
 
 # %%
 from project.utils import introduce_missing_values, scale_data
 
-data = introduce_missing_values(data, missing_rate=0.25)
+data = introduce_missing_values(data, missing_rate=0.5)
 data = scale_data(data)
 
 # %%
@@ -62,7 +62,7 @@ pipe8 = Pipeline(steps=[
 pipe9 = Pipeline(steps=[('reduce', pso), ('classify', knn)])
 
 pipelines = [pipe1, pipe2, pipe3, pipe4, pipe5, pipe6, pipe7, pipe8]
-pipelines = [pipe9]
+pipelines = [pipe8, pipe9]
 
 scores = []
 times = []

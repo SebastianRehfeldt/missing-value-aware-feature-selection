@@ -30,8 +30,10 @@ class PSO(Selector):
         }
         # TODO: Own modification
         self.default_options.update({
-            "swarmsize": int(self.shape[1]**2 / 2),
-            "maxiter": self.shape[1]**2,
+            "swarmsize":
+            max(50, int(self.shape[1]**2 / 2)),
+            "maxiter":
+            max(100, self.shape[1]**2),
         })
 
     def objective(self, x):
@@ -55,5 +57,3 @@ class PSO(Selector):
 
         for i, col in enumerate(self.data.X):
             self.feature_importances[col] = x_opt[i]
-
-        print(self.feature_importances)
