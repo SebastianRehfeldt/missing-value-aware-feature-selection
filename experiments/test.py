@@ -15,8 +15,7 @@ data = data_loader.load_data(name, "arff")
 data.shape
 
 # %%
-from project.utils import introduce_missing_values
-from project.utils import scale_data
+from project.utils import introduce_missing_values, scale_data
 
 data = introduce_missing_values(data, missing_rate=0.25)
 data = scale_data(data)
