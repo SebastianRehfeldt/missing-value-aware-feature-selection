@@ -23,7 +23,7 @@ data = scale_data(data)
 # %%
 from project.rar.rar import RaR
 
-rar = Rar(data.f_types, data.l_type, data.shape)
+rar = RaR(data.f_types, data.l_type, data.shape)
 rar.fit(data.X, data.y)
 
 # %%

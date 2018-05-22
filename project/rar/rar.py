@@ -37,23 +37,22 @@ class RaR(Subspacing):
             X {df} -- Dataframe containing the features
             types {pd.series} -- Series containing the feature types
         """
-        # TODO: implement contrast measure
         from .contrast import calculate_contrast
         from .slicing import get_slices
         import random
 
-        # TODO make param for #iterations
         names = X.columns.tolist()
         open_features = [
             name for name in self.data.X.columns.tolist() if name not in names
         ]
         target = random.choice(open_features)
 
-        # TODO: deletion with target removes many more samples than neccessary
+        # TODO: deletion with target removes more samples than neccessary
         new_X, new_y, new_t = self._complete(names, types, target)
 
         relevances = []
         redundancies = []
+        # TODO make param for #iterations
         # TODO values from paper
         n_select = int(0.8 * new_X.shape[0])
         for i in range(10):
