@@ -51,7 +51,10 @@ class Subspacing(Selector):
         """
         names = self.data.X.columns
         size = self.params["subspace_size"]
-        lower, upper = size if isinstance(size, tuple) else 1, size
+        if isinstance(size, tuple):
+            lower, upper = size
+        else:
+            lower, upper = 1, size
 
         subspaces = [None] * self.params["n_subspaces"]
         for i in range(self.params["n_subspaces"]):
