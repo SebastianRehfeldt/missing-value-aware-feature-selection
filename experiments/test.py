@@ -24,13 +24,14 @@ data = scale_data(data)
 from time import time
 from sklearn.pipeline import Pipeline
 from sklearn.cross_validation import cross_val_score, StratifiedKFold
-from project.feature_selection import RKNN, Filter, SFS
+from project.feature_selection import RKNN, Filter, SFS, PSO
 from project.classifier import KNN, Tree
 from project.utils import Imputer
 
 rknn = RKNN(data.f_types, data.l_type, data.shape)
 mi = Filter(data.f_types, data.l_type, data.shape)
 sfs = SFS(data.f_types, data.l_type, data.shape)
+pso = PSO(data.f_types, data.l_type, data.shape)
 knn = KNN(data.f_types, data.l_type)
 tree = Tree(data.to_table().domain)
 imputer = Imputer(data.f_types, strategy="mice")
@@ -58,9 +59,10 @@ pipe8 = Pipeline(steps=[
     ("imputer", Imputer(new_data.f_types, strategy="mice")),
     ('classify', new_knn),
 ])
+pipe9 = Pipeline(steps=[('reduce', pso), ('classify', knn)])
 
-pipelines = [pipe4, pipe5, pipe8]
 pipelines = [pipe1, pipe2, pipe3, pipe4, pipe5, pipe6, pipe7, pipe8]
+pipelines = [pipe9]
 
 scores = []
 times = []
