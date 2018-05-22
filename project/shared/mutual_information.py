@@ -10,7 +10,7 @@ from project.utils import assert_df, assert_series, assert_types
 from project.shared import get_dist_matrix
 
 
-def _get_mi_cc(X, y, f_types, l_type, k):
+def _get_mi_cc(X, y, f_types, l_type, k, dist):
     """
     Estimate mutual information for continous label types
     and at least one continous feature
@@ -24,12 +24,12 @@ def _get_mi_cc(X, y, f_types, l_type, k):
     nx[:] = np.nan
     ny[:] = np.nan
 
-    D_x = get_dist_matrix(X, f_types)
+    D_x = get_dist_matrix(X, f_types, nominal_distance=dist)
     D_x.sort()
 
     new_y = assert_df(y)
     new_types = assert_series(l_type)
-    D_y = get_dist_matrix(new_y, new_types)
+    D_y = get_dist_matrix(new_y, new_types, nominal_distance=dist)
     D_y.sort()
 
     for row in range(X.shape[0]):
@@ -51,7 +51,7 @@ def _get_mi_cc(X, y, f_types, l_type, k):
     return max(mi, 0)
 
 
-def _get_mi_cd(X, y, f_types, k):
+def _get_mi_cd(X, y, f_types, k, dist):
     """
     Estimate mutual information for discrete label types
     and at least one continous feature
@@ -65,7 +65,7 @@ def _get_mi_cd(X, y, f_types, k):
     n[:] = np.nan
     m[:] = np.nan
 
-    D = get_dist_matrix(X, f_types)
+    D = get_dist_matrix(X, f_types, nominal_distance=dist)
 
     for row in range(X.shape[0]):
         # Get radius for k nearest neighbors within same class
@@ -102,7 +102,7 @@ def _get_mi_dd(X, y):
     return max(mi, 0)
 
 
-def get_mutual_information(X, y, f_types, l_type, k=6):
+def get_mutual_information(X, y, f_types, l_type, **params):
     """
     Estimate mutual information using different approaches
 
@@ -113,6 +113,9 @@ def get_mutual_information(X, y, f_types, l_type, k=6):
     # We also do not have an estimator for d -> c
     # Split up features when only nominal features are present
     # Inverse data when target is continous (assumes symmetric estimation)
+
+    k = params.get("mi_neighbors", 6)
+    dist = params.get("nominal_distance", 1)
 
     ### CASE DD - C/D ###
     if "numeric" not in f_types.values:
@@ -126,15 +129,15 @@ def get_mutual_information(X, y, f_types, l_type, k=6):
                 new_X = assert_df(y)
                 new_X.columns = [y.name]
                 new_types = assert_types(l_type, y.name)
-                mi_s[i] = _get_mi_cd(new_X, y, new_types, k)
+                mi_s[i] = _get_mi_cd(new_X, y, new_types, k, dist)
         return np.mean(mi_s)
 
     # Use standard estimators when numerical features are present
     ### CASE CC[D] - C/D ###
     if l_type == "nominal":
-        return _get_mi_cd(X, y, f_types, k)
+        return _get_mi_cd(X, y, f_types, k, dist)
     else:
-        return _get_mi_cc(X, y, f_types, l_type, k)
+        return _get_mi_cc(X, y, f_types, l_type, k, dist)
 
     sys.exit("MI messed up types")
     return -1

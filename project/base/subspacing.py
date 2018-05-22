@@ -33,8 +33,12 @@ class Subspacing(Selector):
 
     def _init_parameters(self, **kwargs):
         super()._init_parameters(**kwargs)
-        self.params["n"] = kwargs.get("n", int(self.shape[1]**2 / 2))
-        self.params["m"] = kwargs.get("m", int(np.sqrt(self.shape[1])))
+        self.params.update({
+            "n_subspaces":
+            kwargs.get("n_subspaces", int(self.shape[1]**2 / 2)),
+            "subspace_size":
+            kwargs.get("subspace_size", int(np.sqrt(self.shape[1])))
+        })
 
     def _fit(self):
         subspaces = self._get_unique_subscapes()
@@ -45,10 +49,13 @@ class Subspacing(Selector):
         """
         Return unique feature subspaces
         """
-        subspaces = [None] * self.params["n"]
         names = self.data.X.columns
-        for i in range(self.params["n"]):
-            m = np.random.randint(0, self.params["m"], 1)[0] + 1
+        size = self.params["subspace_size"]
+        lower, upper = size if isinstance(size, tuple) else 1, size
+
+        subspaces = [None] * self.params["n_subspaces"]
+        for i in range(self.params["n_subspaces"]):
+            m = np.random.randint(lower, upper + 1, 1)[0]
             f = list(np.random.choice(names, m, replace=False))
             subspaces[i] = sorted(f)
 

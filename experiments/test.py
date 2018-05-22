@@ -34,7 +34,7 @@ mi = Filter(data.f_types, data.l_type, data.shape)
 sfs = SFS(data.f_types, data.l_type, data.shape)
 knn = KNN(data.f_types, data.l_type)
 tree = Tree(data.to_table().domain)
-imputer = Imputer(data.f_types, method="mice")
+imputer = Imputer(data.f_types, strategy="mice")
 
 pipe1 = Pipeline(steps=[('reduce', rknn), ('classify', knn)])
 pipe2 = Pipeline(steps=[
@@ -56,12 +56,12 @@ new_data = data.replace(True, X=X_new, shape=X_new.shape, f_types=types)
 new_knn = KNN(new_data.f_types, new_data.l_type)
 
 pipe8 = Pipeline(steps=[
-    ("imputer", Imputer(new_data.f_types, method="mice")),
+    ("imputer", Imputer(new_data.f_types, strategy="mice")),
     ('classify', new_knn),
 ])
 
-pipelines = [pipe1, pipe2, pipe3, pipe4, pipe5, pipe6, pipe7, pipe8]
 pipelines = [pipe4, pipe5, pipe8]
+pipelines = [pipe1, pipe2, pipe3, pipe4, pipe5, pipe6, pipe7, pipe8]
 
 scores = []
 times = []

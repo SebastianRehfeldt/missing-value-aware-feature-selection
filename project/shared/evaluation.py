@@ -7,7 +7,7 @@ from project.shared import get_mutual_information
 
 
 def evaluate_subspace(X, y, f_types, l_type, domain, **params):
-    method = params.get("method", "mi")
+    method = params.get("eval_method", "mi")
     return {
         "mi": _evaluate_subspace_mi,
         "knn": _evaluate_subspace_clf,
@@ -17,12 +17,11 @@ def evaluate_subspace(X, y, f_types, l_type, domain, **params):
 
 def _evaluate_subspace_mi(X, y, f_types, l_type, domain, **params):
     """
-    Evaluate a subspace using knn
+    Evaluate a subspace using mi
 
     Arguments:
     """
-    nn = params.get("mi_neighbors", 6)
-    return get_mutual_information(X, y, f_types, l_type, nn)
+    return get_mutual_information(X, y, f_types, l_type, **params)
 
 
 def _evaluate_subspace_clf(X, y, f_types, l_type, domain, **params):
@@ -31,8 +30,8 @@ def _evaluate_subspace_clf(X, y, f_types, l_type, domain, **params):
 
     Arguments:
     """
-    if params["method"] == "knn":
-        clf = KNN(f_types, l_type, n_neighbors=params["n_neighbors"])
+    if params["eval_method"] == "knn":
+        clf = KNN(f_types, l_type, **params)
     else:
         clf = Tree(domain)
 
