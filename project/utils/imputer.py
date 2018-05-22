@@ -7,17 +7,17 @@ from project.utils import assert_data
 
 
 class Imputer():
-    def __init__(self, f_types, method="knn"):
+    def __init__(self, f_types, strategy="knn"):
         """
         Imputer class for filling missing values
 
         Arguments:
             f_types {pd.Series} -- Series containing the feature types
         Keyword Arguments:
-            method {str} -- Imputation technique (default: {"knn"})
+            strategy {str} -- Imputation technique (default: {"knn"})
         """
         self.f_types = f_types
-        self.method = method
+        self.strategy = strategy
 
     def fit(self, X=None, y=None):
         """
@@ -64,7 +64,7 @@ class Imputer():
         """
         return {
             "f_types": self.f_types,
-            "method": self.method,
+            "strategy": self.strategy,
         }
 
     def _complete(self, X):
@@ -93,7 +93,7 @@ class Imputer():
 
     def _get_imputer(self):
         """
-        Get imputer for method
+        Get imputer for strategy
         """
         return {
             "knn": KNN,
@@ -101,4 +101,4 @@ class Imputer():
             "matrix": MatrixFactorization,
             "simple": SimpleFill,
             "soft": SoftImpute,
-        }[self.method](verbose=False)
+        }[self.strategy](verbose=False)

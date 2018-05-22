@@ -38,12 +38,12 @@ class Selector(ABC):
             kwargs {dict} -- Parameter dict
         """
         self.params = {
-            "n_neighbors": kwargs.get("n_neighbors", 3),
+            "knn_neighbors": kwargs.get("knn_neighbors", 3),
             "mi_neighbors": kwargs.get("mi_neighbors", 6),
             "k": kwargs.get("k", int(self.shape[1] / 2 + 1)),
             "nominal_distance": kwargs.get("nominal_distance", 1),
             "use_cv": kwargs.get("use_cv", False),
-            "method": kwargs.get("method", "mi"),
+            "eval_method": kwargs.get("eval_method", "mi"),
         }
 
     def fit(self, X, y):
@@ -64,7 +64,7 @@ class Selector(ABC):
         self.data = assert_data(data)
         self.domain = self.data.to_table().domain
 
-        if self.params["method"] == "mi":
+        if self.params["eval_method"] == "mi":
             self.data = self.data.add_salt()
 
         self.feature_importances = {}

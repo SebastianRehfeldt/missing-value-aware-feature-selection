@@ -20,7 +20,7 @@ class KNN():
         self.f_types = assert_series(f_types)
         self.l_type = assert_l_type(l_type)
         self.params = {
-            "n_neighbors": kwargs.get("n_neighbors", 6),
+            "knn_neighbors": kwargs.get("knn_neighbors", 6),
             "nominal_distance": kwargs.get("nominal_distance", 1),
         }
 
@@ -73,4 +73,4 @@ class KNN():
     def get_nearest_neighbors(self, X_test):
         D = get_dist_matrix(self.X_train, self.f_types, X_test, **self.params)
         N = np.argsort(D)
-        return N[:, :self.params["n_neighbors"]]
+        return N[:, :self.params["knn_neighbors"]]

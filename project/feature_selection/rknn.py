@@ -17,7 +17,7 @@ class RKNN(Subspacing):
             parameters {dict} -- Parameter dict
         """
         super()._init_parameters(**kwargs)
-        self.params["method"] = kwargs.get("method", "knn")
+        self.params["eval_method"] = kwargs.get("eval_method", "knn")
 
     def _evaluate_subspace(self, X, types):
         """
