@@ -15,9 +15,8 @@ class RaR(Subspacing):
         """
         super()._init_parameters(**kwargs)
         max_size = min(5, self.shape[1] - 1)
-        # TODO: set min_size to 1
         self.params["subspace_size"] = kwargs.get("subspace_size",
-                                                  (2, max_size))
+                                                  (1, max_size))
 
     def _complete(self, names, types, target):
         if self.params.get("approach", "deletion") == "deletion":
@@ -62,10 +61,7 @@ class RaR(Subspacing):
             redundancies.append(
                 calculate_contrast(new_t, self.f_types[target], slice_vector))
 
-        print(1 / 0)
-
         return {
-            "features": names,
             "relevance": np.mean(relevances),
             "redundancy": np.mean(redundancies),
             "target": target,
@@ -79,4 +75,7 @@ class RaR(Subspacing):
             knowledgebase {list} -- List of subspace results
         """
         # TODO: deduce scores
+
+        from pprint import pprint
+        pprint(knowledgebase)
         return {}
