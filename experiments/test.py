@@ -17,7 +17,7 @@ data.shape
 # %%
 from project.utils import introduce_missing_values, scale_data
 
-data = introduce_missing_values(data, missing_rate=0.5)
+data = introduce_missing_values(data, missing_rate=0.25)
 data = scale_data(data)
 
 # %%
