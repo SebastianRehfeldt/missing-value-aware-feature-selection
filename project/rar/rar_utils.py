@@ -9,15 +9,19 @@ def sort_redundancies_by_target(knowledgebase):
         target = subset["score"]["target"]
         redundancy = subset["score"]["redundancy"]
         redundancies[target].append((features, redundancy))
-
     return redundancies
 
 
 def _combine_scores(rel, red):
+    # TODO redundancy might be too important
     return 2 * (1 - red) * rel / ((1 - red) + rel)
 
 
 def _calculate_redundancy(samples, selected_features):
+    # TODO: compute intersections for all samples only once
+    # TODO: vectorize search for admissables and justified
+    # TODO: any way for caching?
+
     # get admissables
     admissables = [
         s for s in samples
@@ -38,11 +42,11 @@ def _calculate_redundancy(samples, selected_features):
         # contains the full intersection and has a lower redundancy score
         if sample[1] <= min_red and sample[1] > max_red:
             max_red = sample[1]
-
     return max_red
 
 
 def calculate_ranking(relevances, redundancies, names):
+    # TODO: complete sorting not necessary
     best = sorted(relevances.items(), key=lambda k_v: k_v[1], reverse=True)[0]
 
     ranking = {}
@@ -53,6 +57,7 @@ def calculate_ranking(relevances, redundancies, names):
 
     # stepwise add features
     while len(open_features) > 0:
+        # TODO vectorize
         best_score, best_feature = 0, None
         for f in open_features:
             # deduce redundancy of feature to previous feature
@@ -64,5 +69,4 @@ def calculate_ranking(relevances, redundancies, names):
 
         ranking[best_feature] = best_score
         open_features.remove(best_feature)
-
     return ranking
