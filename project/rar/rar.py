@@ -3,6 +3,7 @@
 """
 import numpy as np
 from project.base import Subspacing
+from .optimizer import deduce_relevances
 
 
 class RaR(Subspacing):
@@ -47,19 +48,23 @@ class RaR(Subspacing):
         target = random.choice(open_features)
 
         # TODO: deletion with target removes more samples than neccessary
+        # TODO: increase iterations when removing or imputing data
         new_X, new_y, new_t = self._complete(names, types, target)
 
         relevances = []
         redundancies = []
         # TODO make param for #iterations
         # TODO values from paper
+        # TODO reduce slices by similarity
         n_select = int(0.8 * new_X.shape[0])
-        for i in range(10):
+        for i in range(100):
             slice_vector = get_slices(new_X, types, n_select)
             relevances.append(
                 calculate_contrast(new_y, self.l_type, slice_vector))
             redundancies.append(
                 calculate_contrast(new_t, self.f_types[target], slice_vector))
+
+        # TODO: normalization?
 
         return {
             "relevance": np.mean(relevances),
@@ -78,4 +83,7 @@ class RaR(Subspacing):
 
         from pprint import pprint
         pprint(knowledgebase)
+        relevances = deduce_relevances(self.data.X.columns.tolist(),
+                                       knowledgebase)
+        pprint(relevances)
         return {}
