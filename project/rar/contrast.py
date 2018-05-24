@@ -1,20 +1,22 @@
 import numpy as np
+from scipy.stats import ks_2samp
 
 
-def calculate_contrast(y, y_type, slice_vector):
+def calculate_contrast(y, y_cond, y_type):
     # TODO: allow missing values in target?
-    if y_type == "numeric":
-        contrast = _calculate_contrast_ks(y, slice_vector)
-    else:
-        contrast = _calculate_contrast_kld(y, slice_vector)
-    return contrast
+    return {
+        "numeric": _calculate_contrast_ks,
+        "nominal": _calculate_contrast_kld
+    }[y_type](y, y_cond)
 
 
-def _calculate_contrast_ks(y, slice_vector):
-    y_cond = y[slice_vector]
+def _calculate_contrast_ks(y, y_cond):
+    return ks_2samp(y, y_cond)[0]
+    # TODO: replace with BP implementation?
+    # TODO: check implementation
+    """
     samples, N = len(y_cond), len(y)
 
-    # TODO check
     current_div = 0
     size = min(50, int(0.5 * samples))
     cutpoints = np.random.choice(y_cond, size, False)
@@ -22,15 +24,11 @@ def _calculate_contrast_ks(y, slice_vector):
         sample_prob = np.sum(y_cond <= cut) / samples
         real_prob = np.sum(y <= cut) / N
         current_div = max(current_div, abs(sample_prob - real_prob))
-
-    # TODO: replace with scipy?
-    # from scipy.stats import ks_2samp
-    # print("Scipy", ks_2samp(y, y[slice_vector]))
     return current_div
+    """
 
 
-def _calculate_contrast_kld(y, slice_vector):
-    y_cond = y[slice_vector]
+def _calculate_contrast_kld(y, y_cond):
     values_m, counts_m = np.unique(y, return_counts=True)
     values_c, counts_c = np.unique(y_cond, return_counts=True)
 
