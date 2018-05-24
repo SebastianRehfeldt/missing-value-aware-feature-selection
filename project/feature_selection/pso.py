@@ -31,9 +31,9 @@ class PSO(Selector):
         # TODO: Own modification
         self.default_options.update({
             "swarmsize":
-            max(50, int(self.shape[1]**2 / 2)),
+            min(50, int(self.shape[1]**2 / 2)),
             "maxiter":
-            max(100, self.shape[1]**2),
+            min(100, self.shape[1]**2),
         })
 
     def objective(self, x):
