@@ -2,6 +2,7 @@ import numpy as np
 
 
 def calculate_contrast(y, y_type, slice_vector):
+    # TODO: allow missing values in target?
     if y_type == "numeric":
         contrast = _calculate_contrast_ks(y, slice_vector)
     else:
