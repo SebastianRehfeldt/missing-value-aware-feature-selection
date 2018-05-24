@@ -67,6 +67,7 @@ class Selector(ABC):
         if self.params["eval_method"] == "mi":
             self.data = self.data.add_salt()
 
+        # TODO: set scores for each feature to 0 or -1
         self.feature_importances = {}
         self._fit()
         self.is_fitted = True

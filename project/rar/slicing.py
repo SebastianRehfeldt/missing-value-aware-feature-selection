@@ -15,13 +15,14 @@ def get_slices(X, types, n):
 
 def get_categorical_slice(X, n):
     values = np.random.permutation(X)
+    values, counts = np.unique(values, return_counts=True)
 
     selected_values = []
     current_sum = 0
-    for value, count in np.unique(values, return_counts=True):
+    for i, value in enumerate(values):
         if current_sum < n:
             selected_values.append(value)
-            current_sum = count
+            current_sum = counts[i]
         else:
             break
 
