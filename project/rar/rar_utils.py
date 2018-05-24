@@ -18,11 +18,13 @@ def _combine_scores(rel, red):
 
 
 def _calculate_redundancy(samples, selected_features):
+    # get admissables
     admissables = [
         s for s in samples
         if len(set(s[0]).intersection(selected_features)) > 0
     ]
 
+    # get minimum redundancy of justified samples
     max_red = 0
     for sample in admissables:
         intersection = set(sample[0]).intersection(selected_features)

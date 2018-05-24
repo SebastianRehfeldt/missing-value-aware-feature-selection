@@ -8,9 +8,9 @@ name = "madelon"
 name = "semeion"
 name = "ionosphere"
 name = "analcatdata_reviewer"
-name = "boston"
-name = "credit-approval"
 name = "iris"
+name = "credit-approval"
+name = "boston"
 data = data_loader.load_data(name, "arff")
 data.shape
 
@@ -25,7 +25,7 @@ from time import time
 from sklearn.pipeline import Pipeline
 from sklearn.cross_validation import cross_val_score, StratifiedKFold
 from project.feature_selection import RKNN, Filter, SFS, PSO
-from project.rar.rar import RaR
+from project.rar import RaR
 from project.classifier import KNN, Tree
 from project.utils import Imputer
 

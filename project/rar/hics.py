@@ -7,25 +7,24 @@ class HICS():
     def __init__(self, data, **params):
         self.data = data
         self.params = params
+        # TODO: HICS should also work without target
 
     def evaluate_subspace(self, names, types, target):
         # TODO: deletion with target removes more samples than neccessary
         # TODO: increase iterations when removing or imputing data
         # TODO: implement imputation
-        new_X, new_y, new_t = self._complete(names, types, target)
+        X, y, t = self._complete(names, types, target)
+        l_type, t_type = self.data.l_type, self.data.f_types[target]
 
-        relevances = []
-        redundancies = []
         # TODO make param for #iterations
         # TODO values from paper
         # TODO reduce slices by similarity
-        n_select = int(0.8 * new_X.shape[0])
+        relevances, redundancies = [], []
+        n_select = int(0.8 * X.shape[0])
         for i in range(100):
-            slice_ = get_slices(new_X, types, n_select)
-            relevances.append(
-                calculate_contrast(new_y, self.data.l_type, slice_))
-            redundancies.append(
-                calculate_contrast(new_t, self.data.f_types[target], slice_))
+            slice_ = get_slices(X, types, n_select)
+            relevances.append(calculate_contrast(y, y[slice_], l_type))
+            redundancies.append(calculate_contrast(t, t[slice_], t_type))
 
         # TODO: normalization?
         return np.mean(relevances), np.mean(redundancies)
