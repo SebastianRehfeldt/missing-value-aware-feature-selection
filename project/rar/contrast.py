@@ -3,7 +3,7 @@ from scipy.stats import ks_2samp
 
 
 def calculate_contrast(y, y_cond, y_type):
-    # TODO: allow missing values in target?
+    # TODO: allow missing values in target? not yet
     # TODO: different value ranges from tests?
     # always use KS for redundancy?
     return {
@@ -15,6 +15,7 @@ def calculate_contrast(y, y_cond, y_type):
 def _calculate_contrast_ks(y, y_cond):
     # TODO: presort features and copy implementation from scipy
     # TODO: replace with BP implementation?
+    # TODO: check how different dimensions are handled
     # TODO: check BP implementation
     return ks_2samp(y, y_cond)[0]
     """

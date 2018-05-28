@@ -14,7 +14,7 @@ def deduce_relevances(features, knowledgebase):
     vars_average = m.addVar(name='s', vtype=gb.GRB.CONTINUOUS)
     vars_sum = sum(solver_variables.values())
 
-    # TODO: due to penalization relevances are getting very close
+    # TODO: add constant factor for penalty
     m.setObjective(
         vars_sum + _squared_dist(solver_variables.values(), vars_average),
         gb.GRB.MINIMIZE)
@@ -26,7 +26,7 @@ def deduce_relevances(features, knowledgebase):
         objective_sum = sum(objective_vars)
         m.addConstr(objective_sum >= subset["score"]["relevance"])
 
-        # TODO: discuss extra constraint/ value for single features?
+        # TODO: discuss extra constraint/ value for single features? (FUTURE)
         # single features which achieve high relevances should appear earlier
         """
         if len(objective_vars) == 1:
