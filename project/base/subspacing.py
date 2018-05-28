@@ -49,6 +49,7 @@ class Subspacing(Selector):
         """
         Return unique feature subspaces
         """
+        # TODO improve to make sure to get the right amount of subspaces
         names = self.data.X.columns
         size = self.params["subspace_size"]
         if isinstance(size, tuple):

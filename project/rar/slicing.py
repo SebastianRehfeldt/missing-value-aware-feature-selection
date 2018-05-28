@@ -13,11 +13,11 @@ def get_slices(X, types, n):
 
 
 def get_categorical_slice(X, n):
-    # TODO: can be cached and pre_calculated
-    # TODO: in deletion only set values 0 if samples are deleted
+    # TODO: can be cached if categorical nans are extra category
+    # TODO: caching: in deletion only set values 0 if samples are deleted
     # TODO: might change the size of the slice (store next value?)
-    # TODO: tackle similarity here?
-    # TODO: also add salt here?
+    # TODO: sample from category to get more slices
+    # TODO: tackle slice similarity here?
     values = np.random.permutation(X)
     values, counts = np.unique(values, return_counts=True)
 
@@ -31,7 +31,7 @@ def get_categorical_slice(X, n):
 
 
 def get_numerical_slice(X, n):
-    # TODO: Think of how to support nan's here (probabilic slicing)
+    # TODO: Think of how to support nan's here (probabilistic slicing)
     # TODO: get cached sorted indices from HICS
     # TODO: slice similarity by setting different randints here?
     # TODO: adding salt?

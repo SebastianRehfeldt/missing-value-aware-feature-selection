@@ -12,6 +12,7 @@ class HICS():
     def evaluate_subspace(self, names, types, target):
         # TODO: deletion with target removes more samples than neccessary
         # TODO: allow nan in target?
+        # TODO: 2-step deletion
         X, y, t = self._complete(names, types, target)
         l_type, t_type = self.data.l_type, self.data.f_types[target]
 
@@ -19,6 +20,7 @@ class HICS():
         # TODO increase iterations when having many missing values
         # TODO n_select should depend on #dimensions
         # TODO reduce slices by similarity
+        # TODO pairing from single slices
         # TODO get single feature slices and combine them here
         # TODO improve speed by using cython/ caching/ presorting/ preslicing
         # TODO increase relevance if missingness is predictive
@@ -30,7 +32,7 @@ class HICS():
             # TODO: only return relevance if no target is specified
             redundancies.append(calculate_contrast(t, t[slice_], t_type))
 
-        # TODO: normalization?
+        # TODO: check if kld or ks are > 1 (but no normalization for now)
         return np.mean(relevances), np.mean(redundancies)
 
     def _complete(self, names, types, target):
