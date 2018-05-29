@@ -5,7 +5,7 @@ import itertools
 from abc import abstractmethod
 from project.base import Selector
 import numpy as np
-from joblib import Parallel, delayed
+from multiprocessing import Pool
 from time import time
 
 
@@ -70,13 +70,10 @@ class Subspacing(Selector):
         subspaces.sort()
         return list(subspaces for subspaces, _ in itertools.groupby(subspaces))
 
-    def _evaluate(self, subspaces):
-        results = [None] * len(subspaces)
-        for i, subspace in enumerate(subspaces):
-            features, types = self.data.get_subspace(subspace)
-            score = self._evaluate_subspace(features, types)
-            results[i] = {"features": subspace, "score": score}
-        return results
+    def _evaluate(self, subspace):
+        features, types = self.data.get_subspace(subspace)
+        score = self._evaluate_subspace(features, types)
+        return {"features": subspace, "score": score}
 
     def _get_chunks(self, l, n):
         return [l[i:i + n] for i in range(0, len(l), n)]
@@ -88,13 +85,7 @@ class Subspacing(Selector):
         Arguments:
             subspaces {list} -- List of feature subspaces
         """
-        n_jobs = 4
-        chunk_size = int(np.ceil(len(subspaces) / n_jobs))
-        chunks = self._get_chunks(subspaces, chunk_size)
-        knowledgebase = Parallel(
-            n_jobs=n_jobs,
-            verbose=100,
-            batch_size=1,
-            mmap_mode="r",
-        )(delayed(self._evaluate)(chunk) for chunk in chunks)
-        return list(itertools.chain.from_iterable(knowledgebase))
+        n_jobs = 2
+        with Pool(n_jobs) as p:
+            knowledgebase = p.map(self._evaluate, subspaces)
+        return knowledgebase
