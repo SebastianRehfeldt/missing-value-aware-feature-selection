@@ -1,16 +1,18 @@
 # %%
 import numpy as np
 import pandas as pd
+from time import time
 from project.utils import DataLoader
 
 data_loader = DataLoader()
 name = "madelon"
-name = "semeion"
 name = "analcatdata_reviewer"
+name = "iris"
 name = "boston"
 name = "credit-approval"
 name = "ionosphere"
-name = "iris"
+name = "semeion"
+name = "isolet"
 data = data_loader.load_data(name, "arff")
 data.shape
 
@@ -19,17 +21,15 @@ from project.utils import introduce_missing_values, scale_data
 
 data = introduce_missing_values(data, missing_rate=0.25)
 data = scale_data(data)
-data.y.head()
 
 # %%
-"""
 from project.rar import RaR
+start = time()
 rar = RaR(data.f_types, data.l_type, data.shape)
 rar.fit(data.X, data.y)
-"""
+print(time() - start)
 
 # %%
-from time import time
 from sklearn.pipeline import Pipeline
 from sklearn.cross_validation import cross_val_score, StratifiedKFold
 from project.feature_selection import RKNN, Filter, SFS, PSO
@@ -77,7 +77,7 @@ pipe10 = Pipeline(steps=[('reduce', rar), ('classify', knn)])
 # pipelines = [
 #     pipe1, pipe2, pipe3, pipe4, pipe5, pipe6, pipe7, pipe8, pipe9, pipe10
 # ]
-pipelines = [pipe4, pipe10]
+pipelines = [pipe1, pipe10]
 
 scores = []
 times = []

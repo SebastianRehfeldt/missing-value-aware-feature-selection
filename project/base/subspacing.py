@@ -5,6 +5,8 @@ import itertools
 from abc import abstractmethod
 from project.base import Selector
 import numpy as np
+from joblib import Parallel, delayed
+from time import time
 
 
 class Subspacing(Selector):
@@ -35,14 +37,16 @@ class Subspacing(Selector):
         super()._init_parameters(**kwargs)
         self.params.update({
             "n_subspaces":
-            kwargs.get("n_subspaces", int(self.shape[1]**2 / 2)),
+            kwargs.get("n_subspaces", min(1000, int(self.shape[1]**2 / 2))),
             "subspace_size":
             kwargs.get("subspace_size", int(np.sqrt(self.shape[1])))
         })
 
     def _fit(self):
         subspaces = self._get_unique_subscapes()
+        start = time()
         score_map = self._evaluate_subspaces(subspaces)
+        print("Sampling", time() - start)
         self.feature_importances = self._deduce_feature_importances(score_map)
 
     def _get_unique_subscapes(self):
@@ -66,6 +70,17 @@ class Subspacing(Selector):
         subspaces.sort()
         return list(subspaces for subspaces, _ in itertools.groupby(subspaces))
 
+    def _evaluate(self, subspaces):
+        results = [None] * len(subspaces)
+        for i, subspace in enumerate(subspaces):
+            features, types = self.data.get_subspace(subspace)
+            score = self._evaluate_subspace(features, types)
+            results[i] = {"features": subspace, "score": score}
+        return results
+
+    def _get_chunks(self, l, n):
+        return [l[i:i + n] for i in range(0, len(l), n)]
+
     def _evaluate_subspaces(self, subspaces):
         """
         Collect and return subset evaluations
@@ -73,9 +88,13 @@ class Subspacing(Selector):
         Arguments:
             subspaces {list} -- List of feature subspaces
         """
-        knowledgebase = []
-        for subspace in subspaces:
-            features, types = self.data.get_subspace(subspace)
-            score = self._evaluate_subspace(features, types)
-            knowledgebase.append({"features": subspace, "score": score})
-        return knowledgebase
+        n_jobs = 4
+        chunk_size = int(np.ceil(len(subspaces) / n_jobs))
+        chunks = self._get_chunks(subspaces, chunk_size)
+        knowledgebase = Parallel(
+            n_jobs=n_jobs,
+            verbose=100,
+            batch_size=1,
+            mmap_mode="r",
+        )(delayed(self._evaluate)(chunk) for chunk in chunks)
+        return list(itertools.chain.from_iterable(knowledgebase))
