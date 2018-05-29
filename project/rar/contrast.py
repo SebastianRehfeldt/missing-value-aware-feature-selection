@@ -1,48 +1,38 @@
 import numpy as np
-from scipy.stats import ks_2samp
 
 
-def calculate_contrast(y, y_cond, y_type):
-    # TODO: allow missing values in target? not yet
+def calculate_contrast(y_cond, y_type, cache):
+    # TODO: improve speed by batch calculation of kld?
+    # TODO: check if kld or ks are > 1 (but no normalization for now)
     # TODO: different value ranges from tests?
-    # always use KS for redundancy?
+    # use 1-exp(-KLD(P,Q)) to normalize kld
     return {
         "numeric": _calculate_contrast_ks,
         "nominal": _calculate_contrast_kld
-    }[y_type](y, y_cond)
+    }[y_type](y_cond, cache)
 
 
-def _calculate_contrast_ks(y, y_cond):
-    # TODO: presort features and copy implementation from scipy
-    # TODO: replace with BP implementation?
+def _calculate_contrast_ks(y_cond, cache):
+    # As in implementation from scipy but without sorting first data
     # TODO: check how different dimensions are handled
-    # TODO: check BP implementation
-    return ks_2samp(y, y_cond)[0]
-    """
-    samples, N = len(y_cond), len(y)
-
-    current_div = 0
-    size = min(50, int(0.5 * samples))
-    cutpoints = np.random.choice(y_cond, size, False)
-    for cut in cutpoints:
-        sample_prob = np.sum(y_cond <= cut) / samples
-        real_prob = np.sum(y <= cut) / N
-        current_div = max(current_div, abs(sample_prob - real_prob))
-    return current_div
-    """
+    y = cache["sorted"]
+    y_cond = np.sort(y_cond)
+    n1 = y.shape[0]
+    n2 = y_cond.shape[0]
+    data_all = np.concatenate([y, y_cond])
+    cdf1 = np.searchsorted(y, data_all, side='right') / (1.0 * n1)
+    cdf2 = np.searchsorted(y_cond, data_all, side='right') / (1.0 * n2)
+    return np.max(np.absolute(cdf1 - cdf2))
 
 
-def _calculate_contrast_kld(y, y_cond):
-    # TODO: cache marginal distribution
-    # TODO: directly get probability?
-    values_m, counts_m = np.unique(y, return_counts=True)
+def _calculate_contrast_kld(y_cond, cache):
+    values_m = cache["values"]
+    probs_m = cache["probs"]
+    probs_c = {value: 1e-8 for value in values_m}
+
     values_c, counts_c = np.unique(y_cond, return_counts=True)
+    value_dict = dict(zip(values_c, counts_c / len(y_cond)))
 
-    probs_m = counts_m / len(y)
-    probs_c = {value: 0.0000001 for value in values_m}
-
-    for i, value in enumerate(values_c):
-        probs_c[value] = counts_c[i] / len(y_cond)
+    probs_c.update(value_dict)
     probs_c = list(probs_c.values())
-
-    return (probs_c * np.log2(probs_c / probs_m)).sum()
+    return np.sum(probs_c * np.log2(probs_c / probs_m))

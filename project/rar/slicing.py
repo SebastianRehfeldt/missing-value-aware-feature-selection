@@ -18,7 +18,8 @@ def get_slices(X, types, n_select, n_iterations=100):
         # TODO partial slicing should go here
         slices[i] = np.all(list(combination), axis=0)
 
-    # TODO adjust for correct #iterations
+    if len(slices) > n_iterations:
+        return np.random.choice(slices, n_iterations)
     return slices
 
 
