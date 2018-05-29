@@ -10,6 +10,5 @@ def get_dist_matrix(XA, f_types, XB=None, **kwargs):
     if XB is None:
         D = cdist(XA, XA, metric=partial_distance, **dist_params)
     else:
-        # TODO: check order
         D = cdist(XB, XA, metric=partial_distance, **dist_params)
     return D

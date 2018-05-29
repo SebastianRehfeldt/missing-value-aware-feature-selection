@@ -5,14 +5,14 @@ from time import time
 from project.utils import DataLoader
 
 data_loader = DataLoader()
-name = "madelon"
 name = "analcatdata_reviewer"
-name = "iris"
-name = "boston"
 name = "credit-approval"
-name = "ionosphere"
-name = "semeion"
+name = "boston"
+name = "madelon"
 name = "isolet"
+name = "semeion"
+name = "ionosphere"
+name = "iris"
 data = data_loader.load_data(name, "arff")
 data.shape
 
@@ -24,6 +24,7 @@ data = scale_data(data)
 
 # %%
 from project.rar import RaR
+
 start = time()
 rar = RaR(data.f_types, data.l_type, data.shape)
 rar.fit(data.X, data.y)
@@ -60,7 +61,6 @@ pipe7 = Pipeline(steps=[
     ('reduce', rknn),
     ('classify', knn),
 ])
-"""
 X_new = rknn.fit_transform(data.X, data.y)
 types = pd.Series(data.f_types, X_new.columns.values)
 new_data = data.replace(True, X=X_new, shape=X_new.shape, f_types=types)
@@ -70,14 +70,13 @@ pipe8 = Pipeline(steps=[
     ("imputer", Imputer(new_data.f_types, strategy="mice")),
     ('classify', new_knn),
 ])
-"""
 pipe9 = Pipeline(steps=[('reduce', pso), ('classify', knn)])
 pipe10 = Pipeline(steps=[('reduce', rar), ('classify', knn)])
 
-# pipelines = [
-#     pipe1, pipe2, pipe3, pipe4, pipe5, pipe6, pipe7, pipe8, pipe9, pipe10
-# ]
-pipelines = [pipe1, pipe10]
+pipelines = [pipe10]
+pipelines = [
+    pipe1, pipe2, pipe3, pipe4, pipe5, pipe6, pipe7, pipe8, pipe9, pipe10
+]
 
 scores = []
 times = []

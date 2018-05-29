@@ -28,6 +28,7 @@ class Selector(ABC):
         self.l_type = assert_l_type(l_type)
         self.shape = shape
         self.is_fitted = False
+        self.names = self.f_types.index.tolist()
         self._init_parameters(**kwargs)
 
     def _init_parameters(self, **kwargs):
@@ -40,7 +41,7 @@ class Selector(ABC):
         self.params = {
             "knn_neighbors": kwargs.get("knn_neighbors", 3),
             "mi_neighbors": kwargs.get("mi_neighbors", 6),
-            "k": kwargs.get("k", max(10, int(self.shape[1] / 2 + 1))),
+            "k": kwargs.get("k", min(10, int(self.shape[1] / 2 + 1))),
             "nominal_distance": kwargs.get("nominal_distance", 1),
             "use_cv": kwargs.get("use_cv", False),
             "eval_method": kwargs.get("eval_method", "mi"),
@@ -67,8 +68,7 @@ class Selector(ABC):
         if self.params["eval_method"] == "mi":
             self.data = self.data.add_salt()
 
-        # TODO: set scores for each feature to 0 or -1
-        self.feature_importances = {}
+        self.feature_importances = {name: -1 for name in self.names}
         self._fit()
         self.is_fitted = True
         return self

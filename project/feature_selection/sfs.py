@@ -13,7 +13,7 @@ class SFS(Selector):
         Calculate feature importances using sfs
         """
         score_map = {}
-        open_features = self.data.X.columns.tolist()
+        open_features = self.names[:]
 
         features = []
         while len(features) < self.params["k"]:
