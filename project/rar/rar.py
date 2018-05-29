@@ -20,8 +20,6 @@ class RaR(Subspacing):
         super()._init_parameters(**kwargs)
 
         # TODO: init params according to paper
-        # TODO: make sure to get samples for each feature/target
-        # TODO: sample all single spaces?
         size = (1, min(5, int(self.shape[1] / 2)))
         self.params["subspace_size"] = kwargs.get("subspace_size", size)
         self.hics = None

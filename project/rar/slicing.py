@@ -21,7 +21,7 @@ def get_slices(X, types, n_select, n_iterations=100):
     if len(slices) > n_iterations:
         pass
         # TODO fix this (ionosphere)
-        #return np.random.choice(slices, n_iterations)
+        # return np.random.choice(slices, n_iterations)
     return slices
 
 

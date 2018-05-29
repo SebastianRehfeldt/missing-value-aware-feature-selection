@@ -1,11 +1,11 @@
 """
     Base class for subspacing approaches.
 """
-import itertools
 from abc import abstractmethod
-from project.base import Selector
-import numpy as np
 from multiprocessing import Pool
+import numpy as np
+
+from project.base import Selector
 
 
 class Subspacing(Selector):
@@ -54,22 +54,26 @@ class Subspacing(Selector):
         """
         Return unique feature subspaces
         """
-        # TODO improve to make sure to get the right amount of subspaces
-        # sometimes lower because duplicated
         size = self.params["subspace_size"]
-        if isinstance(size, tuple):
-            lower, upper = size
-        else:
-            lower, upper = 1, size
+        lower, upper = size if isinstance(size, tuple) else (1, size)
 
-        subspaces = [None] * self.params["n_subspaces"]
-        for i in range(self.params["n_subspaces"]):
-            m = np.random.randint(lower, upper + 1, 1)[0]
-            f = list(np.random.choice(self.names, m, replace=False))
-            subspaces[i] = sorted(f)
+        # evaluate each feature independently
+        n_subspaces, start = self.params["n_subspaces"], 0
+        subspaces = [None] * n_subspaces
+        if lower == 1:
+            for i, name in enumerate(self.names):
+                subspaces[i] = [name]
+            start, lower = len(self.names), 2
 
-        subspaces.sort()
-        return list(subspaces for subspaces, _ in itertools.groupby(subspaces))
+        # add multi-d subspaces
+        for i in range(start, n_subspaces):
+            found_new = False
+            while not found_new:
+                m = np.random.randint(lower, upper + 1, 1)[0]
+                f = sorted(np.random.choice(self.names, m, replace=False))
+                found_new = f not in subspaces
+            subspaces[i] = f
+        return subspaces
 
     def _evaluate(self, subspace):
         features, types = self.data.get_subspace(subspace)
