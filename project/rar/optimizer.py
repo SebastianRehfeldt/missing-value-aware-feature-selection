@@ -2,7 +2,6 @@ import gurobipy as gb
 
 
 def deduce_relevances(features, knowledgebase):
-    # TODO: check flag
     gb.setParam('OutputFlag', 0)
     m = gb.Model('rar')
 
@@ -14,7 +13,7 @@ def deduce_relevances(features, knowledgebase):
     vars_average = m.addVar(name='s', vtype=gb.GRB.CONTINUOUS)
     vars_sum = sum(solver_variables.values())
 
-    # TODO: add constant factor for penalty
+    # TODO: add and test constant factor for penalty
     m.setObjective(
         vars_sum + _squared_dist(solver_variables.values(), vars_average),
         gb.GRB.MINIMIZE)

@@ -6,7 +6,6 @@ from abc import abstractmethod
 from project.base import Selector
 import numpy as np
 from multiprocessing import Pool
-from time import time
 
 
 class Subspacing(Selector):
@@ -35,26 +34,28 @@ class Subspacing(Selector):
 
     def _init_parameters(self, **kwargs):
         super()._init_parameters(**kwargs)
+        # TODO: update according to paper
         self.params.update({
             "n_subspaces":
             kwargs.get("n_subspaces", min(1000, int(self.shape[1]**2 / 2))),
             "subspace_size":
-            kwargs.get("subspace_size", int(np.sqrt(self.shape[1])))
+            kwargs.get("subspace_size", int(np.sqrt(self.shape[1]))),
+            "n_jobs":
+            kwargs.get("n_jobs", 1),
         })
 
     def _fit(self):
         subspaces = self._get_unique_subscapes()
-        start = time()
         score_map = self._evaluate_subspaces(subspaces)
-        print("Sampling", time() - start)
-        self.feature_importances = self._deduce_feature_importances(score_map)
+        importances = self._deduce_feature_importances(score_map)
+        self.feature_importances.update(importances)
 
     def _get_unique_subscapes(self):
         """
         Return unique feature subspaces
         """
         # TODO improve to make sure to get the right amount of subspaces
-        names = self.data.X.columns
+        # sometimes lower because duplicated
         size = self.params["subspace_size"]
         if isinstance(size, tuple):
             lower, upper = size
@@ -64,7 +65,7 @@ class Subspacing(Selector):
         subspaces = [None] * self.params["n_subspaces"]
         for i in range(self.params["n_subspaces"]):
             m = np.random.randint(lower, upper + 1, 1)[0]
-            f = list(np.random.choice(names, m, replace=False))
+            f = list(np.random.choice(self.names, m, replace=False))
             subspaces[i] = sorted(f)
 
         subspaces.sort()
@@ -85,7 +86,9 @@ class Subspacing(Selector):
         Arguments:
             subspaces {list} -- List of feature subspaces
         """
-        n_jobs = 2
+        n_jobs = self.params["n_jobs"]
+        if n_jobs == 1:
+            return [self._evaluate(subspace) for subspace in subspaces]
+
         with Pool(n_jobs) as p:
-            knowledgebase = p.map(self._evaluate, subspaces)
-        return knowledgebase
+            return p.map(self._evaluate, subspaces)

@@ -28,7 +28,7 @@ class PSO(Selector):
             "maxiter": kwargs.get("maxiter", 100),
             "debug": kwargs.get("debug", False),
         }
-        # TODO: Own modification
+        # Own modification
         self.default_options.update({
             "swarmsize":
             min(50, int(self.shape[1]**2 / 2)),
