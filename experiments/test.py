@@ -19,11 +19,14 @@ from project.utils import introduce_missing_values, scale_data
 
 data = introduce_missing_values(data, missing_rate=0.25)
 data = scale_data(data)
+data.y.head()
 
 # %%
+"""
 from project.rar import RaR
 rar = RaR(data.f_types, data.l_type, data.shape)
 rar.fit(data.X, data.y)
+"""
 
 # %%
 from time import time
@@ -74,7 +77,7 @@ pipe10 = Pipeline(steps=[('reduce', rar), ('classify', knn)])
 # pipelines = [
 #     pipe1, pipe2, pipe3, pipe4, pipe5, pipe6, pipe7, pipe8, pipe9, pipe10
 # ]
-pipelines = [pipe1, pipe10]
+pipelines = [pipe4, pipe10]
 
 scores = []
 times = []
