@@ -1,5 +1,5 @@
 import numpy as np
-from .contrast import calculate_contrast
+from .contrast import calculate_contrasts
 from .slicing import get_slices
 
 from time import time
@@ -19,17 +19,22 @@ class HICS():
         # TODO increase iterations when having many missing values
         # TODO n_select should depend on #dimensions
         # TODO increase relevance if missingness is predictive
-        relevances, redundancies = [], []
         n_select = int(0.8 * X.shape[0])
 
         slices = get_slices(X, types, n_select=n_select, n_iterations=100)
         c_cache = self._create_cache(y, l_type)
         t_cache = self._create_cache(t, t_type)
-        for s in slices:
-            relevances.append(calculate_contrast(y[s], l_type, c_cache))
-            # TODO: only return relevance if no target is specified
-            redundancies.append(calculate_contrast(t[s], t_type, t_cache))
 
+        # TODO: only return relevance if no target is specified
+        # TODO: check if kld or ks are > 1 (but no normalization for now)
+        # TODO: different value ranges from tests?
+        # use 1-exp(-KLD(P,Q)) to normalize kld
+        start = time()
+        relevances = calculate_contrasts(y, l_type, slices, c_cache)
+        print("Relevance (KLD)", time() - start)
+        start = time()
+        redundancies = calculate_contrasts(t, t_type, slices, t_cache)
+        print("Redundancy (KS)", time() - start)
         return np.mean(relevances), np.mean(redundancies)
 
     def _create_cache(self, y, y_type):
