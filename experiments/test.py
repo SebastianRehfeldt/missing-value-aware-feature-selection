@@ -9,8 +9,8 @@ name = "semeion"
 name = "analcatdata_reviewer"
 name = "boston"
 name = "credit-approval"
-name = "iris"
 name = "ionosphere"
+name = "iris"
 data = data_loader.load_data(name, "arff")
 data.shape
 
@@ -20,7 +20,7 @@ from project.utils import introduce_missing_values, scale_data
 data = introduce_missing_values(data, missing_rate=0.25)
 data = scale_data(data)
 
-#%%
+# %%
 from project.rar import RaR
 rar = RaR(data.f_types, data.l_type, data.shape)
 rar.fit(data.X, data.y)

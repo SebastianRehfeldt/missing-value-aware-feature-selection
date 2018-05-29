@@ -1,45 +1,62 @@
+import itertools
 import numpy as np
 
 
-def get_slices(X, types, n):
-    slice_vector = np.ones(X.shape[0], dtype=bool)
-    for col in X:
-        new_slice = {
-            "nominal": get_categorical_slice,
-            "numeric": get_numerical_slice
-        }[types[col]](X[col].values, n)
-        slice_vector = np.logical_and(slice_vector, new_slice)
-    return slice_vector
+def get_slices(X, types, n_select, n_iterations=100):
+    # TODO: check with Thomas
+    n_vectors = int(np.ceil(n_iterations**(1 / len(types))))
+
+    slice_pool = [None] * len(types)
+    for i, col in enumerate(X):
+        slice_pool[i] = {
+            "nominal": get_categorical_slices,
+            "numeric": get_numerical_slices
+        }[types[col]](X[col].values, n_select, n_vectors)
+
+    slices = [None] * np.product([len(slices) for slices in slice_pool])
+    for i, combination in enumerate(itertools.product(*slice_pool)):
+        # TODO partial slicing should go here
+        slices[i] = np.all(list(combination), axis=0)
+
+    # TODO adjust for correct #iterations
+    return slices
 
 
-def get_categorical_slice(X, n):
+def get_categorical_slices(X, n_select, n_vectors):
     # TODO: can be cached if categorical nans are extra category
     # TODO: caching: in deletion only set values 0 if samples are deleted
     # TODO: might change the size of the slice (store next value?)
     # TODO: sample from category to get more slices
-    # TODO: tackle slice similarity here?
-    values = np.random.permutation(X)
-    values, counts = np.unique(values, return_counts=True)
+    values, counts = np.unique(X, return_counts=True)
+    value_dict = dict(zip(values, counts))
 
-    selected_values, current_sum = [], 0
-    for i, value in enumerate(values):
-        if current_sum >= n:
-            break
-        selected_values.append(value)
-        current_sum = counts[i]
-    return np.isin(X, selected_values)
+    slices = [None] * n_vectors
+    for i in range(n_vectors):
+        # TODO: tackle slice similarity here?
+        values = np.random.permutation(values)
+
+        selected_values, current_sum = [], 0
+        for value in values:
+            if current_sum >= n_select:
+                break
+            selected_values.append(value)
+            current_sum += value_dict[value]
+        slices[i] = np.isin(X, selected_values)
+    return slices
 
 
-def get_numerical_slice(X, n):
+def get_numerical_slices(X, n_select, n_vectors):
     # TODO: Think of how to support nan's here (probabilistic slicing)
-    # TODO: get cached sorted indices from HICS
-    # TODO: slice similarity by setting different randints here?
     # TODO: adding salt?
-    max_start = X.shape[0] - n
-    start = np.random.randint(0, max_start)
-    end = start + (n - 1)
-
     sorted_indices = np.argsort(X)
-    start_value = X[sorted_indices[start]]
-    end_value = X[sorted_indices[end]]
-    return np.logical_and(X >= start_value, X <= end_value)
+
+    max_start = X.shape[0] - n_select
+    # TODO similarity using replace=False
+    start_positions = np.random.choice(range(0, max_start), n_vectors)
+
+    slices = [None] * n_vectors
+    for i, start in enumerate(start_positions):
+        start_value = X[sorted_indices[start]]
+        end_value = X[sorted_indices[start + (n_select - 1)]]
+        slices[i] = np.logical_and(X >= start_value, X <= end_value)
+    return slices
