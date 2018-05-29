@@ -26,8 +26,9 @@ class HICS():
         # TODO increase relevance if missingness is predictive
         relevances, redundancies = [], []
         n_select = int(0.8 * X.shape[0])
-        for i in range(100):
-            slice_ = get_slices(X, types, n_select)
+
+        slices = get_slices(X, types, n_select=n_select, n_iterations=100)
+        for slice_ in slices:
             relevances.append(calculate_contrast(y, y[slice_], l_type))
             # TODO: only return relevance if no target is specified
             redundancies.append(calculate_contrast(t, t[slice_], t_type))
