@@ -1,17 +1,14 @@
 import numpy as np
-from time import time
 
 
-def calculate_contrasts(y, y_type, slices, cache):
-    # TODO: improve speed by batch calculation of kld?
-
+def calculate_contrasts(y_type, slices, cache):
     return {
         "numeric": _calculate_contrasts_ks,
         "nominal": _calculate_contrasts_kld
-    }[y_type](y, slices, cache)
+    }[y_type](slices, cache)
 
 
-def _calculate_contrasts_ks(y, slices, cache):
+def _calculate_contrasts_ks(slices, cache):
     sorted_y = cache["sorted"]
     return [_calculate_contrast_ks(sorted_y, sorted_y[s]) for s in slices]
 
@@ -26,20 +23,19 @@ def _calculate_contrast_ks(y, y_cond):
     return np.max(np.absolute(cdf1 - cdf2))
 
 
-def _calculate_contrasts_kld(y, slices, cache):
+def _calculate_contrasts_kld(slices, cache):
     values_m = cache["values"]
     probs_m = cache["probs"]
+    sorted_y = cache["sorted"]
     template = {value: 1e-8 for value in values_m}
 
-    start = time()
     cdfs = np.zeros((len(slices), len(values_m)))
     for i, s in enumerate(slices):
-        cdfs[i, :] = _calculate_contrast_kld(y[s], template)
-    print("CDF creation", time() - start)
+        cdfs[i, :] = _calculate_probs_kld(sorted_y[s], template)
     return np.sum(cdfs * np.log2(cdfs / probs_m), axis=1)
 
 
-def _calculate_contrast_kld(y_cond, template):
+def _calculate_probs_kld(y_cond, template):
     probs_c = template.copy()
 
     values_c, counts_c = np.unique(y_cond, return_counts=True)

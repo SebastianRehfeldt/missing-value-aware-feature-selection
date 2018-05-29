@@ -2,8 +2,6 @@ import numpy as np
 from .contrast import calculate_contrasts
 from .slicing import get_slices
 
-from time import time
-
 
 class HICS():
     def __init__(self, data, **params):
@@ -29,24 +27,19 @@ class HICS():
         # TODO: check if kld or ks are > 1 (but no normalization for now)
         # TODO: different value ranges from tests?
         # use 1-exp(-KLD(P,Q)) to normalize kld
-        start = time()
-        relevances = calculate_contrasts(y, l_type, slices, c_cache)
-        print("Relevance (KLD)", time() - start)
-        start = time()
-        redundancies = calculate_contrasts(t, t_type, slices, t_cache)
-        print("Redundancy (KS)", time() - start)
+        relevances = calculate_contrasts(l_type, slices, c_cache)
+        redundancies = calculate_contrasts(t_type, slices, t_cache)
         return np.mean(relevances), np.mean(redundancies)
 
     def _create_cache(self, y, y_type):
-        if y_type == "nominal":
-            values, counts = np.unique(y, return_counts=True)
-            probs = counts / len(y)
-            return {
-                "values": values,
-                "probs": probs,
-            }
-        else:
-            return {"sorted": np.sort(y)}
+        sorted_y = np.sort(y)
+        values, counts = np.unique(sorted_y, return_counts=True)
+        probs = counts / len(sorted_y)
+        return {
+            "values": values,
+            "probs": probs,
+            "sorted": sorted_y,
+        }
 
     def _complete(self, names, types, target):
         # TODO: implement imputation

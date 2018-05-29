@@ -2,7 +2,6 @@
     RaR class for feature selection
 """
 import random
-from time import time
 
 from project.base import Subspacing
 from .optimizer import deduce_relevances
@@ -46,9 +45,7 @@ class RaR(Subspacing):
         if self.hics is None:
             self.hics = HICS(self.data, **self.params)
 
-        start = time()
         rel, red = self.hics.evaluate_subspace(names, types, target)
-        print("Evaluation: ", time() - start)
         return {
             "relevance": rel,
             "redundancy": red,
