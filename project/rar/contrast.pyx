@@ -3,7 +3,6 @@
 from cython.parallel import parallel, prange
 import numpy as np
 cimport numpy as np
-from libc.stdlib cimport malloc, free
 
 
 def calculate_contrasts(y_type, slices, cache):
@@ -22,7 +21,7 @@ def _calculate_contrasts_ks(slices, cache):
 
     cdef double[:] contrasts = np.zeros(len(slices))
     with nogil, parallel():
-        for i in prange(n, schedule='guided'):
+        for i in prange(n, schedule='static'):
             contrasts[i] = _calculate_contrast_ks(y_sorted, slices_int[i,:], slice_lengths[i])
     return contrasts
 
@@ -33,8 +32,6 @@ cdef public double _calculate_contrast_ks(double[:] m, bint[:] slice_, int n_c) 
     cdef int i = 0, j=0
     cdef int n_m = len(m)
     cdef int n = n_m + n_c
-    cdef double *c = <double *> malloc(sizeof(double) * n_c)
-    cdef double *y_all = <double *> malloc(sizeof(double) * n)
 
     cdef double counter_m = 0, counter_c = 0
     cdef double max_dist = 0, distance = 0
