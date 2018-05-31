@@ -7,7 +7,6 @@ from abc import abstractmethod
 from multiprocessing import Pool
 
 from project.base import Selector
-from concurrent.futures import ThreadPoolExecutor
 
 
 class Subspacing(Selector):
@@ -105,7 +104,6 @@ class Subspacing(Selector):
         chunk_size = int(np.ceil(len(subspaces) / n_jobs))
         chunks = self._get_chunks(subspaces, chunk_size)
 
-        # with ThreadPoolExecutor(max_workers=n_jobs) as p:
         with Pool(n_jobs) as p:
             knowledgebase = p.map(self._evaluate, chunks)
             return list(itertools.chain.from_iterable(knowledgebase))
