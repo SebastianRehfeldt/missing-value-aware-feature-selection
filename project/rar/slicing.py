@@ -19,9 +19,9 @@ def get_slices(X, types, n_select, n_iterations=100):
         slices[i] = np.all(list(combination), axis=0)
 
     if len(slices) > n_iterations:
-        pass
-        # TODO fix this (ionosphere)
-        # return np.random.choice(slices, n_iterations)
+        slices = np.asarray(slices)
+        indices = np.random.choice(range(0, len(slices)), n_iterations)
+        return slices[indices].tolist()
     return slices
 
 
