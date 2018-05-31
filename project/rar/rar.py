@@ -2,7 +2,6 @@
     RaR class for feature selection
 """
 import random
-import numpy as np
 from math import factorial, ceil, log
 
 from project.base import Subspacing
@@ -24,10 +23,10 @@ class RaR(Subspacing):
         self.hics = None
 
     def _update_params(self, **kwargs):
-        # TODO: init params according to paper
-        alpha = kwargs.get("alpha", 0.01)
+        alpha = kwargs.get("alpha", self._get_alpha())
         beta = kwargs.get("beta", 0.05)
-        max_subspaces = kwargs.get("max_subspaces", np.inf)
+        approach = kwargs.get("approach", "deletion")
+        max_subspaces = kwargs.get("max_subspaces", 1000)
         subspace_size = kwargs.get("subspace_size", self._get_size())
         subspace_method = kwargs.get("subspace_method", "adaptive")
         contrast_iterations = kwargs.get("contrast_iterations", 100)
@@ -35,6 +34,7 @@ class RaR(Subspacing):
         self.params.update({
             "alpha": alpha,
             "beta": beta,
+            "approach": approach,
             "max_subspaces": max_subspaces,
             "subspace_size": subspace_size,
             "subspace_method": subspace_method,
@@ -43,6 +43,11 @@ class RaR(Subspacing):
 
         n_subspaces = self._get_n_subspaces()
         self.params["n_subspaces"] = kwargs.get("n_subspaces", n_subspaces)
+
+    def _get_alpha(self):
+        # make sure to have enough samples inside a slice
+        min_samples = 30
+        return max(0.01, min_samples / self.shape[0])
 
     def _get_size(self):
         # small change to rar to enable datasets with less than 5 features

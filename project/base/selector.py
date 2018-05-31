@@ -27,9 +27,10 @@ class Selector(ABC):
         self.f_types = assert_series(f_types)
         self.l_type = assert_l_type(l_type)
         self.shape = shape
+        self._init_parameters(**kwargs)
         self.is_fitted = False
         self.names = self.f_types.index.tolist()
-        self._init_parameters(**kwargs)
+        self.feature_importances = {name: -1 for name in self.names}
 
     def _init_parameters(self, **kwargs):
         """
@@ -63,12 +64,14 @@ class Selector(ABC):
         y = assert_series(y).reset_index(drop=True)
         data = Data(X, y, self.f_types, self.l_type, X.shape)
         self.data = assert_data(data)
-        self.domain = self.data.to_table().domain
+
+        self.domain = None
+        if self.params["eval_method"] == "tree":
+            self.domain = self.data.to_table().domain
 
         if self.params["eval_method"] == "mi":
             self.data = self.data.add_salt()
 
-        self.feature_importances = {name: -1 for name in self.names}
         self._fit()
         self.is_fitted = True
         return self

@@ -1,9 +1,10 @@
 """
     Base class for subspacing approaches.
 """
+import itertools
+import numpy as np
 from abc import abstractmethod
 from multiprocessing import Pool
-import numpy as np
 
 from project.base import Selector
 
@@ -81,10 +82,16 @@ class Subspacing(Selector):
             subspaces[i] = f
         return subspaces
 
-    def _evaluate(self, subspace):
-        features, types = self.data.get_subspace(subspace)
-        score = self._evaluate_subspace(features, types)
-        return {"features": subspace, "score": score}
+    def _evaluate(self, subspaces):
+        results = [None] * len(subspaces)
+        for i, subspace in enumerate(subspaces):
+            features, types = self.data.get_subspace(subspace)
+            score = self._evaluate_subspace(features, types)
+            results[i] = {"features": subspace, "score": score}
+        return results
+
+    def _get_chunks(self, l, n):
+        return [l[i:i + n] for i in range(0, len(l), n)]
 
     def _evaluate_subspaces(self, subspaces):
         """
@@ -94,8 +101,9 @@ class Subspacing(Selector):
             subspaces {list} -- List of feature subspaces
         """
         n_jobs = self.params["n_jobs"]
-        if n_jobs == 1:
-            return [self._evaluate(subspace) for subspace in subspaces]
+        chunk_size = int(np.ceil(len(subspaces) / n_jobs))
+        chunks = self._get_chunks(subspaces, chunk_size)
 
         with Pool(n_jobs) as p:
-            return p.map(self._evaluate, subspaces)
+            knowledgebase = p.map(self._evaluate, chunks)
+            return list(itertools.chain.from_iterable(knowledgebase))
