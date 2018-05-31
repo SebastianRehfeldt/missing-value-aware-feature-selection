@@ -2,6 +2,8 @@
     RaR class for feature selection
 """
 import random
+import numpy as np
+from math import factorial, ceil, log
 
 from project.base import Subspacing
 from .optimizer import deduce_relevances
@@ -18,11 +20,61 @@ class RaR(Subspacing):
             parameters {dict} -- Parameter dict
         """
         super()._init_parameters(**kwargs)
-
-        # TODO: init params according to paper
-        size = (1, min(5, int(self.shape[1] / 2)))
-        self.params["subspace_size"] = kwargs.get("subspace_size", size)
+        self._update_params(**kwargs)
         self.hics = None
+
+    def _update_params(self, **kwargs):
+        # TODO: init params according to paper
+        alpha = kwargs.get("alpha", 0.01)
+        beta = kwargs.get("beta", 0.05)
+        max_subspaces = kwargs.get("max_subspaces", np.inf)
+        subspace_size = kwargs.get("subspace_size", self._get_size())
+        subspace_method = kwargs.get("subspace_method", "adaptive")
+        contrast_iterations = kwargs.get("contrast_iterations", 100)
+
+        self.params.update({
+            "alpha": alpha,
+            "beta": beta,
+            "max_subspaces": max_subspaces,
+            "subspace_size": subspace_size,
+            "subspace_method": subspace_method,
+            "contrast_iterations": contrast_iterations,
+        })
+
+        n_subspaces = self._get_n_subspaces()
+        self.params["n_subspaces"] = kwargs.get("n_subspaces", n_subspaces)
+
+    def _get_size(self):
+        # small change to rar to enable datasets with less than 5 features
+        max_size = int(self.shape[1] / 2)
+        return (1, min(5, max_size))
+
+    def _get_n_subspaces(self):
+        n_subspaces = {
+            "adaptive": self._get_n_subspaces_adaptive,
+            "linear": self._get_n_subspaces_linear,
+            "fixed": self._get_n_subspaces_fixed,
+        }[self.params["subspace_method"]]()
+        return min(self.params["max_subspaces"], n_subspaces)
+
+    def _get_n_subspaces_adaptive(self):
+        # see thesis of tom at page 42
+        beta = self.params["beta"]
+        k = self.params["subspace_size"][1]
+        l = self.shape[1]
+        s = 2
+
+        def _choose(n, k):
+            return factorial(n) // factorial(k) // factorial(n - k)
+
+        denominator = log(1 - _choose(l - s, k - s) / _choose(l, k))
+        return ceil(log(beta) / denominator)
+
+    def _get_n_subspaces_linear(self):
+        return self.shape[1] * self.params["contrast_iterations"]
+
+    def _get_n_subspaces_fixed(self):
+        return 1000
 
     def _evaluate_subspace(self, X, types):
         """
