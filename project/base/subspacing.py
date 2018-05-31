@@ -34,14 +34,18 @@ class Subspacing(Selector):
 
     def _init_parameters(self, **kwargs):
         super()._init_parameters(**kwargs)
-        # TODO: update according to paper
+
+        # as suggested by rknn
+        n_subspaces = max(1000, int(np.sqrt(self.shape[1]**2 / 2)))
+        n_subspaces = kwargs.get("n_subspaces", n_subspaces)
+
+        size = int(np.sqrt(self.shape[1]))
+        subspace_size = kwargs.get("subspace_size", size)
+
         self.params.update({
-            "n_subspaces":
-            kwargs.get("n_subspaces", min(1000, int(self.shape[1]**2 / 2))),
-            "subspace_size":
-            kwargs.get("subspace_size", int(np.sqrt(self.shape[1]))),
-            "n_jobs":
-            kwargs.get("n_jobs", 1),
+            "n_subspaces": n_subspaces,
+            "subspace_size": subspace_size,
+            "n_jobs": kwargs.get("n_jobs", 1),
         })
 
     def _fit(self):
@@ -66,12 +70,14 @@ class Subspacing(Selector):
             start, lower = len(self.names), 2
 
         # add multi-d subspaces
+        max_retries = 10
         for i in range(start, n_subspaces):
-            found_new = False
-            while not found_new:
+            found_new, retries = False, 0
+            while not found_new and retries < max_retries:
                 m = np.random.randint(lower, upper + 1, 1)[0]
                 f = sorted(np.random.choice(self.names, m, replace=False))
                 found_new = f not in subspaces
+                retries += 1
             subspaces[i] = f
         return subspaces
 
@@ -79,9 +85,6 @@ class Subspacing(Selector):
         features, types = self.data.get_subspace(subspace)
         score = self._evaluate_subspace(features, types)
         return {"features": subspace, "score": score}
-
-    def _get_chunks(self, l, n):
-        return [l[i:i + n] for i in range(0, len(l), n)]
 
     def _evaluate_subspaces(self, subspaces):
         """

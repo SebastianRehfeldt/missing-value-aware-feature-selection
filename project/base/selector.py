@@ -41,7 +41,7 @@ class Selector(ABC):
         self.params = {
             "knn_neighbors": kwargs.get("knn_neighbors", 3),
             "mi_neighbors": kwargs.get("mi_neighbors", 6),
-            "k": kwargs.get("k", min(10, int(self.shape[1] / 2 + 1))),
+            "k": kwargs.get("k", min(10, int(self.shape[1] / 2))),
             "nominal_distance": kwargs.get("nominal_distance", 1),
             "use_cv": kwargs.get("use_cv", False),
             "eval_method": kwargs.get("eval_method", "mi"),

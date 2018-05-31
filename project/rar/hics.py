@@ -25,6 +25,7 @@ class HICS():
 
         # TODO: only return relevance if no target is specified
         # TODO: check if kld or ks are > 1 (but no normalization for now)
+        # TODO: cythonize contrast?
         # TODO: different value ranges from tests?
         # use 1-exp(-KLD(P,Q)) to normalize kld
         relevances = calculate_contrasts(l_type, slices, c_cache)

@@ -11,6 +11,7 @@ name = "boston"
 name = "madelon"
 name = "isolet"
 name = "semeion"
+name = "musk"
 name = "ionosphere"
 name = "iris"
 data = data_loader.load_data(name, "arff")
@@ -19,7 +20,7 @@ data.shape
 # %%
 from project.utils import introduce_missing_values, scale_data
 
-data = introduce_missing_values(data, missing_rate=0.25)
+data = introduce_missing_values(data, missing_rate=0)
 data = scale_data(data)
 
 # %%
@@ -61,6 +62,7 @@ pipe7 = Pipeline(steps=[
     ('reduce', rknn),
     ('classify', knn),
 ])
+"""
 X_new = rknn.fit_transform(data.X, data.y)
 types = pd.Series(data.f_types, X_new.columns.values)
 new_data = data.replace(True, X=X_new, shape=X_new.shape, f_types=types)
@@ -70,17 +72,19 @@ pipe8 = Pipeline(steps=[
     ("imputer", Imputer(new_data.f_types, strategy="mice")),
     ('classify', new_knn),
 ])
+"""
 pipe9 = Pipeline(steps=[('reduce', pso), ('classify', knn)])
 pipe10 = Pipeline(steps=[('reduce', rar), ('classify', knn)])
-
-pipelines = [pipe10]
+"""
 pipelines = [
     pipe1, pipe2, pipe3, pipe4, pipe5, pipe6, pipe7, pipe8, pipe9, pipe10
 ]
+"""
+pipelines = [pipe10]
 
 scores = []
 times = []
-cv = StratifiedKFold(data.y, n_folds=4, shuffle=True)
+cv = StratifiedKFold(data.y, n_folds=3, shuffle=True)
 scoring = "accuracy" if data.l_type == "nominal" else "neg_mean_squared_error"
 
 for pipe in pipelines:
