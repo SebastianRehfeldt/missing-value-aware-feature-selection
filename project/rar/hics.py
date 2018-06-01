@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from .contrast import calculate_contrasts
 from .slicing import get_slices
 
@@ -18,7 +19,9 @@ class HICS():
         # TODO: cythonize contrast?
         # TODO: different value ranges from tests?
         # use 1-exp(-KLD(P,Q)) to normalize kld
+        start = time()
         X, y, t = self._complete(names, types, target)
+        print("Complete", time() - start)
         l_type, t_type = self.data.l_type, self.data.f_types[target]
 
         n_iterations = self.params["contrast_iterations"]
@@ -36,13 +39,12 @@ class HICS():
 
         start = time()
         relevances = calculate_contrasts(l_type, slices, c_cache)
-        print("Relevance (KLD", time() - start)
+        print("Relevances (KLD)", time() - start)
 
         start = time()
         redundancies = calculate_contrasts(t_type, slices, t_cache)
-        print("Redundancy (KS)", time() - start, flush=True)
-        #print(1 / 0)
-        return np.mean(relevances), np.mean(redundancies)
+        print("Redundancies (KS)", time() - start)
+        return pd.Series(relevances).mean(), np.mean(redundancies)
 
     def _create_cache(self, y, y_type):
         sorted_y = np.sort(y)

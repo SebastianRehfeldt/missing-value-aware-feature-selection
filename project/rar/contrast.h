@@ -18,7 +18,7 @@
   #define DL_IMPORT(_T) _T
 #endif
 
-__PYX_EXTERN_C double _calculate_contrast_ks(__Pyx_memviewslice, __Pyx_memviewslice, int);
+__PYX_EXTERN_C double _calculate_max_dist(__Pyx_memviewslice, __Pyx_memviewslice, int);
 
 #endif /* !__PYX_HAVE_API__project__rar__contrast */
 
