@@ -10,9 +10,9 @@ if __name__ == '__main__':
     name = "boston"
     name = "madelon"
     name = "musk"
+    name = "semeion"
     name = "iris"
     name = "ionosphere"
-    name = "semeion"
     name = "isolet"
     data = data_loader.load_data(name, "arff")
     print(data.shape, flush=True)
@@ -27,6 +27,11 @@ if __name__ == '__main__':
     from project.rar import RaR
 
     start = time()
-    rar = RaR(data.f_types, data.l_type, data.shape, n_jobs=4)
+    rar = RaR(
+        data.f_types,
+        data.l_type,
+        data.shape,
+        n_jobs=1,
+        contrast_iterations=10000)
     rar.fit(data.X, data.y)
     print(time() - start)

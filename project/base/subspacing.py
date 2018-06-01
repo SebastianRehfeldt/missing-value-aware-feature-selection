@@ -7,6 +7,7 @@ from abc import abstractmethod
 from multiprocessing import Pool
 
 from project.base import Selector
+from joblib import Parallel, delayed
 
 
 class Subspacing(Selector):
@@ -104,6 +105,9 @@ class Subspacing(Selector):
         chunk_size = int(np.ceil(len(subspaces) / n_jobs))
         chunks = self._get_chunks(subspaces, chunk_size)
 
-        with Pool(n_jobs) as p:
-            knowledgebase = p.map(self._evaluate, chunks)
-            return list(itertools.chain.from_iterable(knowledgebase))
+        #with Pool(n_jobs) as p:
+        #    knowledgebase = p.map(self._evaluate, chunks)
+        knowledgebase = Parallel(
+            n_jobs=1, backend="threading")(
+                delayed(self._evaluate)(chunk) for chunk in chunks)
+        return list(itertools.chain.from_iterable(knowledgebase))

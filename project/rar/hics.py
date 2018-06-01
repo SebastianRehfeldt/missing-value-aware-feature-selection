@@ -2,6 +2,8 @@ import numpy as np
 from .contrast import calculate_contrasts
 from .slicing import get_slices
 
+from time import time
+
 
 class HICS():
     def __init__(self, data, **params):
@@ -23,12 +25,23 @@ class HICS():
         alpha_d = self.params["alpha"]**(1 / X.shape[1])
         n_select = int(alpha_d * X.shape[0])
 
+        start = time()
         slices = get_slices(X, types, n_select, n_iterations)
+        print("Slicing", time() - start)
+
+        start = time()
         c_cache = self._create_cache(y, l_type)
         t_cache = self._create_cache(t, t_type)
+        print("Caching", time() - start)
 
+        start = time()
         relevances = calculate_contrasts(l_type, slices, c_cache)
+        print("Relevance (KLD", time() - start)
+
+        start = time()
         redundancies = calculate_contrasts(t_type, slices, t_cache)
+        print("Redundancy (KS)", time() - start, flush=True)
+        #print(1 / 0)
         return np.mean(relevances), np.mean(redundancies)
 
     def _create_cache(self, y, y_type):

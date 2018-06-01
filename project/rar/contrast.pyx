@@ -1,9 +1,11 @@
-# cython: boundscheck=False, wraparound=False
-
+#!python
+#cython: boundscheck=False, wraparound=False, nonecheck=False
 from cython.parallel import parallel, prange
+from time import time
 import numpy as np
-cimport numpy as np
 
+cdef extern from "math.h" nogil:
+    double abs(double)
 
 def calculate_contrasts(y_type, slices, cache):
     return {
@@ -16,11 +18,14 @@ def _calculate_contrasts_ks(slices, cache):
     cdef int n = len(slices) 
     cdef int i = 0
     cdef double[:] y_sorted = cache["sorted"]
-    cdef bint[:,:] slices_int = np.asarray(slices, dtype=int)
-    cdef int[:] slice_lengths = np.asarray([np.sum(s) for s in slices])
 
-    cdef double[:] contrasts = np.zeros(len(slices))
-    with nogil, parallel():
+    # TODO: slices should be int np.array (at least an array!)
+    slices = np.asarray(slices, dtype=int) 
+    cdef bint[:,:] slices_int = slices
+    cdef int[:] slice_lengths = np.sum(slices, axis=1)
+
+    cdef double[:] contrasts = np.zeros(n)
+    with nogil, parallel(num_threads=1):
         for i in prange(n, schedule='static'):
             contrasts[i] = _calculate_contrast_ks(y_sorted, slices_int[i,:], slice_lengths[i])
     return contrasts
@@ -29,23 +34,22 @@ cdef public double _calculate_contrast_ks(double[:] m, bint[:] slice_, int n_c) 
     if n_c == 0:
         return 0
     
-    cdef int i = 0, j=0
+    cdef int i = 0
     cdef int n_m = len(m)
-    cdef int n = n_m + n_c
+
+    cdef double m_step = 1 / n_m
+    cdef double c_step = 1 / n_c
 
     cdef double counter_m = 0, counter_c = 0
     cdef double max_dist = 0, distance = 0
     for i in range(n_m - 1):
-        counter_m += 1
+        counter_m += m_step
         if slice_[i] == 1:
-            counter_c += 1
+            counter_c += c_step
 
         # calculate distance if value to the right is new value
         if m[i] != m[i+1]:
-            distance = counter_m / n_m - counter_c / n_c
-            if distance < 0:
-                distance *= -1
-            
+            distance = abs(counter_m - counter_c)
             if distance > max_dist:
                 max_dist = distance
     return max_dist

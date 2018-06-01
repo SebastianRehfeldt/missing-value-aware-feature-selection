@@ -68,5 +68,6 @@ def calculate_ranking(relevances, redundancies, names):
                 best_score, best_feature = score, f
 
         ranking[best_feature] = best_score
+        # TODO causes a bug sometimes
         open_features.remove(best_feature)
     return ranking
