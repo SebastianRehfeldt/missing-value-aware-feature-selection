@@ -3,9 +3,11 @@ import numpy as np
 
 
 def get_slices(X, types, n_select, n_iterations=100):
-    # TODO: check with Thomas
+    # DISCUSS
+    # TODO: create some more to have enough to select from
     n_vectors = int(np.ceil(n_iterations**(1 / len(types))))
 
+    # TODO: slices should be int np.array (at least an array!)
     slice_pool = [None] * len(types)
     for i, col in enumerate(X):
         slice_pool[i] = {

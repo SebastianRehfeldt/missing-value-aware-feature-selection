@@ -15,7 +15,6 @@ def _calculate_contrasts_ks(slices, cache):
     cdef int i = 0
     cdef double[:] y_sorted = cache["sorted"]
 
-    # TODO: slices should be int np.array (at least an array!)
     slices = np.asarray(slices, dtype=int) 
     cdef bint[:,:] slices_int = slices
     cdef int[:] slice_lengths = np.sum(slices, axis=1)
@@ -52,6 +51,7 @@ cdef public double _calculate_max_dist(double[:] m, bint[:] slice_, int n_c) nog
     return max_dist
 
 def _calculate_contrasts_kld(slices, cache):
+    # TODO: check how nans can be produced
     values_m = cache["values"]
     probs_m = cache["probs"]
     sorted_y = cache["sorted"]
@@ -60,7 +60,6 @@ def _calculate_contrasts_kld(slices, cache):
     for i, s in enumerate(slices):
         cdfs[i, :] = _calculate_probs_kld(sorted_y[s], values_m)
 
-    # make sure to not compute ln(0)
     cdfs += 1e-8
     return np.sum(cdfs * np.log2(cdfs / probs_m), axis=1)
 

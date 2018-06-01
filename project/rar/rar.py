@@ -100,8 +100,8 @@ class RaR(Subspacing):
 
         rel, red = self.hics.evaluate_subspace(names, types, target)
         return {
-            "relevance": rel,
-            "redundancy": red,
+            "relevance": max(0, rel),
+            "redundancy": max(0, red),
             "target": target,
         }
 
@@ -114,5 +114,4 @@ class RaR(Subspacing):
         """
         relevances = deduce_relevances(self.names, knowledgebase)
         redundancies = sort_redundancies_by_target(knowledgebase)
-        # TODO: cythonize ranking?
         return calculate_ranking(relevances, redundancies, self.names)

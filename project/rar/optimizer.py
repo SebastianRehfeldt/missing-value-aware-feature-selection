@@ -25,13 +25,6 @@ def deduce_relevances(features, knowledgebase):
         objective_sum = sum(objective_vars)
         m.addConstr(objective_sum >= subset["score"]["relevance"])
 
-        # TODO: discuss extra constraint/ value for single features? (FUTURE)
-        # single features which achieve high relevances should appear earlier
-        """
-        if len(objective_vars) == 1:
-            m.addConstr(objective_sum <= 3 * subset["score"]["relevance"])
-        """
-
     m.optimize()
 
     return {v.varName: v.x for v in m.getVars() if v.varName in features}

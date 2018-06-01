@@ -6,8 +6,6 @@ import numpy as np
 from abc import abstractmethod
 from multiprocessing import Pool
 
-from time import time
-from pprint import pprint
 from project.base import Selector
 from joblib import Parallel, delayed
 
@@ -40,7 +38,7 @@ class Subspacing(Selector):
         super()._init_parameters(**kwargs)
 
         # as suggested by rknn
-        n_subspaces = max(1000, int(np.sqrt(self.shape[1]**2 / 2)))
+        n_subspaces = min(1000, int(self.shape[1]**2 / 2))
         n_subspaces = kwargs.get("n_subspaces", n_subspaces)
 
         size = int(np.sqrt(self.shape[1]))
@@ -65,13 +63,17 @@ class Subspacing(Selector):
         size = self.params["subspace_size"]
         lower, upper = size if isinstance(size, tuple) else (1, size)
 
-        # evaluate each feature independently
         n_subspaces, start = self.params["n_subspaces"], 0
         subspaces = [None] * n_subspaces
+
+        # DISCUSS
+        """
+        # evaluate each feature independently
         if lower == 1:
             for i, name in enumerate(self.names):
                 subspaces[i] = [name]
             start, lower = len(self.names), 2
+        """
 
         # add multi-d subspaces
         max_retries = 10
@@ -88,6 +90,7 @@ class Subspacing(Selector):
     def _evaluate(self, subspaces):
         results = [None] * len(subspaces)
         for i, subspace in enumerate(subspaces):
+            # TODO: pass only names
             features, types = self.data.get_subspace(subspace)
             score = self._evaluate_subspace(features, types)
             results[i] = {"features": subspace, "score": score}

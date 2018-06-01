@@ -1,5 +1,6 @@
 # %%
 from time import time
+from pprint import pprint
 from project.utils import DataLoader
 
 if __name__ == '__main__':
@@ -10,10 +11,10 @@ if __name__ == '__main__':
     name = "madelon"
     name = "musk"
     name = "semeion"
-    name = "isolet"
-    name = "iris"
-    name = "ionosphere"
     name = "boston"
+    name = "isolet"
+    name = "ionosphere"
+    name = "iris"
     data = data_loader.load_data(name, "arff")
     print(data.shape, flush=True)
 
@@ -32,6 +33,8 @@ if __name__ == '__main__':
         data.l_type,
         data.shape,
         n_jobs=1,
-        contrast_iterations=100)
+        contrast_iterations=100,
+    )
     rar.fit(data.X, data.y)
     print(time() - start)
+    pprint(rar.feature_importances)
