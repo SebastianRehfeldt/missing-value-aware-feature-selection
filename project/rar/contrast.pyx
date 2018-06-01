@@ -1,11 +1,7 @@
 #!python
 #cython: boundscheck=False, wraparound=False, nonecheck=False
 from cython.parallel import parallel, prange
-from time import time
 import numpy as np
-
-cdef extern from "math.h" nogil:
-    double abs(double)
 
 def calculate_contrasts(y_type, slices, cache):
     return {
@@ -25,31 +21,32 @@ def _calculate_contrasts_ks(slices, cache):
     cdef int[:] slice_lengths = np.sum(slices, axis=1)
 
     cdef double[:] contrasts = np.zeros(n)
-    with nogil, parallel(num_threads=1):
-        for i in prange(n, schedule='static'):
-            contrasts[i] = _calculate_contrast_ks(y_sorted, slices_int[i,:], slice_lengths[i])
+    for i in prange(n, schedule='static', nogil=True):
+        contrasts[i] = _calculate_max_dist(y_sorted, slices_int[i,:], slice_lengths[i])
     return contrasts
 
-cdef public double _calculate_contrast_ks(double[:] m, bint[:] slice_, int n_c) nogil:
+cdef public double _calculate_max_dist(double[:] m, bint[:] slice_, int n_c) nogil:
     if n_c == 0:
         return 0
     
     cdef int i = 0
     cdef int n_m = len(m)
 
-    cdef double m_step = 1 / n_m
-    cdef double c_step = 1 / n_c
+    cdef double m_step = 1.0 / n_m
+    cdef double c_step = 1.0 / n_c
 
     cdef double counter_m = 0, counter_c = 0
     cdef double max_dist = 0, distance = 0
     for i in range(n_m - 1):
         counter_m += m_step
-        if slice_[i] == 1:
+        if slice_[i]:
             counter_c += c_step
 
         # calculate distance if value to the right is new value
         if m[i] != m[i+1]:
-            distance = abs(counter_m - counter_c)
+            distance = counter_m - counter_c
+            if (distance < 0):
+                distance *= -1
             if distance > max_dist:
                 max_dist = distance
     return max_dist
@@ -58,19 +55,24 @@ def _calculate_contrasts_kld(slices, cache):
     values_m = cache["values"]
     probs_m = cache["probs"]
     sorted_y = cache["sorted"]
-    template = {value: 1e-8 for value in values_m}
 
     cdfs = np.zeros((len(slices), len(values_m)))
     for i, s in enumerate(slices):
-        cdfs[i, :] = _calculate_probs_kld(sorted_y[s], template)
+        cdfs[i, :] = _calculate_probs_kld(sorted_y[s], values_m)
+
+    # make sure that no division by 0 takes place
+    cdfs += 1e-8
     return np.sum(cdfs * np.log2(cdfs / probs_m), axis=1)
 
 
-def _calculate_probs_kld(y_cond, template):
-    probs_c = template.copy()
+def _calculate_probs_kld(y_cond, values_m):
+    m = len(values_m)
+    
+    indices = np.searchsorted(y_cond, values_m, side="right") / len(y_cond)
+    counts = np.zeros(m)
 
-    values_c, counts_c = np.unique(y_cond, return_counts=True)
-    value_dict = dict(zip(values_c, counts_c / len(y_cond)))
-
-    probs_c.update(value_dict)
-    return list(probs_c.values())
+    prev = 0
+    for i in range(m):
+        counts[i] = indices[i] - prev
+        prev = indices[i]
+    return counts

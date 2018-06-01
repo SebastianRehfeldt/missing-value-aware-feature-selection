@@ -6,6 +6,8 @@ import numpy as np
 from abc import abstractmethod
 from multiprocessing import Pool
 
+from time import time
+from pprint import pprint
 from project.base import Selector
 from joblib import Parallel, delayed
 
@@ -104,10 +106,11 @@ class Subspacing(Selector):
         n_jobs = self.params["n_jobs"]
         chunk_size = int(np.ceil(len(subspaces) / n_jobs))
         chunks = self._get_chunks(subspaces, chunk_size)
-
-        #with Pool(n_jobs) as p:
-        #    knowledgebase = p.map(self._evaluate, chunks)
-        knowledgebase = Parallel(
-            n_jobs=1, backend="threading")(
-                delayed(self._evaluate)(chunk) for chunk in chunks)
+        """
+        with Pool(n_jobs) as p:
+            knowledgebase = p.map(self._evaluate, chunks)
+            return list(itertools.chain.from_iterable(knowledgebase))
+        """
+        knowledgebase = Parallel(n_jobs=n_jobs)(
+            delayed(self._evaluate)(chunk) for chunk in chunks)
         return list(itertools.chain.from_iterable(knowledgebase))

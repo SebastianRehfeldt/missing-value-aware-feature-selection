@@ -10,10 +10,10 @@ if __name__ == '__main__':
     name = "boston"
     name = "madelon"
     name = "musk"
-    name = "semeion"
     name = "iris"
-    name = "ionosphere"
+    name = "semeion"
     name = "isolet"
+    name = "ionosphere"
     data = data_loader.load_data(name, "arff")
     print(data.shape, flush=True)
 
