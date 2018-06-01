@@ -13,10 +13,9 @@ class HICS():
         self.params = params
 
     def evaluate_subspace(self, names, types, target):
-        # TODO increase iterations when having many missing values
+        # TODO increase iterations when having many missing values?
         # TODO increase relevance if missingness is predictive
         # TODO: check if kld or ks are > 1 (but no normalization for now)
-        # TODO: cythonize contrast?
         # TODO: different value ranges from tests?
         # use 1-exp(-KLD(P,Q)) to normalize kld
         start = time()
@@ -44,6 +43,7 @@ class HICS():
         start = time()
         redundancies = calculate_contrasts(t_type, slices, t_cache)
         #print("Redundancies (KS)", time() - start)
+        #print(1/0)
         return np.mean(relevances), np.mean(redundancies)
 
     def _create_cache(self, y, y_type):
