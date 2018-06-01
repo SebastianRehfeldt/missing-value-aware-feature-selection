@@ -12,8 +12,8 @@ name = "madelon"
 name = "isolet"
 name = "musk"
 name = "iris"
-name = "ionosphere"
 name = "semeion"
+name = "ionosphere"
 data = data_loader.load_data(name, "arff")
 data.shape
 

@@ -60,7 +60,7 @@ def _calculate_contrasts_kld(slices, cache):
     for i, s in enumerate(slices):
         cdfs[i, :] = _calculate_probs_kld(sorted_y[s], values_m)
 
-    # make sure that no division by 0 takes place
+    # make sure to not compute ln(0)
     cdfs += 1e-8
     return np.sum(cdfs * np.log2(cdfs / probs_m), axis=1)
 

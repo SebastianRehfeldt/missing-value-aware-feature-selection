@@ -25,6 +25,7 @@ class RaR(Subspacing):
     def _update_params(self, **kwargs):
         alpha = kwargs.get("alpha", self._get_alpha())
         beta = kwargs.get("beta", 0.05)
+        eval_method = kwargs.get("eval_method", "rar")
         approach = kwargs.get("approach", "deletion")
         max_subspaces = kwargs.get("max_subspaces", 1000)
         subspace_size = kwargs.get("subspace_size", self._get_size())
@@ -34,6 +35,7 @@ class RaR(Subspacing):
         self.params.update({
             "alpha": alpha,
             "beta": beta,
+            "eval_method": eval_method,
             "approach": approach,
             "max_subspaces": max_subspaces,
             "subspace_size": subspace_size,

@@ -7,13 +7,13 @@ if __name__ == '__main__':
     data_loader = DataLoader()
     name = "analcatdata_reviewer"
     name = "credit-approval"
-    name = "boston"
     name = "madelon"
     name = "musk"
-    name = "iris"
     name = "semeion"
     name = "isolet"
+    name = "iris"
     name = "ionosphere"
+    name = "boston"
     data = data_loader.load_data(name, "arff")
     print(data.shape, flush=True)
 
@@ -32,6 +32,6 @@ if __name__ == '__main__':
         data.l_type,
         data.shape,
         n_jobs=1,
-        contrast_iterations=10000)
+        contrast_iterations=100)
     rar.fit(data.X, data.y)
     print(time() - start)

@@ -3302,7 +3302,7 @@ static PyObject *__pyx_pf_7project_3rar_8contrast_4_calculate_contrasts_kld(CYTH
  *     for i, s in enumerate(slices):
  *         cdfs[i, :] = _calculate_probs_kld(sorted_y[s], values_m)             # <<<<<<<<<<<<<<
  * 
- *     # make sure that no division by 0 takes place
+ *     # make sure to not compute ln(0)
  */
     __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_calculate_probs_kld); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 61, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
@@ -3380,7 +3380,7 @@ static PyObject *__pyx_pf_7project_3rar_8contrast_4_calculate_contrasts_kld(CYTH
 
   /* "project/rar/contrast.pyx":64
  * 
- *     # make sure that no division by 0 takes place
+ *     # make sure to not compute ln(0)
  *     cdfs += 1e-8             # <<<<<<<<<<<<<<
  *     return np.sum(cdfs * np.log2(cdfs / probs_m), axis=1)
  * 
@@ -3391,7 +3391,7 @@ static PyObject *__pyx_pf_7project_3rar_8contrast_4_calculate_contrasts_kld(CYTH
   __pyx_t_1 = 0;
 
   /* "project/rar/contrast.pyx":65
- *     # make sure that no division by 0 takes place
+ *     # make sure to not compute ln(0)
  *     cdfs += 1e-8
  *     return np.sum(cdfs * np.log2(cdfs / probs_m), axis=1)             # <<<<<<<<<<<<<<
  * 
@@ -17567,7 +17567,7 @@ static int __Pyx_InitCachedConstants(void) {
  *     for i, s in enumerate(slices):
  *         cdfs[i, :] = _calculate_probs_kld(sorted_y[s], values_m)             # <<<<<<<<<<<<<<
  * 
- *     # make sure that no division by 0 takes place
+ *     # make sure to not compute ln(0)
  */
   __pyx_slice_ = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice_)) __PYX_ERR(0, 61, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_slice_);
