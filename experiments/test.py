@@ -33,7 +33,7 @@ if __name__ == '__main__':
         data.l_type,
         data.shape,
         n_jobs=1,
-        contrast_iterations=10000s,
+        contrast_iterations=10000,
     )
     rar.fit(data.X, data.y)
     print(time() - start)
