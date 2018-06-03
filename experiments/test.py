@@ -12,16 +12,16 @@ if __name__ == '__main__':
     name = "musk"
     name = "semeion"
     name = "boston"
-    name = "isolet"
     name = "ionosphere"
     name = "iris"
+    name = "isolet"
     data = data_loader.load_data(name, "arff")
     print(data.shape, flush=True)
 
     # %%
     from project.utils import introduce_missing_values, scale_data
 
-    data = introduce_missing_values(data, missing_rate=0)
+    data = introduce_missing_values(data, missing_rate=0.2)
     data = scale_data(data)
 
     # %%
@@ -33,7 +33,7 @@ if __name__ == '__main__':
         data.l_type,
         data.shape,
         n_jobs=1,
-        contrast_iterations=100,
+        contrast_iterations=10000,
     )
     rar.fit(data.X, data.y)
     print(time() - start)
