@@ -7,7 +7,7 @@ from scipy.special import digamma
 from sklearn.metrics import mutual_info_score
 
 from project.utils import assert_df, assert_series, assert_types
-from project.shared import get_dist_matrix
+from project.shared.dist_matrix import get_dist_matrix
 
 
 def _get_mi_cc(X, y, f_types, l_type, k, dist):

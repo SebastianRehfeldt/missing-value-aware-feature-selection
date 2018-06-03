@@ -3,7 +3,7 @@ from sklearn.cross_validation import StratifiedKFold
 from sklearn.metrics import accuracy_score, mean_squared_error
 
 from project.classifier import KNN, Tree
-from project.shared import get_mutual_information
+from project.shared.mutual_information import get_mutual_information
 
 
 def evaluate_subspace(X, y, f_types, l_type, domain, **params):

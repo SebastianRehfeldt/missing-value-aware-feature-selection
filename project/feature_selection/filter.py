@@ -2,7 +2,7 @@
     Mutual Information Transformer class
 """
 from project.base import Selector
-from project.shared import evaluate_subspace
+from project.shared.evaluation import evaluate_subspace
 
 
 class Filter(Selector):

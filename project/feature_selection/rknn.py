@@ -5,7 +5,7 @@ import numpy as np
 from collections import defaultdict
 
 from project.base import Subspacing
-from project.shared import evaluate_subspace
+from project.shared.evaluation import evaluate_subspace
 
 
 class RKNN(Subspacing):
