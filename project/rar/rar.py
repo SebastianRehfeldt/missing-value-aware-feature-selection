@@ -100,8 +100,8 @@ class RaR(Subspacing):
 
         rel, red = self.hics.evaluate_subspace(names, types, target)
         return {
-            "relevance": max(0, rel),
-            "redundancy": max(0, red),
+            "relevance": rel,
+            "redundancy": red,
             "target": target,
         }
 

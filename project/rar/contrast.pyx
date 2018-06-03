@@ -74,4 +74,5 @@ def _calculate_probs_kld(y_cond, values_m):
     for i in range(m):
         counts[i] = indices[i] - prev
         prev = indices[i]
+    
     return counts

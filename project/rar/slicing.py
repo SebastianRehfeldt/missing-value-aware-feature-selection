@@ -20,7 +20,9 @@ def get_slices(X, types, n_select, n_iterations=100):
         # TODO partial slicing should go here
         slices[i] = np.all(list(combination), axis=0)
 
-    # TODO: remove emtpy slices
+    # remove empty and very small slices
+    slices = [s for s in slices if s.sum() > 10]
+
     if len(slices) > n_iterations:
         slices = np.asarray(slices)
         indices = np.random.choice(range(0, len(slices)), n_iterations)
