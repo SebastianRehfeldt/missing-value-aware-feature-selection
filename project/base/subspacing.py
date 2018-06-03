@@ -4,6 +4,7 @@
 import itertools
 import numpy as np
 from abc import abstractmethod
+from time import time
 from multiprocessing import Pool
 
 from project.base import Selector
@@ -114,6 +115,7 @@ class Subspacing(Selector):
             knowledgebase = p.map(self._evaluate, chunks)
             return list(itertools.chain.from_iterable(knowledgebase))
         """
-        knowledgebase = Parallel(n_jobs=n_jobs)(
-            delayed(self._evaluate)(chunk) for chunk in chunks)
+        knowledgebase = Parallel(
+            n_jobs=n_jobs,
+            mmap_mode="r")(delayed(self._evaluate)(chunk) for chunk in chunks)
         return list(itertools.chain.from_iterable(knowledgebase))

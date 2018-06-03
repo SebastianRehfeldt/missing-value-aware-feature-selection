@@ -5,7 +5,7 @@ import numpy as np
 from collections import Counter
 
 from project.utils import assert_series, assert_l_type, assert_df, assert_types
-from project.shared import get_dist_matrix
+from project.shared.dist_matrix import get_dist_matrix
 
 
 class KNN():

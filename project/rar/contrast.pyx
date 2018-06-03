@@ -20,8 +20,9 @@ def _calculate_contrasts_ks(slices, cache):
     cdef int[:] slice_lengths = np.sum(slices, axis=1)
 
     cdef double[:] contrasts = np.zeros(n)
-    for i in prange(n, schedule='static', nogil=True):
-        contrasts[i] = _calculate_max_dist(y_sorted, slices_int[i,:], slice_lengths[i])
+    with nogil, parallel(num_threads=1):
+        for i in prange(n, schedule='static'):
+            contrasts[i] = _calculate_max_dist(y_sorted, slices_int[i,:], slice_lengths[i])
     return contrasts
 
 cdef public double _calculate_max_dist(double[:] m, bint[:] slice_, int n_c) nogil:

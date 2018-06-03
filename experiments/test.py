@@ -21,7 +21,7 @@ if __name__ == '__main__':
     # %%
     from project.utils import introduce_missing_values, scale_data
 
-    data = introduce_missing_values(data, missing_rate=0.2)
+    data = introduce_missing_values(data, missing_rate=0)
     data = scale_data(data)
 
     # %%
@@ -33,8 +33,8 @@ if __name__ == '__main__':
         data.l_type,
         data.shape,
         n_jobs=1,
-        contrast_iterations=10000,
+        contrast_iterations=10000s,
     )
     rar.fit(data.X, data.y)
     print(time() - start)
-    pprint(rar.feature_importances)
+    #pprint(rar.feature_importances)
