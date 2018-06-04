@@ -53,7 +53,9 @@ class Subspacing(Selector):
 
     def _fit(self):
         subspaces = self._get_unique_subscapes()
+        start = time()
         score_map = self._evaluate_subspaces(subspaces)
+        print("Sampling", time() - start)
         importances = self._deduce_feature_importances(score_map)
         self.feature_importances.update(importances)
 
@@ -90,11 +92,13 @@ class Subspacing(Selector):
 
     def _evaluate(self, subspaces):
         results = [None] * len(subspaces)
+        start = time()
         for i, subspace in enumerate(subspaces):
             # TODO: pass only names
             features, types = self.data.get_subspace(subspace)
             score = self._evaluate_subspace(features, types)
             results[i] = {"features": subspace, "score": score}
+        print("Calc", time() - start)
         return results
 
     def _get_chunks(self, l, n):
@@ -107,6 +111,7 @@ class Subspacing(Selector):
         Arguments:
             subspaces {list} -- List of feature subspaces
         """
+        # TODO: increase number of chunks
         n_jobs = self.params["n_jobs"]
         chunk_size = int(np.ceil(len(subspaces) / n_jobs))
         chunks = self._get_chunks(subspaces, chunk_size)
@@ -115,7 +120,8 @@ class Subspacing(Selector):
             knowledgebase = p.map(self._evaluate, chunks)
             return list(itertools.chain.from_iterable(knowledgebase))
         """
+        # process creation takes time due to pickling of data
         knowledgebase = Parallel(
-            n_jobs=n_jobs,
-            mmap_mode="r")(delayed(self._evaluate)(chunk) for chunk in chunks)
+            n_jobs=n_jobs, mmap_mode="r", max_nbytes="1K")(
+                delayed(self._evaluate)(chunk) for chunk in chunks)
         return list(itertools.chain.from_iterable(knowledgebase))
