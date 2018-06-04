@@ -5,6 +5,7 @@ import sys
 from abc import ABC, abstractmethod
 from project.utils import Data
 from project.utils import assert_data, assert_df, assert_series, assert_l_type
+from project.rar.hics import HICS
 
 
 class Selector(ABC):
@@ -71,6 +72,10 @@ class Selector(ABC):
 
         if self.params["eval_method"] == "mi":
             self.data = self.data.add_salt()
+
+        if self.params["eval_method"] == "rar":
+            self.nans = self.data.X.isnull()
+            self.hics = HICS(self.data, self.nans, **self.params)
 
         self._fit()
         self.is_fitted = True

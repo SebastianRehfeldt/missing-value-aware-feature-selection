@@ -6,7 +6,6 @@ from math import factorial, ceil, log
 
 from project.base import Subspacing
 from .optimizer import deduce_relevances
-from .hics import HICS
 from .rar_utils import sort_redundancies_by_target, calculate_ranking
 
 
@@ -94,9 +93,6 @@ class RaR(Subspacing):
         names = X.columns.tolist()
         open_features = [name for name in self.names if name not in names]
         target = random.choice(open_features)
-
-        if self.hics is None:
-            self.hics = HICS(self.data, **self.params)
 
         rel, red = self.hics.evaluate_subspace(names, types, target)
         return {
