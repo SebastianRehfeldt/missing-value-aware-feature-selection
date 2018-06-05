@@ -82,7 +82,7 @@ class RaR(Subspacing):
     def _get_n_subspaces_fixed(self):
         return 1000
 
-    def _evaluate_subspace(self, X, types):
+    def _evaluate_subspace(self, subspace):
         """
         Evaluate a subspace using hics measure
 
@@ -90,11 +90,10 @@ class RaR(Subspacing):
             X {df} -- Dataframe containing the features
             types {pd.series} -- Series containing the feature types
         """
-        names = X.columns.tolist()
-        open_features = [name for name in self.names if name not in names]
+        open_features = [n for n in self.names if n not in subspace]
         target = random.choice(open_features)
 
-        rel, red = self.hics.evaluate_subspace(names, types, target)
+        rel, red = self.hics.evaluate_subspace(subspace, target)
         return {
             "relevance": rel,
             "redundancy": red,

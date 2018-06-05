@@ -13,14 +13,15 @@ class HICS():
         self.nans = nans
         self.params = params
 
-    def evaluate_subspace(self, names, types, target):
+    def evaluate_subspace(self, subspace, target):
         # TODO increase iterations when having many missing values?
         # TODO increase relevance if missingness is predictive
-        # TODO: check if kld or ks are > 1 (but no normalization for now)
         # TODO: different value ranges from tests?
         # use 1-exp(-KLD(P,Q)) to normalize kld
-        X, y, t = self._complete(names, types, target)
-        l_type, t_type = self.data.l_type, self.data.f_types[target]
+        X, y, t = self._complete(subspace, target)
+        l_type = self.data.l_type
+        t_type = self.data.f_types[target]
+        types = self.data.f_types[subspace]
 
         # TODO: calculate before and account for nans
         n_iterations = self.params["contrast_iterations"]
@@ -31,21 +32,21 @@ class HICS():
         slices = get_slices(X, types, n_select, n_iterations)
         if len(slices) == 0:
             return 0, 0
-        print("Slicing", time() - start)
+        #print("Slicing", time() - start)
 
         start = time()
         c_cache = self._create_cache(y, l_type)
         t_cache = self._create_cache(t, t_type)
-        print("Caching", time() - start)
+        #print("Caching", time() - start)
 
         start = time()
         relevances = calculate_contrasts(l_type, slices, c_cache)
-        print("Relevances (KLD)", time() - start)
+        #print("Relevances (KLD)", time() - start)
 
         start = time()
         redundancies = calculate_contrasts(t_type, slices, t_cache)
-        print("Redundancies (KS)", time() - start)
-        print(1 / 0)
+        #print("Redundancies (KS)", time() - start)
+        #print(1 / 0)
         return np.mean(relevances), np.mean(redundancies)
 
     def _create_cache(self, y, y_type):
@@ -58,12 +59,12 @@ class HICS():
             "sorted": sorted_y,
         }
 
-    def _complete(self, names, types, target):
+    def _complete(self, subspace, target):
         # TODO: implement imputation
         # TODO: 2-step deletion
         if self.params["approach"] == "deletion":
-            idx = np.sum(self.nans[names + [target]], axis=1) == 0
-            new_X = self.data.X[names][idx]
+            idx = np.sum(self.nans[subspace + [target]], axis=1) == 0
+            new_X = self.data.X[subspace][idx]
             new_t = self.data.X[target][idx]
             new_y = self.data.y[idx]
 
