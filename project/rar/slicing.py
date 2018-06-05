@@ -1,6 +1,5 @@
 import itertools
 import numpy as np
-from time import time
 
 
 def get_slices(X, types, n_select, n_iterations=100):
@@ -10,14 +9,12 @@ def get_slices(X, types, n_select, n_iterations=100):
     n_vectors = int(np.ceil(n_iterations**(1 / len(types))))
 
     # pooling
-    start = time()
     pool = [None] * len(types)
     for i, col in enumerate(X):
         pool[i] = {
             "nominal": get_categorical_slices,
             "numeric": get_numerical_slices
         }[types[col]](X[col].values, n_select, n_vectors)
-    print("pooling", time() - start)
 
     # mating
     if len(types) > 1:
@@ -51,22 +48,21 @@ def get_slices(X, types, n_select, n_iterations=100):
 
 def get_categorical_slices(X, n_select, n_vectors):
     # TODO: sample from category to get more slices
-    # TODO: slow (inner loop and np.isin)
     values, counts = np.unique(X, return_counts=True)
     value_dict = dict(zip(values, counts))
+    index_dict = {val: np.where(X == val)[0] for val in values}
 
     slices = np.zeros((n_vectors, X.shape[0]), dtype=bool)
+    t = 0
     for i in range(n_vectors):
         # TODO: tackle slice similarity here?
         values = np.random.permutation(values)
-
-        selected_values, current_sum = [], 0
+        current_sum = 0
         for value in values:
             if current_sum >= n_select:
                 break
-            selected_values.append(value)
+            slices[i, index_dict[value]] = True
             current_sum += value_dict[value]
-        slices[i, :] = np.isin(X, selected_values)
     return slices
 
 
