@@ -12,7 +12,6 @@ class HICS():
         self.data = data
         self.nans = nans
         self.params = params
-        print("hics")
 
     def evaluate_subspace(self, names, types, target):
         # TODO increase iterations when having many missing values?
@@ -20,11 +19,10 @@ class HICS():
         # TODO: check if kld or ks are > 1 (but no normalization for now)
         # TODO: different value ranges from tests?
         # use 1-exp(-KLD(P,Q)) to normalize kld
-        start = time()
         X, y, t = self._complete(names, types, target)
-        print("Complete", time() - start)
         l_type, t_type = self.data.l_type, self.data.f_types[target]
 
+        # TODO: calculate before and account for nans
         n_iterations = self.params["contrast_iterations"]
         alpha_d = self.params["alpha"]**(1 / X.shape[1])
         n_select = int(alpha_d * X.shape[0])
