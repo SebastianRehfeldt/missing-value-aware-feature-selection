@@ -1,6 +1,6 @@
-#!python
 #cython: boundscheck=False, wraparound=False, nonecheck=False
 from cython.parallel import parallel, prange
+cimport numpy as np
 import numpy as np
 from time import time
 
@@ -16,9 +16,8 @@ def _calculate_contrasts_ks(slices, cache):
     cdef int i = 0
     cdef double[:] y_sorted = cache["sorted"]
 
-    # TODO: bool to int convertion is expensive for large matrices
-    cdef bint[:,:] slices_int = slices.astype(int)
-    cdef int[:] slice_lengths = np.sum(slices, axis=1)
+    cdef np.uint8_t[:,:] slices_int = slices.view(dtype=np.uint8, type=np.matrix)
+    cdef int[:] slice_lengths = np.sum(slices_int, axis=1, dtype=int)
 
     cdef double[:] contrasts = np.zeros(n)
     with nogil, parallel(num_threads=1):
@@ -26,7 +25,7 @@ def _calculate_contrasts_ks(slices, cache):
             contrasts[i] = _calculate_max_dist(y_sorted, slices_int[i,:], slice_lengths[i])
     return contrasts
 
-cdef public double _calculate_max_dist(double[:] m, bint[:] slice_, int n_c) nogil:
+cdef public double _calculate_max_dist(double[:] m, np.uint8_t[:] slice_, int n_c) nogil:
     if n_c == 0:
         return 0
     
