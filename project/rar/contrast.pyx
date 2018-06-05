@@ -2,6 +2,7 @@
 #cython: boundscheck=False, wraparound=False, nonecheck=False
 from cython.parallel import parallel, prange
 import numpy as np
+from time import time
 
 def calculate_contrasts(y_type, slices, cache):
     return {
@@ -15,8 +16,8 @@ def _calculate_contrasts_ks(slices, cache):
     cdef int i = 0
     cdef double[:] y_sorted = cache["sorted"]
 
-    slices = np.asarray(slices, dtype=int) 
-    cdef bint[:,:] slices_int = slices
+    # TODO: bool to int convertion is expensive for large matrices
+    cdef bint[:,:] slices_int = slices.astype(int)
     cdef int[:] slice_lengths = np.sum(slices, axis=1)
 
     cdef double[:] contrasts = np.zeros(n)
@@ -52,7 +53,6 @@ cdef public double _calculate_max_dist(double[:] m, bint[:] slice_, int n_c) nog
     return max_dist
 
 def _calculate_contrasts_kld(slices, cache):
-    # TODO: check how nans can be produced
     values_m = cache["values"]
     probs_m = cache["probs"]
     sorted_y = cache["sorted"]

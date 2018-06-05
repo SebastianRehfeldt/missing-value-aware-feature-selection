@@ -1705,10 +1705,10 @@ static const char __pyx_k_size[] = "size";
 static const char __pyx_k_step[] = "step";
 static const char __pyx_k_stop[] = "stop";
 static const char __pyx_k_test[] = "__test__";
+static const char __pyx_k_time[] = "time";
 static const char __pyx_k_ASCII[] = "ASCII";
 static const char __pyx_k_cache[] = "cache";
 static const char __pyx_k_class[] = "__class__";
-static const char __pyx_k_dtype[] = "dtype";
 static const char __pyx_k_error[] = "error";
 static const char __pyx_k_flags[] = "flags";
 static const char __pyx_k_numpy[] = "numpy";
@@ -1718,6 +1718,7 @@ static const char __pyx_k_right[] = "right";
 static const char __pyx_k_shape[] = "shape";
 static const char __pyx_k_start[] = "start";
 static const char __pyx_k_zeros[] = "zeros";
+static const char __pyx_k_astype[] = "astype";
 static const char __pyx_k_counts[] = "counts";
 static const char __pyx_k_encode[] = "encode";
 static const char __pyx_k_format[] = "format";
@@ -1733,7 +1734,6 @@ static const char __pyx_k_update[] = "update";
 static const char __pyx_k_values[] = "values";
 static const char __pyx_k_y_cond[] = "y_cond";
 static const char __pyx_k_y_type[] = "y_type";
-static const char __pyx_k_asarray[] = "asarray";
 static const char __pyx_k_fortran[] = "fortran";
 static const char __pyx_k_indices[] = "indices";
 static const char __pyx_k_memview[] = "memview";
@@ -1827,7 +1827,7 @@ static PyObject *__pyx_kp_s_Unable_to_convert_item_to_object;
 static PyObject *__pyx_n_s_ValueError;
 static PyObject *__pyx_n_s_View_MemoryView;
 static PyObject *__pyx_n_s_allocate_buffer;
-static PyObject *__pyx_n_s_asarray;
+static PyObject *__pyx_n_s_astype;
 static PyObject *__pyx_n_s_axis;
 static PyObject *__pyx_n_s_base;
 static PyObject *__pyx_n_s_c;
@@ -1845,7 +1845,6 @@ static PyObject *__pyx_kp_s_contiguous_and_indirect;
 static PyObject *__pyx_n_s_contrasts;
 static PyObject *__pyx_n_s_counts;
 static PyObject *__pyx_n_s_dict;
-static PyObject *__pyx_n_s_dtype;
 static PyObject *__pyx_n_s_dtype_is_object;
 static PyObject *__pyx_n_s_encode;
 static PyObject *__pyx_n_s_enumerate;
@@ -1920,6 +1919,7 @@ static PyObject *__pyx_kp_s_stringsource;
 static PyObject *__pyx_n_s_struct;
 static PyObject *__pyx_n_s_sum;
 static PyObject *__pyx_n_s_test;
+static PyObject *__pyx_n_s_time;
 static PyObject *__pyx_kp_s_unable_to_allocate_array_data;
 static PyObject *__pyx_kp_s_unable_to_allocate_shape_and_str;
 static PyObject *__pyx_n_s_unpack;
@@ -2024,8 +2024,8 @@ static PyObject *__pyx_codeobj__30;
 static PyObject *__pyx_codeobj__37;
 /* Late includes */
 
-/* "project/rar/contrast.pyx":6
- * import numpy as np
+/* "project/rar/contrast.pyx":7
+ * from time import time
  * 
  * def calculate_contrasts(y_type, slices, cache):             # <<<<<<<<<<<<<<
  *     return {
@@ -2067,17 +2067,17 @@ static PyObject *__pyx_pw_7project_3rar_8contrast_1calculate_contrasts(PyObject 
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_slices)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("calculate_contrasts", 1, 3, 3, 1); __PYX_ERR(0, 6, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("calculate_contrasts", 1, 3, 3, 1); __PYX_ERR(0, 7, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_cache)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("calculate_contrasts", 1, 3, 3, 2); __PYX_ERR(0, 6, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("calculate_contrasts", 1, 3, 3, 2); __PYX_ERR(0, 7, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "calculate_contrasts") < 0)) __PYX_ERR(0, 6, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "calculate_contrasts") < 0)) __PYX_ERR(0, 7, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 3) {
       goto __pyx_L5_argtuple_error;
@@ -2092,7 +2092,7 @@ static PyObject *__pyx_pw_7project_3rar_8contrast_1calculate_contrasts(PyObject 
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("calculate_contrasts", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 6, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("calculate_contrasts", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 7, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("project.rar.contrast.calculate_contrasts", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -2115,7 +2115,7 @@ static PyObject *__pyx_pf_7project_3rar_8contrast_calculate_contrasts(CYTHON_UNU
   PyObject *__pyx_t_5 = NULL;
   __Pyx_RefNannySetupContext("calculate_contrasts", 0);
 
-  /* "project/rar/contrast.pyx":7
+  /* "project/rar/contrast.pyx":8
  * 
  * def calculate_contrasts(y_type, slices, cache):
  *     return {             # <<<<<<<<<<<<<<
@@ -2124,40 +2124,40 @@ static PyObject *__pyx_pf_7project_3rar_8contrast_calculate_contrasts(CYTHON_UNU
  */
   __Pyx_XDECREF(__pyx_r);
 
-  /* "project/rar/contrast.pyx":8
+  /* "project/rar/contrast.pyx":9
  * def calculate_contrasts(y_type, slices, cache):
  *     return {
  *         "numeric": _calculate_contrasts_ks,             # <<<<<<<<<<<<<<
  *         "nominal": _calculate_contrasts_kld
  *     }[y_type](slices, cache)
  */
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 8, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 9, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_calculate_contrasts_ks); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 8, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_calculate_contrasts_ks); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 9, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_numeric, __pyx_t_3) < 0) __PYX_ERR(0, 8, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_numeric, __pyx_t_3) < 0) __PYX_ERR(0, 9, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "project/rar/contrast.pyx":9
+  /* "project/rar/contrast.pyx":10
  *     return {
  *         "numeric": _calculate_contrasts_ks,
  *         "nominal": _calculate_contrasts_kld             # <<<<<<<<<<<<<<
  *     }[y_type](slices, cache)
  * 
  */
-  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_calculate_contrasts_kld); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 9, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_calculate_contrasts_kld); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 10, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_nominal, __pyx_t_3) < 0) __PYX_ERR(0, 8, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_nominal, __pyx_t_3) < 0) __PYX_ERR(0, 9, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "project/rar/contrast.pyx":10
+  /* "project/rar/contrast.pyx":11
  *         "numeric": _calculate_contrasts_ks,
  *         "nominal": _calculate_contrasts_kld
  *     }[y_type](slices, cache)             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  __pyx_t_3 = __Pyx_PyDict_GetItem(__pyx_t_2, __pyx_v_y_type); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 10, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyDict_GetItem(__pyx_t_2, __pyx_v_y_type); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 11, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_2 = NULL;
@@ -2175,7 +2175,7 @@ static PyObject *__pyx_pf_7project_3rar_8contrast_calculate_contrasts(CYTHON_UNU
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_2, __pyx_v_slices, __pyx_v_cache};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_4, 2+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 10, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_4, 2+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 11, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else
@@ -2183,13 +2183,13 @@ static PyObject *__pyx_pf_7project_3rar_8contrast_calculate_contrasts(CYTHON_UNU
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_2, __pyx_v_slices, __pyx_v_cache};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_4, 2+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 10, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_4, 2+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 11, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else
   #endif
   {
-    __pyx_t_5 = PyTuple_New(2+__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 10, __pyx_L1_error)
+    __pyx_t_5 = PyTuple_New(2+__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 11, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     if (__pyx_t_2) {
       __Pyx_GIVEREF(__pyx_t_2); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_2); __pyx_t_2 = NULL;
@@ -2200,7 +2200,7 @@ static PyObject *__pyx_pf_7project_3rar_8contrast_calculate_contrasts(CYTHON_UNU
     __Pyx_INCREF(__pyx_v_cache);
     __Pyx_GIVEREF(__pyx_v_cache);
     PyTuple_SET_ITEM(__pyx_t_5, 1+__pyx_t_4, __pyx_v_cache);
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 10, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 11, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   }
@@ -2209,8 +2209,8 @@ static PyObject *__pyx_pf_7project_3rar_8contrast_calculate_contrasts(CYTHON_UNU
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "project/rar/contrast.pyx":6
- * import numpy as np
+  /* "project/rar/contrast.pyx":7
+ * from time import time
  * 
  * def calculate_contrasts(y_type, slices, cache):             # <<<<<<<<<<<<<<
  *     return {
@@ -2231,7 +2231,7 @@ static PyObject *__pyx_pf_7project_3rar_8contrast_calculate_contrasts(CYTHON_UNU
   return __pyx_r;
 }
 
-/* "project/rar/contrast.pyx":13
+/* "project/rar/contrast.pyx":14
  * 
  * 
  * def _calculate_contrasts_ks(slices, cache):             # <<<<<<<<<<<<<<
@@ -2271,11 +2271,11 @@ static PyObject *__pyx_pw_7project_3rar_8contrast_3_calculate_contrasts_ks(PyObj
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_cache)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("_calculate_contrasts_ks", 1, 2, 2, 1); __PYX_ERR(0, 13, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("_calculate_contrasts_ks", 1, 2, 2, 1); __PYX_ERR(0, 14, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "_calculate_contrasts_ks") < 0)) __PYX_ERR(0, 13, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "_calculate_contrasts_ks") < 0)) __PYX_ERR(0, 14, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -2288,7 +2288,7 @@ static PyObject *__pyx_pw_7project_3rar_8contrast_3_calculate_contrasts_ks(PyObj
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("_calculate_contrasts_ks", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 13, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("_calculate_contrasts_ks", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 14, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("project.rar.contrast._calculate_contrasts_ks", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -2326,19 +2326,18 @@ static PyObject *__pyx_pf_7project_3rar_8contrast_2_calculate_contrasts_ks(CYTHO
   Py_ssize_t __pyx_t_14;
   Py_ssize_t __pyx_t_15;
   __Pyx_RefNannySetupContext("_calculate_contrasts_ks", 0);
-  __Pyx_INCREF(__pyx_v_slices);
 
-  /* "project/rar/contrast.pyx":14
+  /* "project/rar/contrast.pyx":15
  * 
  * def _calculate_contrasts_ks(slices, cache):
  *     cdef int n = len(slices)             # <<<<<<<<<<<<<<
  *     cdef int i = 0
  *     cdef double[:] y_sorted = cache["sorted"]
  */
-  __pyx_t_1 = PyObject_Length(__pyx_v_slices); if (unlikely(__pyx_t_1 == ((Py_ssize_t)-1))) __PYX_ERR(0, 14, __pyx_L1_error)
+  __pyx_t_1 = PyObject_Length(__pyx_v_slices); if (unlikely(__pyx_t_1 == ((Py_ssize_t)-1))) __PYX_ERR(0, 15, __pyx_L1_error)
   __pyx_v_n = __pyx_t_1;
 
-  /* "project/rar/contrast.pyx":15
+  /* "project/rar/contrast.pyx":16
  * def _calculate_contrasts_ks(slices, cache):
  *     cdef int n = len(slices)
  *     cdef int i = 0             # <<<<<<<<<<<<<<
@@ -2347,159 +2346,177 @@ static PyObject *__pyx_pf_7project_3rar_8contrast_2_calculate_contrasts_ks(CYTHO
  */
   __pyx_v_i = 0;
 
-  /* "project/rar/contrast.pyx":16
+  /* "project/rar/contrast.pyx":17
  *     cdef int n = len(slices)
  *     cdef int i = 0
  *     cdef double[:] y_sorted = cache["sorted"]             # <<<<<<<<<<<<<<
  * 
- *     slices = np.asarray(slices, dtype=int)
+ *     # TODO: bool to int convertion is expensive for large matrices
  */
-  __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_cache, __pyx_n_s_sorted); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 16, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_cache, __pyx_n_s_sorted); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_t_2, PyBUF_WRITABLE); if (unlikely(!__pyx_t_3.memview)) __PYX_ERR(0, 16, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_t_2, PyBUF_WRITABLE); if (unlikely(!__pyx_t_3.memview)) __PYX_ERR(0, 17, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_y_sorted = __pyx_t_3;
   __pyx_t_3.memview = NULL;
   __pyx_t_3.data = NULL;
 
-  /* "project/rar/contrast.pyx":18
- *     cdef double[:] y_sorted = cache["sorted"]
+  /* "project/rar/contrast.pyx":20
  * 
- *     slices = np.asarray(slices, dtype=int)             # <<<<<<<<<<<<<<
- *     cdef bint[:,:] slices_int = slices
+ *     # TODO: bool to int convertion is expensive for large matrices
+ *     cdef bint[:,:] slices_int = slices.astype(int)             # <<<<<<<<<<<<<<
  *     cdef int[:] slice_lengths = np.sum(slices, axis=1)
+ * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 18, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 18, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_slices, __pyx_n_s_astype); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 20, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 18, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_INCREF(__pyx_v_slices);
-  __Pyx_GIVEREF(__pyx_v_slices);
-  PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_v_slices);
-  __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 18, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
-  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, ((PyObject *)(&PyInt_Type))) < 0) __PYX_ERR(0, 18, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_2, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 18, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_6);
+  __pyx_t_5 = NULL;
+  if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_4))) {
+    __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_4);
+    if (likely(__pyx_t_5)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_4);
+      __Pyx_INCREF(__pyx_t_5);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_4, function);
+    }
+  }
+  if (!__pyx_t_5) {
+    __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_4, ((PyObject *)(&PyInt_Type))); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 20, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+  } else {
+    #if CYTHON_FAST_PYCALL
+    if (PyFunction_Check(__pyx_t_4)) {
+      PyObject *__pyx_temp[2] = {__pyx_t_5, ((PyObject *)(&PyInt_Type))};
+      __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 20, __pyx_L1_error)
+      __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+      __Pyx_GOTREF(__pyx_t_2);
+    } else
+    #endif
+    #if CYTHON_FAST_PYCCALL
+    if (__Pyx_PyFastCFunction_Check(__pyx_t_4)) {
+      PyObject *__pyx_temp[2] = {__pyx_t_5, ((PyObject *)(&PyInt_Type))};
+      __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 20, __pyx_L1_error)
+      __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+      __Pyx_GOTREF(__pyx_t_2);
+    } else
+    #endif
+    {
+      __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 20, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_6);
+      __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_5); __pyx_t_5 = NULL;
+      __Pyx_INCREF(((PyObject *)(&PyInt_Type)));
+      __Pyx_GIVEREF(((PyObject *)(&PyInt_Type)));
+      PyTuple_SET_ITEM(__pyx_t_6, 0+1, ((PyObject *)(&PyInt_Type)));
+      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_6, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 20, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_2);
+      __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    }
+  }
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_dsds_int(__pyx_t_2, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 20, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __Pyx_DECREF_SET(__pyx_v_slices, __pyx_t_6);
-  __pyx_t_6 = 0;
-
-  /* "project/rar/contrast.pyx":19
- * 
- *     slices = np.asarray(slices, dtype=int)
- *     cdef bint[:,:] slices_int = slices             # <<<<<<<<<<<<<<
- *     cdef int[:] slice_lengths = np.sum(slices, axis=1)
- * 
- */
-  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_dsds_int(__pyx_v_slices, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 19, __pyx_L1_error)
   __pyx_v_slices_int = __pyx_t_7;
   __pyx_t_7.memview = NULL;
   __pyx_t_7.data = NULL;
 
-  /* "project/rar/contrast.pyx":20
- *     slices = np.asarray(slices, dtype=int)
- *     cdef bint[:,:] slices_int = slices
+  /* "project/rar/contrast.pyx":21
+ *     # TODO: bool to int convertion is expensive for large matrices
+ *     cdef bint[:,:] slices_int = slices.astype(int)
  *     cdef int[:] slice_lengths = np.sum(slices, axis=1)             # <<<<<<<<<<<<<<
  * 
  *     cdef double[:] contrasts = np.zeros(n)
  */
-  __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 20, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_sum); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 20, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
-  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_6 = PyTuple_New(1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 20, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_6);
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 21, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_sum); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 21, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 21, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(__pyx_v_slices);
   __Pyx_GIVEREF(__pyx_v_slices);
-  PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_v_slices);
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 20, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_axis, __pyx_int_1) < 0) __PYX_ERR(0, 20, __pyx_L1_error)
-  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_6, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 20, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_ds_int(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 20, __pyx_L1_error)
+  PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_v_slices);
+  __pyx_t_6 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 21, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_6);
+  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_axis, __pyx_int_1) < 0) __PYX_ERR(0, 21, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_2, __pyx_t_6); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 21, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+  __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_ds_int(__pyx_t_5, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 21, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __pyx_v_slice_lengths = __pyx_t_8;
   __pyx_t_8.memview = NULL;
   __pyx_t_8.data = NULL;
 
-  /* "project/rar/contrast.pyx":22
+  /* "project/rar/contrast.pyx":23
  *     cdef int[:] slice_lengths = np.sum(slices, axis=1)
  * 
  *     cdef double[:] contrasts = np.zeros(n)             # <<<<<<<<<<<<<<
  *     with nogil, parallel(num_threads=1):
  *         for i in prange(n, schedule='static'):
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 22, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_zeros); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 22, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 23, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_n); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 22, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_zeros); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 23, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_5 = NULL;
-  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_6))) {
-    __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_6);
-    if (likely(__pyx_t_5)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_6);
-      __Pyx_INCREF(__pyx_t_5);
+  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+  __pyx_t_6 = __Pyx_PyInt_From_int(__pyx_v_n); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 23, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_6);
+  __pyx_t_4 = NULL;
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
+    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_2);
+    if (likely(__pyx_t_4)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
+      __Pyx_INCREF(__pyx_t_4);
       __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_6, function);
+      __Pyx_DECREF_SET(__pyx_t_2, function);
     }
   }
-  if (!__pyx_t_5) {
-    __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 22, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __Pyx_GOTREF(__pyx_t_4);
+  if (!__pyx_t_4) {
+    __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_6); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 23, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __Pyx_GOTREF(__pyx_t_5);
   } else {
     #if CYTHON_FAST_PYCALL
-    if (PyFunction_Check(__pyx_t_6)) {
-      PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_t_2};
-      __pyx_t_4 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 22, __pyx_L1_error)
-      __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-      __Pyx_GOTREF(__pyx_t_4);
-      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    if (PyFunction_Check(__pyx_t_2)) {
+      PyObject *__pyx_temp[2] = {__pyx_t_4, __pyx_t_6};
+      __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 23, __pyx_L1_error)
+      __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+      __Pyx_GOTREF(__pyx_t_5);
+      __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     } else
     #endif
     #if CYTHON_FAST_PYCCALL
-    if (__Pyx_PyFastCFunction_Check(__pyx_t_6)) {
-      PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_t_2};
-      __pyx_t_4 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 22, __pyx_L1_error)
-      __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-      __Pyx_GOTREF(__pyx_t_4);
-      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
+      PyObject *__pyx_temp[2] = {__pyx_t_4, __pyx_t_6};
+      __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 23, __pyx_L1_error)
+      __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+      __Pyx_GOTREF(__pyx_t_5);
+      __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     } else
     #endif
     {
-      __pyx_t_9 = PyTuple_New(1+1); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 22, __pyx_L1_error)
+      __pyx_t_9 = PyTuple_New(1+1); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 23, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_9);
-      __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_5); __pyx_t_5 = NULL;
-      __Pyx_GIVEREF(__pyx_t_2);
-      PyTuple_SET_ITEM(__pyx_t_9, 0+1, __pyx_t_2);
-      __pyx_t_2 = 0;
-      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_9, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 22, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_4);
+      __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_4); __pyx_t_4 = NULL;
+      __Pyx_GIVEREF(__pyx_t_6);
+      PyTuple_SET_ITEM(__pyx_t_9, 0+1, __pyx_t_6);
+      __pyx_t_6 = 0;
+      __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_9, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 23, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     }
   }
-  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_3 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_3.memview)) __PYX_ERR(0, 22, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_3 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_t_5, PyBUF_WRITABLE); if (unlikely(!__pyx_t_3.memview)) __PYX_ERR(0, 23, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __pyx_v_contrasts = __pyx_t_3;
   __pyx_t_3.memview = NULL;
   __pyx_t_3.data = NULL;
 
-  /* "project/rar/contrast.pyx":23
+  /* "project/rar/contrast.pyx":24
  * 
  *     cdef double[:] contrasts = np.zeros(n)
  *     with nogil, parallel(num_threads=1):             # <<<<<<<<<<<<<<
@@ -2535,7 +2552,7 @@ static PyObject *__pyx_pf_7project_3rar_8contrast_2_calculate_contrasts_ks(CYTHO
                 Py_BEGIN_ALLOW_THREADS
                 #endif /* _OPENMP */
 
-                /* "project/rar/contrast.pyx":24
+                /* "project/rar/contrast.pyx":25
  *     cdef double[:] contrasts = np.zeros(n)
  *     with nogil, parallel(num_threads=1):
  *         for i in prange(n, schedule='static'):             # <<<<<<<<<<<<<<
@@ -2561,7 +2578,7 @@ static PyObject *__pyx_pf_7project_3rar_8contrast_2_calculate_contrasts_ks(CYTHO
                             {
                                 __pyx_v_i = (int)(0 + 1 * __pyx_t_11);
 
-                                /* "project/rar/contrast.pyx":25
+                                /* "project/rar/contrast.pyx":26
  *     with nogil, parallel(num_threads=1):
  *         for i in prange(n, schedule='static'):
  *             contrasts[i] = _calculate_max_dist(y_sorted, slices_int[i,:], slice_lengths[i])             # <<<<<<<<<<<<<<
@@ -2585,7 +2602,7 @@ static PyObject *__pyx_pf_7project_3rar_8contrast_2_calculate_contrasts_ks(CYTHO
             #ifdef WITH_THREAD
             PyGILState_Release(__pyx_gilstate_save);
             #endif
-        __PYX_ERR(0, 25, __pyx_L12_error)
+        __PYX_ERR(0, 26, __pyx_L12_error)
     }
         __pyx_t_13.data += __pyx_tmp_idx * __pyx_tmp_stride;
 }
@@ -2725,7 +2742,7 @@ __pyx_t_14 = __pyx_v_i;
         #endif
       }
 
-      /* "project/rar/contrast.pyx":23
+      /* "project/rar/contrast.pyx":24
  * 
  *     cdef double[:] contrasts = np.zeros(n)
  *     with nogil, parallel(num_threads=1):             # <<<<<<<<<<<<<<
@@ -2751,7 +2768,7 @@ __pyx_t_14 = __pyx_v_i;
       }
   }
 
-  /* "project/rar/contrast.pyx":26
+  /* "project/rar/contrast.pyx":27
  *         for i in prange(n, schedule='static'):
  *             contrasts[i] = _calculate_max_dist(y_sorted, slices_int[i,:], slice_lengths[i])
  *     return contrasts             # <<<<<<<<<<<<<<
@@ -2759,13 +2776,13 @@ __pyx_t_14 = __pyx_v_i;
  * cdef public double _calculate_max_dist(double[:] m, bint[:] slice_, int n_c) nogil:
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_4 = __pyx_memoryview_fromslice(__pyx_v_contrasts, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 26, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __pyx_r = __pyx_t_4;
-  __pyx_t_4 = 0;
+  __pyx_t_5 = __pyx_memoryview_fromslice(__pyx_v_contrasts, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 27, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_r = __pyx_t_5;
+  __pyx_t_5 = 0;
   goto __pyx_L0;
 
-  /* "project/rar/contrast.pyx":13
+  /* "project/rar/contrast.pyx":14
  * 
  * 
  * def _calculate_contrasts_ks(slices, cache):             # <<<<<<<<<<<<<<
@@ -2791,13 +2808,12 @@ __pyx_t_14 = __pyx_v_i;
   __PYX_XDEC_MEMVIEW(&__pyx_v_slices_int, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_v_slice_lengths, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_v_contrasts, 1);
-  __Pyx_XDECREF(__pyx_v_slices);
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "project/rar/contrast.pyx":28
+/* "project/rar/contrast.pyx":29
  *     return contrasts
  * 
  * cdef public double _calculate_max_dist(double[:] m, bint[:] slice_, int n_c) nogil:             # <<<<<<<<<<<<<<
@@ -2824,7 +2840,7 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
   Py_ssize_t __pyx_t_7;
   Py_ssize_t __pyx_t_8;
 
-  /* "project/rar/contrast.pyx":29
+  /* "project/rar/contrast.pyx":30
  * 
  * cdef public double _calculate_max_dist(double[:] m, bint[:] slice_, int n_c) nogil:
  *     if n_c == 0:             # <<<<<<<<<<<<<<
@@ -2834,7 +2850,7 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
   __pyx_t_1 = ((__pyx_v_n_c == 0) != 0);
   if (__pyx_t_1) {
 
-    /* "project/rar/contrast.pyx":30
+    /* "project/rar/contrast.pyx":31
  * cdef public double _calculate_max_dist(double[:] m, bint[:] slice_, int n_c) nogil:
  *     if n_c == 0:
  *         return 0             # <<<<<<<<<<<<<<
@@ -2844,7 +2860,7 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
     __pyx_r = 0.0;
     goto __pyx_L0;
 
-    /* "project/rar/contrast.pyx":29
+    /* "project/rar/contrast.pyx":30
  * 
  * cdef public double _calculate_max_dist(double[:] m, bint[:] slice_, int n_c) nogil:
  *     if n_c == 0:             # <<<<<<<<<<<<<<
@@ -2853,7 +2869,7 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
  */
   }
 
-  /* "project/rar/contrast.pyx":32
+  /* "project/rar/contrast.pyx":33
  *         return 0
  * 
  *     cdef int i = 0             # <<<<<<<<<<<<<<
@@ -2862,7 +2878,7 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
  */
   __pyx_v_i = 0;
 
-  /* "project/rar/contrast.pyx":33
+  /* "project/rar/contrast.pyx":34
  * 
  *     cdef int i = 0
  *     cdef int n_m = len(m)             # <<<<<<<<<<<<<<
@@ -2872,7 +2888,7 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
   __pyx_t_2 = __Pyx_MemoryView_Len(__pyx_v_m); 
   __pyx_v_n_m = __pyx_t_2;
 
-  /* "project/rar/contrast.pyx":35
+  /* "project/rar/contrast.pyx":36
  *     cdef int n_m = len(m)
  * 
  *     cdef double m_step = 1.0 / n_m             # <<<<<<<<<<<<<<
@@ -2887,11 +2903,11 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
     #ifdef WITH_THREAD
     __Pyx_PyGILState_Release(__pyx_gilstate_save);
     #endif
-    __PYX_ERR(0, 35, __pyx_L1_error)
+    __PYX_ERR(0, 36, __pyx_L1_error)
   }
   __pyx_v_m_step = (1.0 / __pyx_v_n_m);
 
-  /* "project/rar/contrast.pyx":36
+  /* "project/rar/contrast.pyx":37
  * 
  *     cdef double m_step = 1.0 / n_m
  *     cdef double c_step = 1.0 / n_c             # <<<<<<<<<<<<<<
@@ -2906,11 +2922,11 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
     #ifdef WITH_THREAD
     __Pyx_PyGILState_Release(__pyx_gilstate_save);
     #endif
-    __PYX_ERR(0, 36, __pyx_L1_error)
+    __PYX_ERR(0, 37, __pyx_L1_error)
   }
   __pyx_v_c_step = (1.0 / __pyx_v_n_c);
 
-  /* "project/rar/contrast.pyx":38
+  /* "project/rar/contrast.pyx":39
  *     cdef double c_step = 1.0 / n_c
  * 
  *     cdef double counter_m = 0, counter_c = 0             # <<<<<<<<<<<<<<
@@ -2920,7 +2936,7 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
   __pyx_v_counter_m = 0.0;
   __pyx_v_counter_c = 0.0;
 
-  /* "project/rar/contrast.pyx":39
+  /* "project/rar/contrast.pyx":40
  * 
  *     cdef double counter_m = 0, counter_c = 0
  *     cdef double max_dist = 0, distance = 0             # <<<<<<<<<<<<<<
@@ -2930,7 +2946,7 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
   __pyx_v_max_dist = 0.0;
   __pyx_v_distance = 0.0;
 
-  /* "project/rar/contrast.pyx":40
+  /* "project/rar/contrast.pyx":41
  *     cdef double counter_m = 0, counter_c = 0
  *     cdef double max_dist = 0, distance = 0
  *     for i in range(n_m - 1):             # <<<<<<<<<<<<<<
@@ -2942,7 +2958,7 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
   for (__pyx_t_5 = 0; __pyx_t_5 < __pyx_t_4; __pyx_t_5+=1) {
     __pyx_v_i = __pyx_t_5;
 
-    /* "project/rar/contrast.pyx":41
+    /* "project/rar/contrast.pyx":42
  *     cdef double max_dist = 0, distance = 0
  *     for i in range(n_m - 1):
  *         counter_m += m_step             # <<<<<<<<<<<<<<
@@ -2951,7 +2967,7 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
  */
     __pyx_v_counter_m = (__pyx_v_counter_m + __pyx_v_m_step);
 
-    /* "project/rar/contrast.pyx":42
+    /* "project/rar/contrast.pyx":43
  *     for i in range(n_m - 1):
  *         counter_m += m_step
  *         if slice_[i]:             # <<<<<<<<<<<<<<
@@ -2962,7 +2978,7 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
     __pyx_t_1 = ((*((int *) ( /* dim=0 */ (__pyx_v_slice_.data + __pyx_t_6 * __pyx_v_slice_.strides[0]) ))) != 0);
     if (__pyx_t_1) {
 
-      /* "project/rar/contrast.pyx":43
+      /* "project/rar/contrast.pyx":44
  *         counter_m += m_step
  *         if slice_[i]:
  *             counter_c += c_step             # <<<<<<<<<<<<<<
@@ -2971,7 +2987,7 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
  */
       __pyx_v_counter_c = (__pyx_v_counter_c + __pyx_v_c_step);
 
-      /* "project/rar/contrast.pyx":42
+      /* "project/rar/contrast.pyx":43
  *     for i in range(n_m - 1):
  *         counter_m += m_step
  *         if slice_[i]:             # <<<<<<<<<<<<<<
@@ -2980,7 +2996,7 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
  */
     }
 
-    /* "project/rar/contrast.pyx":46
+    /* "project/rar/contrast.pyx":47
  * 
  *         # calculate distance if value to the right is new value
  *         if m[i] != m[i+1]:             # <<<<<<<<<<<<<<
@@ -2992,7 +3008,7 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
     __pyx_t_1 = (((*((double *) ( /* dim=0 */ (__pyx_v_m.data + __pyx_t_7 * __pyx_v_m.strides[0]) ))) != (*((double *) ( /* dim=0 */ (__pyx_v_m.data + __pyx_t_8 * __pyx_v_m.strides[0]) )))) != 0);
     if (__pyx_t_1) {
 
-      /* "project/rar/contrast.pyx":47
+      /* "project/rar/contrast.pyx":48
  *         # calculate distance if value to the right is new value
  *         if m[i] != m[i+1]:
  *             distance = counter_m - counter_c             # <<<<<<<<<<<<<<
@@ -3001,7 +3017,7 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
  */
       __pyx_v_distance = (__pyx_v_counter_m - __pyx_v_counter_c);
 
-      /* "project/rar/contrast.pyx":48
+      /* "project/rar/contrast.pyx":49
  *         if m[i] != m[i+1]:
  *             distance = counter_m - counter_c
  *             if (distance < 0):             # <<<<<<<<<<<<<<
@@ -3011,7 +3027,7 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
       __pyx_t_1 = ((__pyx_v_distance < 0.0) != 0);
       if (__pyx_t_1) {
 
-        /* "project/rar/contrast.pyx":49
+        /* "project/rar/contrast.pyx":50
  *             distance = counter_m - counter_c
  *             if (distance < 0):
  *                 distance *= -1             # <<<<<<<<<<<<<<
@@ -3020,7 +3036,7 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
  */
         __pyx_v_distance = (__pyx_v_distance * -1.0);
 
-        /* "project/rar/contrast.pyx":48
+        /* "project/rar/contrast.pyx":49
  *         if m[i] != m[i+1]:
  *             distance = counter_m - counter_c
  *             if (distance < 0):             # <<<<<<<<<<<<<<
@@ -3029,7 +3045,7 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
  */
       }
 
-      /* "project/rar/contrast.pyx":50
+      /* "project/rar/contrast.pyx":51
  *             if (distance < 0):
  *                 distance *= -1
  *             if distance > max_dist:             # <<<<<<<<<<<<<<
@@ -3039,7 +3055,7 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
       __pyx_t_1 = ((__pyx_v_distance > __pyx_v_max_dist) != 0);
       if (__pyx_t_1) {
 
-        /* "project/rar/contrast.pyx":51
+        /* "project/rar/contrast.pyx":52
  *                 distance *= -1
  *             if distance > max_dist:
  *                 max_dist = distance             # <<<<<<<<<<<<<<
@@ -3048,7 +3064,7 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
  */
         __pyx_v_max_dist = __pyx_v_distance;
 
-        /* "project/rar/contrast.pyx":50
+        /* "project/rar/contrast.pyx":51
  *             if (distance < 0):
  *                 distance *= -1
  *             if distance > max_dist:             # <<<<<<<<<<<<<<
@@ -3057,7 +3073,7 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
  */
       }
 
-      /* "project/rar/contrast.pyx":46
+      /* "project/rar/contrast.pyx":47
  * 
  *         # calculate distance if value to the right is new value
  *         if m[i] != m[i+1]:             # <<<<<<<<<<<<<<
@@ -3067,7 +3083,7 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
     }
   }
 
-  /* "project/rar/contrast.pyx":52
+  /* "project/rar/contrast.pyx":53
  *             if distance > max_dist:
  *                 max_dist = distance
  *     return max_dist             # <<<<<<<<<<<<<<
@@ -3077,7 +3093,7 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
   __pyx_r = __pyx_v_max_dist;
   goto __pyx_L0;
 
-  /* "project/rar/contrast.pyx":28
+  /* "project/rar/contrast.pyx":29
  *     return contrasts
  * 
  * cdef public double _calculate_max_dist(double[:] m, bint[:] slice_, int n_c) nogil:             # <<<<<<<<<<<<<<
@@ -3093,12 +3109,12 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
   return __pyx_r;
 }
 
-/* "project/rar/contrast.pyx":54
+/* "project/rar/contrast.pyx":55
  *     return max_dist
  * 
  * def _calculate_contrasts_kld(slices, cache):             # <<<<<<<<<<<<<<
- *     # TODO: check how nans can be produced
  *     values_m = cache["values"]
+ *     probs_m = cache["probs"]
  */
 
 /* Python wrapper */
@@ -3133,11 +3149,11 @@ static PyObject *__pyx_pw_7project_3rar_8contrast_5_calculate_contrasts_kld(PyOb
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_cache)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("_calculate_contrasts_kld", 1, 2, 2, 1); __PYX_ERR(0, 54, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("_calculate_contrasts_kld", 1, 2, 2, 1); __PYX_ERR(0, 55, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "_calculate_contrasts_kld") < 0)) __PYX_ERR(0, 54, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "_calculate_contrasts_kld") < 0)) __PYX_ERR(0, 55, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -3150,7 +3166,7 @@ static PyObject *__pyx_pw_7project_3rar_8contrast_5_calculate_contrasts_kld(PyOb
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("_calculate_contrasts_kld", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 54, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("_calculate_contrasts_kld", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 55, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("project.rar.contrast._calculate_contrasts_kld", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -3185,8 +3201,8 @@ static PyObject *__pyx_pf_7project_3rar_8contrast_4_calculate_contrasts_kld(CYTH
   __Pyx_RefNannySetupContext("_calculate_contrasts_kld", 0);
 
   /* "project/rar/contrast.pyx":56
+ * 
  * def _calculate_contrasts_kld(slices, cache):
- *     # TODO: check how nans can be produced
  *     values_m = cache["values"]             # <<<<<<<<<<<<<<
  *     probs_m = cache["probs"]
  *     sorted_y = cache["sorted"]
@@ -3197,7 +3213,7 @@ static PyObject *__pyx_pf_7project_3rar_8contrast_4_calculate_contrasts_kld(CYTH
   __pyx_t_1 = 0;
 
   /* "project/rar/contrast.pyx":57
- *     # TODO: check how nans can be produced
+ * def _calculate_contrasts_kld(slices, cache):
  *     values_m = cache["values"]
  *     probs_m = cache["probs"]             # <<<<<<<<<<<<<<
  *     sorted_y = cache["sorted"]
@@ -3532,12 +3548,12 @@ static PyObject *__pyx_pf_7project_3rar_8contrast_4_calculate_contrasts_kld(CYTH
   __pyx_t_5 = 0;
   goto __pyx_L0;
 
-  /* "project/rar/contrast.pyx":54
+  /* "project/rar/contrast.pyx":55
  *     return max_dist
  * 
  * def _calculate_contrasts_kld(slices, cache):             # <<<<<<<<<<<<<<
- *     # TODO: check how nans can be produced
  *     values_m = cache["values"]
+ *     probs_m = cache["probs"]
  */
 
   /* function exit code */
@@ -17496,7 +17512,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_ValueError, __pyx_k_ValueError, sizeof(__pyx_k_ValueError), 0, 0, 1, 1},
   {&__pyx_n_s_View_MemoryView, __pyx_k_View_MemoryView, sizeof(__pyx_k_View_MemoryView), 0, 0, 1, 1},
   {&__pyx_n_s_allocate_buffer, __pyx_k_allocate_buffer, sizeof(__pyx_k_allocate_buffer), 0, 0, 1, 1},
-  {&__pyx_n_s_asarray, __pyx_k_asarray, sizeof(__pyx_k_asarray), 0, 0, 1, 1},
+  {&__pyx_n_s_astype, __pyx_k_astype, sizeof(__pyx_k_astype), 0, 0, 1, 1},
   {&__pyx_n_s_axis, __pyx_k_axis, sizeof(__pyx_k_axis), 0, 0, 1, 1},
   {&__pyx_n_s_base, __pyx_k_base, sizeof(__pyx_k_base), 0, 0, 1, 1},
   {&__pyx_n_s_c, __pyx_k_c, sizeof(__pyx_k_c), 0, 0, 1, 1},
@@ -17514,7 +17530,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_contrasts, __pyx_k_contrasts, sizeof(__pyx_k_contrasts), 0, 0, 1, 1},
   {&__pyx_n_s_counts, __pyx_k_counts, sizeof(__pyx_k_counts), 0, 0, 1, 1},
   {&__pyx_n_s_dict, __pyx_k_dict, sizeof(__pyx_k_dict), 0, 0, 1, 1},
-  {&__pyx_n_s_dtype, __pyx_k_dtype, sizeof(__pyx_k_dtype), 0, 0, 1, 1},
   {&__pyx_n_s_dtype_is_object, __pyx_k_dtype_is_object, sizeof(__pyx_k_dtype_is_object), 0, 0, 1, 1},
   {&__pyx_n_s_encode, __pyx_k_encode, sizeof(__pyx_k_encode), 0, 0, 1, 1},
   {&__pyx_n_s_enumerate, __pyx_k_enumerate, sizeof(__pyx_k_enumerate), 0, 0, 1, 1},
@@ -17589,6 +17604,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_struct, __pyx_k_struct, sizeof(__pyx_k_struct), 0, 0, 1, 1},
   {&__pyx_n_s_sum, __pyx_k_sum, sizeof(__pyx_k_sum), 0, 0, 1, 1},
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
+  {&__pyx_n_s_time, __pyx_k_time, sizeof(__pyx_k_time), 0, 0, 1, 1},
   {&__pyx_kp_s_unable_to_allocate_array_data, __pyx_k_unable_to_allocate_array_data, sizeof(__pyx_k_unable_to_allocate_array_data), 0, 0, 1, 0},
   {&__pyx_kp_s_unable_to_allocate_shape_and_str, __pyx_k_unable_to_allocate_shape_and_str, sizeof(__pyx_k_unable_to_allocate_shape_and_str), 0, 0, 1, 0},
   {&__pyx_n_s_unpack, __pyx_k_unpack, sizeof(__pyx_k_unpack), 0, 0, 1, 1},
@@ -17602,7 +17618,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 40, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 41, __pyx_L1_error)
   __pyx_builtin_enumerate = __Pyx_GetBuiltinName(__pyx_n_s_enumerate); if (!__pyx_builtin_enumerate) __PYX_ERR(0, 61, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(1, 132, __pyx_L1_error)
   __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(1, 147, __pyx_L1_error)
@@ -17855,41 +17871,41 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__22);
   __Pyx_GIVEREF(__pyx_tuple__22);
 
-  /* "project/rar/contrast.pyx":6
- * import numpy as np
+  /* "project/rar/contrast.pyx":7
+ * from time import time
  * 
  * def calculate_contrasts(y_type, slices, cache):             # <<<<<<<<<<<<<<
  *     return {
  *         "numeric": _calculate_contrasts_ks,
  */
-  __pyx_tuple__23 = PyTuple_Pack(3, __pyx_n_s_y_type, __pyx_n_s_slices, __pyx_n_s_cache); if (unlikely(!__pyx_tuple__23)) __PYX_ERR(0, 6, __pyx_L1_error)
+  __pyx_tuple__23 = PyTuple_Pack(3, __pyx_n_s_y_type, __pyx_n_s_slices, __pyx_n_s_cache); if (unlikely(!__pyx_tuple__23)) __PYX_ERR(0, 7, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__23);
   __Pyx_GIVEREF(__pyx_tuple__23);
-  __pyx_codeobj__24 = (PyObject*)__Pyx_PyCode_New(3, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__23, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_project_rar_contrast_pyx, __pyx_n_s_calculate_contrasts, 6, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__24)) __PYX_ERR(0, 6, __pyx_L1_error)
+  __pyx_codeobj__24 = (PyObject*)__Pyx_PyCode_New(3, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__23, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_project_rar_contrast_pyx, __pyx_n_s_calculate_contrasts, 7, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__24)) __PYX_ERR(0, 7, __pyx_L1_error)
 
-  /* "project/rar/contrast.pyx":13
+  /* "project/rar/contrast.pyx":14
  * 
  * 
  * def _calculate_contrasts_ks(slices, cache):             # <<<<<<<<<<<<<<
  *     cdef int n = len(slices)
  *     cdef int i = 0
  */
-  __pyx_tuple__25 = PyTuple_Pack(8, __pyx_n_s_slices, __pyx_n_s_cache, __pyx_n_s_n, __pyx_n_s_i, __pyx_n_s_y_sorted, __pyx_n_s_slices_int, __pyx_n_s_slice_lengths, __pyx_n_s_contrasts); if (unlikely(!__pyx_tuple__25)) __PYX_ERR(0, 13, __pyx_L1_error)
+  __pyx_tuple__25 = PyTuple_Pack(8, __pyx_n_s_slices, __pyx_n_s_cache, __pyx_n_s_n, __pyx_n_s_i, __pyx_n_s_y_sorted, __pyx_n_s_slices_int, __pyx_n_s_slice_lengths, __pyx_n_s_contrasts); if (unlikely(!__pyx_tuple__25)) __PYX_ERR(0, 14, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__25);
   __Pyx_GIVEREF(__pyx_tuple__25);
-  __pyx_codeobj__26 = (PyObject*)__Pyx_PyCode_New(2, 0, 8, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__25, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_project_rar_contrast_pyx, __pyx_n_s_calculate_contrasts_ks, 13, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__26)) __PYX_ERR(0, 13, __pyx_L1_error)
+  __pyx_codeobj__26 = (PyObject*)__Pyx_PyCode_New(2, 0, 8, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__25, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_project_rar_contrast_pyx, __pyx_n_s_calculate_contrasts_ks, 14, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__26)) __PYX_ERR(0, 14, __pyx_L1_error)
 
-  /* "project/rar/contrast.pyx":54
+  /* "project/rar/contrast.pyx":55
  *     return max_dist
  * 
  * def _calculate_contrasts_kld(slices, cache):             # <<<<<<<<<<<<<<
- *     # TODO: check how nans can be produced
  *     values_m = cache["values"]
+ *     probs_m = cache["probs"]
  */
-  __pyx_tuple__27 = PyTuple_Pack(8, __pyx_n_s_slices, __pyx_n_s_cache, __pyx_n_s_values_m, __pyx_n_s_probs_m, __pyx_n_s_sorted_y, __pyx_n_s_cdfs, __pyx_n_s_i, __pyx_n_s_s); if (unlikely(!__pyx_tuple__27)) __PYX_ERR(0, 54, __pyx_L1_error)
+  __pyx_tuple__27 = PyTuple_Pack(8, __pyx_n_s_slices, __pyx_n_s_cache, __pyx_n_s_values_m, __pyx_n_s_probs_m, __pyx_n_s_sorted_y, __pyx_n_s_cdfs, __pyx_n_s_i, __pyx_n_s_s); if (unlikely(!__pyx_tuple__27)) __PYX_ERR(0, 55, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__27);
   __Pyx_GIVEREF(__pyx_tuple__27);
-  __pyx_codeobj__28 = (PyObject*)__Pyx_PyCode_New(2, 0, 8, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__27, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_project_rar_contrast_pyx, __pyx_n_s_calculate_contrasts_kld, 54, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__28)) __PYX_ERR(0, 54, __pyx_L1_error)
+  __pyx_codeobj__28 = (PyObject*)__Pyx_PyCode_New(2, 0, 8, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__27, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_project_rar_contrast_pyx, __pyx_n_s_calculate_contrasts_kld, 55, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__28)) __PYX_ERR(0, 55, __pyx_L1_error)
 
   /* "project/rar/contrast.pyx":68
  * 
@@ -18183,7 +18199,8 @@ static int __pyx_pymod_exec_contrast(PyObject *__pyx_pyinit_module) CYTHON_SMALL
 #endif
 {
   PyObject *__pyx_t_1 = NULL;
-  static PyThread_type_lock __pyx_t_2[8];
+  PyObject *__pyx_t_2 = NULL;
+  static PyThread_type_lock __pyx_t_3[8];
   __Pyx_RefNannyDeclarations
   #if CYTHON_PEP489_MULTI_PHASE_INIT
   if (__pyx_m && __pyx_m == __pyx_pyinit_module) return 0;
@@ -18286,49 +18303,70 @@ if (!__Pyx_RefNanny) {
  * #cython: boundscheck=False, wraparound=False, nonecheck=False
  * from cython.parallel import parallel, prange
  * import numpy as np             # <<<<<<<<<<<<<<
+ * from time import time
  * 
- * def calculate_contrasts(y_type, slices, cache):
  */
   __pyx_t_1 = __Pyx_Import(__pyx_n_s_numpy, 0, -1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 4, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_np, __pyx_t_1) < 0) __PYX_ERR(0, 4, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "project/rar/contrast.pyx":6
+  /* "project/rar/contrast.pyx":5
+ * from cython.parallel import parallel, prange
  * import numpy as np
+ * from time import time             # <<<<<<<<<<<<<<
+ * 
+ * def calculate_contrasts(y_type, slices, cache):
+ */
+  __pyx_t_1 = PyList_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 5, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_INCREF(__pyx_n_s_time);
+  __Pyx_GIVEREF(__pyx_n_s_time);
+  PyList_SET_ITEM(__pyx_t_1, 0, __pyx_n_s_time);
+  __pyx_t_2 = __Pyx_Import(__pyx_n_s_time, __pyx_t_1, -1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 5, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_1 = __Pyx_ImportFrom(__pyx_t_2, __pyx_n_s_time); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 5, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_time, __pyx_t_1) < 0) __PYX_ERR(0, 5, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "project/rar/contrast.pyx":7
+ * from time import time
  * 
  * def calculate_contrasts(y_type, slices, cache):             # <<<<<<<<<<<<<<
  *     return {
  *         "numeric": _calculate_contrasts_ks,
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_7project_3rar_8contrast_1calculate_contrasts, NULL, __pyx_n_s_project_rar_contrast); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 6, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_calculate_contrasts, __pyx_t_1) < 0) __PYX_ERR(0, 6, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_7project_3rar_8contrast_1calculate_contrasts, NULL, __pyx_n_s_project_rar_contrast); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 7, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_calculate_contrasts, __pyx_t_2) < 0) __PYX_ERR(0, 7, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "project/rar/contrast.pyx":13
+  /* "project/rar/contrast.pyx":14
  * 
  * 
  * def _calculate_contrasts_ks(slices, cache):             # <<<<<<<<<<<<<<
  *     cdef int n = len(slices)
  *     cdef int i = 0
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_7project_3rar_8contrast_3_calculate_contrasts_ks, NULL, __pyx_n_s_project_rar_contrast); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 13, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_calculate_contrasts_ks, __pyx_t_1) < 0) __PYX_ERR(0, 13, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_7project_3rar_8contrast_3_calculate_contrasts_ks, NULL, __pyx_n_s_project_rar_contrast); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 14, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_calculate_contrasts_ks, __pyx_t_2) < 0) __PYX_ERR(0, 14, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "project/rar/contrast.pyx":54
+  /* "project/rar/contrast.pyx":55
  *     return max_dist
  * 
  * def _calculate_contrasts_kld(slices, cache):             # <<<<<<<<<<<<<<
- *     # TODO: check how nans can be produced
  *     values_m = cache["values"]
+ *     probs_m = cache["probs"]
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_7project_3rar_8contrast_5_calculate_contrasts_kld, NULL, __pyx_n_s_project_rar_contrast); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 54, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_calculate_contrasts_kld, __pyx_t_1) < 0) __PYX_ERR(0, 54, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_7project_3rar_8contrast_5_calculate_contrasts_kld, NULL, __pyx_n_s_project_rar_contrast); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 55, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_calculate_contrasts_kld, __pyx_t_2) < 0) __PYX_ERR(0, 55, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "project/rar/contrast.pyx":68
  * 
@@ -18337,20 +18375,20 @@ if (!__Pyx_RefNanny) {
  *     m = len(values_m)
  * 
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_7project_3rar_8contrast_7_calculate_probs_kld, NULL, __pyx_n_s_project_rar_contrast); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 68, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_calculate_probs_kld, __pyx_t_1) < 0) __PYX_ERR(0, 68, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_7project_3rar_8contrast_7_calculate_probs_kld, NULL, __pyx_n_s_project_rar_contrast); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 68, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_calculate_probs_kld, __pyx_t_2) < 0) __PYX_ERR(0, 68, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "project/rar/contrast.pyx":1
  * #!python             # <<<<<<<<<<<<<<
  * #cython: boundscheck=False, wraparound=False, nonecheck=False
  * from cython.parallel import parallel, prange
  */
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_test, __pyx_t_1) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_test, __pyx_t_2) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "View.MemoryView":208
  *         info.obj = self
@@ -18359,10 +18397,10 @@ if (!__Pyx_RefNanny) {
  * 
  *     def __dealloc__(array self):
  */
-  __pyx_t_1 = __pyx_capsule_create(((void *)(&__pyx_array_getbuffer)), ((char *)"getbuffer(obj, view, flags)")); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 208, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem((PyObject *)__pyx_array_type->tp_dict, __pyx_n_s_pyx_getbuffer, __pyx_t_1) < 0) __PYX_ERR(1, 208, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_2 = __pyx_capsule_create(((void *)(&__pyx_array_getbuffer)), ((char *)"getbuffer(obj, view, flags)")); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 208, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_array_type->tp_dict, __pyx_n_s_pyx_getbuffer, __pyx_t_2) < 0) __PYX_ERR(1, 208, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_array_type);
 
   /* "View.MemoryView":285
@@ -18372,12 +18410,12 @@ if (!__Pyx_RefNanny) {
  * cdef strided = Enum("<strided and direct>") # default
  * cdef indirect = Enum("<strided and indirect>")
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__31, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 285, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__31, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 285, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
   __Pyx_XGOTREF(generic);
-  __Pyx_DECREF_SET(generic, __pyx_t_1);
-  __Pyx_GIVEREF(__pyx_t_1);
-  __pyx_t_1 = 0;
+  __Pyx_DECREF_SET(generic, __pyx_t_2);
+  __Pyx_GIVEREF(__pyx_t_2);
+  __pyx_t_2 = 0;
 
   /* "View.MemoryView":286
  * 
@@ -18386,12 +18424,12 @@ if (!__Pyx_RefNanny) {
  * cdef indirect = Enum("<strided and indirect>")
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__32, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 286, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__32, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 286, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
   __Pyx_XGOTREF(strided);
-  __Pyx_DECREF_SET(strided, __pyx_t_1);
-  __Pyx_GIVEREF(__pyx_t_1);
-  __pyx_t_1 = 0;
+  __Pyx_DECREF_SET(strided, __pyx_t_2);
+  __Pyx_GIVEREF(__pyx_t_2);
+  __pyx_t_2 = 0;
 
   /* "View.MemoryView":287
  * cdef generic = Enum("<strided and direct or indirect>")
@@ -18400,12 +18438,12 @@ if (!__Pyx_RefNanny) {
  * 
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__33, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 287, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__33, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 287, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
   __Pyx_XGOTREF(indirect);
-  __Pyx_DECREF_SET(indirect, __pyx_t_1);
-  __Pyx_GIVEREF(__pyx_t_1);
-  __pyx_t_1 = 0;
+  __Pyx_DECREF_SET(indirect, __pyx_t_2);
+  __Pyx_GIVEREF(__pyx_t_2);
+  __pyx_t_2 = 0;
 
   /* "View.MemoryView":290
  * 
@@ -18414,12 +18452,12 @@ if (!__Pyx_RefNanny) {
  * cdef indirect_contiguous = Enum("<contiguous and indirect>")
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__34, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 290, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__34, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 290, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
   __Pyx_XGOTREF(contiguous);
-  __Pyx_DECREF_SET(contiguous, __pyx_t_1);
-  __Pyx_GIVEREF(__pyx_t_1);
-  __pyx_t_1 = 0;
+  __Pyx_DECREF_SET(contiguous, __pyx_t_2);
+  __Pyx_GIVEREF(__pyx_t_2);
+  __pyx_t_2 = 0;
 
   /* "View.MemoryView":291
  * 
@@ -18428,12 +18466,12 @@ if (!__Pyx_RefNanny) {
  * 
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__35, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 291, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__35, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 291, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
   __Pyx_XGOTREF(indirect_contiguous);
-  __Pyx_DECREF_SET(indirect_contiguous, __pyx_t_1);
-  __Pyx_GIVEREF(__pyx_t_1);
-  __pyx_t_1 = 0;
+  __Pyx_DECREF_SET(indirect_contiguous, __pyx_t_2);
+  __Pyx_GIVEREF(__pyx_t_2);
+  __pyx_t_2 = 0;
 
   /* "View.MemoryView":315
  * 
@@ -18451,15 +18489,15 @@ if (!__Pyx_RefNanny) {
  *     PyThread_allocate_lock(),
  *     PyThread_allocate_lock(),
  */
-  __pyx_t_2[0] = PyThread_allocate_lock();
-  __pyx_t_2[1] = PyThread_allocate_lock();
-  __pyx_t_2[2] = PyThread_allocate_lock();
-  __pyx_t_2[3] = PyThread_allocate_lock();
-  __pyx_t_2[4] = PyThread_allocate_lock();
-  __pyx_t_2[5] = PyThread_allocate_lock();
-  __pyx_t_2[6] = PyThread_allocate_lock();
-  __pyx_t_2[7] = PyThread_allocate_lock();
-  memcpy(&(__pyx_memoryview_thread_locks[0]), __pyx_t_2, sizeof(__pyx_memoryview_thread_locks[0]) * (8));
+  __pyx_t_3[0] = PyThread_allocate_lock();
+  __pyx_t_3[1] = PyThread_allocate_lock();
+  __pyx_t_3[2] = PyThread_allocate_lock();
+  __pyx_t_3[3] = PyThread_allocate_lock();
+  __pyx_t_3[4] = PyThread_allocate_lock();
+  __pyx_t_3[5] = PyThread_allocate_lock();
+  __pyx_t_3[6] = PyThread_allocate_lock();
+  __pyx_t_3[7] = PyThread_allocate_lock();
+  memcpy(&(__pyx_memoryview_thread_locks[0]), __pyx_t_3, sizeof(__pyx_memoryview_thread_locks[0]) * (8));
 
   /* "View.MemoryView":544
  *         info.obj = self
@@ -18468,10 +18506,10 @@ if (!__Pyx_RefNanny) {
  * 
  * 
  */
-  __pyx_t_1 = __pyx_capsule_create(((void *)(&__pyx_memoryview_getbuffer)), ((char *)"getbuffer(obj, view, flags)")); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 544, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem((PyObject *)__pyx_memoryview_type->tp_dict, __pyx_n_s_pyx_getbuffer, __pyx_t_1) < 0) __PYX_ERR(1, 544, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_2 = __pyx_capsule_create(((void *)(&__pyx_memoryview_getbuffer)), ((char *)"getbuffer(obj, view, flags)")); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 544, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_memoryview_type->tp_dict, __pyx_n_s_pyx_getbuffer, __pyx_t_2) < 0) __PYX_ERR(1, 544, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_memoryview_type);
 
   /* "View.MemoryView":990
@@ -18481,10 +18519,10 @@ if (!__Pyx_RefNanny) {
  * 
  * 
  */
-  __pyx_t_1 = __pyx_capsule_create(((void *)(&__pyx_memoryview_getbuffer)), ((char *)"getbuffer(obj, view, flags)")); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 990, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem((PyObject *)__pyx_memoryviewslice_type->tp_dict, __pyx_n_s_pyx_getbuffer, __pyx_t_1) < 0) __PYX_ERR(1, 990, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_2 = __pyx_capsule_create(((void *)(&__pyx_memoryview_getbuffer)), ((char *)"getbuffer(obj, view, flags)")); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 990, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_memoryviewslice_type->tp_dict, __pyx_n_s_pyx_getbuffer, __pyx_t_2) < 0) __PYX_ERR(1, 990, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_memoryviewslice_type);
 
   /* "(tree fragment)":1
@@ -18492,10 +18530,10 @@ if (!__Pyx_RefNanny) {
  *     if __pyx_checksum != 0xb068931:
  *         from pickle import PickleError as __pyx_PickleError
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_15View_dot_MemoryView_1__pyx_unpickle_Enum, NULL, __pyx_n_s_View_MemoryView); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_pyx_unpickle_Enum, __pyx_t_1) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_15View_dot_MemoryView_1__pyx_unpickle_Enum, NULL, __pyx_n_s_View_MemoryView); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_pyx_unpickle_Enum, __pyx_t_2) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "(tree fragment)":9
  *         __pyx_unpickle_Enum__set_state(<Enum> __pyx_result, __pyx_state)
@@ -18510,6 +18548,7 @@ if (!__Pyx_RefNanny) {
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
   if (__pyx_m) {
     if (__pyx_d) {
       __Pyx_AddTraceback("init project.rar.contrast", 0, __pyx_lineno, __pyx_filename);
