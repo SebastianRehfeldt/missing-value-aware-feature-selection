@@ -32,21 +32,21 @@ class HICS():
         slices = get_slices(X, types, n_select, n_iterations)
         if len(slices) == 0:
             return 0, 0
-        #print("Slicing", time() - start)
+        print("Slicing", time() - start)
 
         start = time()
         c_cache = self._create_cache(y, l_type)
         t_cache = self._create_cache(t, t_type)
-        #print("Caching", time() - start)
+        print("Caching", time() - start)
 
         start = time()
         relevances = calculate_contrasts(l_type, slices, c_cache)
-        #print("Relevances (KLD)", time() - start)
+        print("Relevances (KLD)", time() - start)
 
         start = time()
         redundancies = calculate_contrasts(t_type, slices, t_cache)
-        #print("Redundancies (KS)", time() - start)
-        #print(1 / 0)
+        print("Redundancies (KS)", time() - start)
+        print(1 / 0)
         return np.mean(relevances), np.mean(redundancies)
 
     def _create_cache(self, y, y_type):
