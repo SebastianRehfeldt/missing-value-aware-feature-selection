@@ -6,7 +6,6 @@ from project.utils import DataLoader
 if __name__ == '__main__':
 
     data_loader = DataLoader()
-    name = "analcatdata_reviewer"
     name = "credit-approval"
     name = "madelon"
     name = "musk"
@@ -14,6 +13,7 @@ if __name__ == '__main__':
     name = "boston"
     name = "ionosphere"
     name = "iris"
+    name = "analcatdata_reviewer"
     name = "isolet"
     data = data_loader.load_data(name, "arff")
     print(data.shape, flush=True)
@@ -21,7 +21,7 @@ if __name__ == '__main__':
     # %%
     from project.utils import introduce_missing_values, scale_data
 
-    data = introduce_missing_values(data, missing_rate=0.2)
+    data = introduce_missing_values(data, missing_rate=0)
     data = scale_data(data)
 
     # %%
@@ -33,6 +33,7 @@ if __name__ == '__main__':
         data.l_type,
         data.shape,
         n_jobs=1,
+        subspace_size=(1, 2),
         max_subspaces=1000,
         contrast_iterations=10000,
     )
