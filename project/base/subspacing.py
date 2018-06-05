@@ -13,13 +13,12 @@ from joblib import Parallel, delayed
 
 class Subspacing(Selector):
     @abstractmethod
-    def _evaluate_subspace(self, X, types):
+    def _evaluate_subspace(self, subspace):
         """
         Evaluate a feature subspace and return results as dict
 
         Arguments:
-            X {df} -- Dataframe containing features
-            types {pd.series} -- Series containing the feature types
+            subspace {list(str)} -- List containing the selected feature names
         """
         raise NotImplementedError(
             "subclasses must implement _evaluate_subspace")
@@ -94,9 +93,7 @@ class Subspacing(Selector):
         results = [None] * len(subspaces)
         start = time()
         for i, subspace in enumerate(subspaces):
-            # TODO: pass only names
-            features, types = self.data.get_subspace(subspace)
-            score = self._evaluate_subspace(features, types)
+            score = self._evaluate_subspace(subspace)
             results[i] = {"features": subspace, "score": score}
         print("Calc", time() - start)
         return results

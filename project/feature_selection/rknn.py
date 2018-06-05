@@ -19,14 +19,14 @@ class RKNN(Subspacing):
         super()._init_parameters(**kwargs)
         self.params["eval_method"] = kwargs.get("eval_method", "knn")
 
-    def _evaluate_subspace(self, X, types):
+    def _evaluate_subspace(self, subspace):
         """
         Evaluate a subspace using knn
 
         Arguments:
-            X {df} -- Dataframe containing the features
-            types {pd.series} -- Series containing the feature types
+            subspace {list(str)} -- List containing the selected feature names
         """
+        X, types = self.data.get_subspace(subspace)
         return evaluate_subspace(X, self.data.y, types, self.l_type,
                                  self.domain, **self.params)
 
