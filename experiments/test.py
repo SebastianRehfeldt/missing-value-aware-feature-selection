@@ -11,9 +11,9 @@ if __name__ == '__main__':
     name = "musk"
     name = "semeion"
     name = "boston"
+    name = "analcatdata_reviewer"
     name = "ionosphere"
     name = "iris"
-    name = "analcatdata_reviewer"
     name = "isolet"
     data = data_loader.load_data(name, "arff")
     print(data.shape, flush=True)
@@ -33,9 +33,8 @@ if __name__ == '__main__':
         data.l_type,
         data.shape,
         n_jobs=1,
-        subspace_size=(1, 2),
         max_subspaces=1000,
-        contrast_iterations=10000,
+        contrast_iterations=100,
     )
     rar.fit(data.X, data.y)
     print(time() - start)
