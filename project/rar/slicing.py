@@ -31,13 +31,11 @@ def get_slices(X, types, n_select, n_iterations=100):
 
     # DISCUSS
     # remove empty and very small slices
-    """
-    # expensive
+    # TODO: pass to calculate_contrast in order to avoid recalculation
     sums = np.sum(slices, axis=1)
-    slices = slices[sums > 10, :]
-    """
-    idx = np.any(slices, axis=1)
-    slices = slices[idx, :]
+    indices = sums > 10
+    if np.any(~indices):
+        slices = slices[indices]
 
     # reduce to n_iterations and return
     if len(slices) > n_iterations:
@@ -53,7 +51,6 @@ def get_categorical_slices(X, n_select, n_vectors):
     index_dict = {val: np.where(X == val)[0] for val in values}
 
     slices = np.zeros((n_vectors, X.shape[0]), dtype=bool)
-    t = 0
     for i in range(n_vectors):
         # TODO: tackle slice similarity here?
         values = np.random.permutation(values)

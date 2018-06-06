@@ -35,6 +35,7 @@ class HICS():
         print("Slicing", time() - start)
 
         start = time()
+        # TODO: cache sorted labels and use index on sorted
         c_cache = self._create_cache(y, l_type)
         t_cache = self._create_cache(t, t_type)
         print("Caching", time() - start)
