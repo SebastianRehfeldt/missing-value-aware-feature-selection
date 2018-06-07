@@ -9,12 +9,12 @@ if __name__ == '__main__':
     name = "analcatdata_reviewer"
     name = "credit-approval"
     name = "madelon"
-    name = "iris"
     name = "boston"
     name = "ionosphere"
     name = "semeion"
     name = "isolet"
     name = "musk"
+    name = "iris"
     data = data_loader.load_data(name, "arff")
     data.shape
 
@@ -28,9 +28,9 @@ if __name__ == '__main__':
     from sklearn.pipeline import Pipeline
     from sklearn.cross_validation import cross_val_score, StratifiedKFold
     from project.feature_selection import RKNN, Filter, SFS, PSO
-    from project.rar import RaR
+    from project.rar.rar import RaR
     from project.classifier import KNN, Tree
-    from project.utils import Imputer
+    from project.utils.imputer import Imputer
 
     rknn = RKNN(data.f_types, data.l_type, data.shape)
     mi = Filter(data.f_types, data.l_type, data.shape)

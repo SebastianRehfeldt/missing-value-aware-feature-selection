@@ -13,8 +13,8 @@ if __name__ == '__main__':
     name = "boston"
     name = "analcatdata_reviewer"
     name = "ionosphere"
-    name = "iris"
     name = "isolet"
+    name = "iris"
     data = data_loader.load_data(name, "arff")
     print(data.shape, flush=True)
 
@@ -25,7 +25,7 @@ if __name__ == '__main__':
     data = scale_data(data)
 
     # %%
-    from project.rar import RaR
+    from project.rar.rar import RaR
 
     start = time()
     rar = RaR(
@@ -38,4 +38,4 @@ if __name__ == '__main__':
     )
     rar.fit(data.X, data.y)
     print(time() - start)
-    #pprint(rar.feature_importances)
+    pprint(rar.feature_importances)
