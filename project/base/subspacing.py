@@ -4,7 +4,6 @@
 import itertools
 import numpy as np
 from abc import abstractmethod
-from time import time
 
 from project.base import Selector
 from joblib import Parallel, delayed
@@ -51,9 +50,7 @@ class Subspacing(Selector):
 
     def _fit(self):
         subspaces = self._get_unique_subscapes()
-        start = time()
         score_map = self._evaluate_subspaces(subspaces)
-        print("Sampling", time() - start)
         importances = self._deduce_feature_importances(score_map)
         self.feature_importances.update(importances)
 
@@ -90,11 +87,9 @@ class Subspacing(Selector):
 
     def _evaluate(self, subspaces):
         results = [None] * len(subspaces)
-        start = time()
         for i, subspace in enumerate(subspaces):
             score = self._evaluate_subspace(subspace)
             results[i] = {"features": subspace, "score": score}
-        print("Calc", time() - start)
         return results
 
     def _get_chunks(self, l, n):
