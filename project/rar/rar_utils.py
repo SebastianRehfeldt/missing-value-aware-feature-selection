@@ -17,25 +17,29 @@ def _combine_scores(rel, red):
 
 
 def _calculate_redundancy(samples, selected_features):
-    # get admissables
-    admissables = [
-        s for s in samples
-        if len(set(s[0]).intersection(selected_features)) > 0
+    intersections = [
+        set(s[0]).intersection(selected_features) for s in samples
     ]
+
+    # get admissables
+    admissables = [(s, intersections[i]) for i, s in enumerate(samples)
+                   if len(intersections[i]) > 0]
 
     # get minimum redundancy of justified samples
     max_red = 0
-    for sample in admissables:
-        intersection = set(sample[0]).intersection(selected_features)
+    for sample, intersection in admissables:
+        if sample[1] <= max_red:
+            continue
 
         # compute minimum redundancy of samples which contain the intersection
         # of the current sample and the selected features
         min_red = min(
-            [s[1] for s in admissables if intersection.issubset(set(s[0]))])
+            [s[1] for s, _ in admissables if intersection.issubset(set(s[0]))])
 
         # a sample is justified if there exists no other admissable which
         # contains the full intersection and has a lower redundancy score
-        if sample[1] <= min_red and sample[1] > max_red:
+        # samples with a lower score are skipped in the beginning of the loop
+        if sample[1] <= min_red:
             max_red = sample[1]
     return max_red
 
@@ -53,9 +57,10 @@ def calculate_ranking(relevances, redundancies, names):
     # stepwise add features
     while len(open_features) > 0:
         best_score, best_feature = 0, None
+        selected = set(ranking.keys())
         for f in open_features:
             # deduce redundancy of feature to previous feature
-            red = _calculate_redundancy(redundancies[f], set(ranking.keys()))
+            red = _calculate_redundancy(redundancies[f], selected)
             score = _combine_scores(relevances[f], red)
 
             if score >= best_score:
