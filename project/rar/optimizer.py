@@ -25,8 +25,11 @@ def deduce_relevances(features, knowledgebase):
         m.addConstr(objective_sum >= subset["score"]["relevance"])
 
     m.optimize()
-
-    return {v.varName: v.x for v in m.getVars() if v.varName in features}
+    max_x = max([v.x for v in m.getVars() if v.varName in features])
+    return {
+        v.varName: v.x / max_x
+        for v in m.getVars() if v.varName in features
+    }
 
 
 def _squared_dist(variables, mean):

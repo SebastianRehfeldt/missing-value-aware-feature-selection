@@ -12,10 +12,12 @@ class HICS():
         self.data = data
         self.nans = nans
         self.params = params
+        self.sorted_y = np.sort(data.y)
 
     def evaluate_subspace(self, subspace, target):
         # TODO increase iterations when having many missing values?
         # TODO increase relevance if missingness is predictive
+        # TODO: check how contrast can be > 0 in ks test
         # TODO: different value ranges from tests?
         # use 1-exp(-KLD(P,Q)) to normalize kld
         X, y, t = self._complete(subspace, target)
@@ -29,29 +31,35 @@ class HICS():
         n_select = int(alpha_d * X.shape[0])
 
         start = time()
-        slices = get_slices(X, types, n_select, n_iterations)
+        slices, slice_lengths = get_slices(X, types, n_select, n_iterations)
         if len(slices) == 0:
             return 0, 0
-        print("Slicing", time() - start)
+
+        # print("Slicing", time() - start)
 
         start = time()
-        # TODO: cache sorted labels and use index on sorted
-        c_cache = self._create_cache(y, l_type)
+        c_cache = self._create_cache(y, l_type, True)
         t_cache = self._create_cache(t, t_type)
-        print("Caching", time() - start)
+        # print("Caching", time() - start)
 
         start = time()
-        relevances = calculate_contrasts(l_type, slices, c_cache)
-        print("Relevances (KLD)", time() - start)
+        relevances = calculate_contrasts(l_type, slices, c_cache,
+                                         slice_lengths)
+        # print("Relevances (KLD)", time() - start)
 
         start = time()
-        redundancies = calculate_contrasts(t_type, slices, t_cache)
-        print("Redundancies (KS)", time() - start)
-        print(1 / 0)
+        redundancies = calculate_contrasts(t_type, slices, t_cache,
+                                           slice_lengths)
+        # print("Redundancies (KS)", time() - start)
+        # print(1/0)
         return np.mean(relevances), np.mean(redundancies)
 
-    def _create_cache(self, y, y_type):
-        sorted_y = np.sort(y)
+    def _create_cache(self, y, y_type, is_sorted=False):
+        sorted_y = np.sort(y) if not is_sorted else y
+
+        if y_type == "numeric":
+            return {"sorted": sorted_y}
+
         values, counts = np.unique(sorted_y, return_counts=True)
         probs = counts / len(sorted_y)
         return {
@@ -67,6 +75,6 @@ class HICS():
             idx = np.sum(self.nans[subspace + [target]], axis=1) == 0
             new_X = self.data.X[subspace][idx]
             new_t = self.data.X[target][idx]
-            new_y = self.data.y[idx]
+            new_y = self.sorted_y[idx]
 
         return new_X, new_y, new_t

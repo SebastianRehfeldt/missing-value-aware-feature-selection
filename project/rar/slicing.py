@@ -2,9 +2,9 @@ import itertools
 import numpy as np
 
 
-def get_slices(X, types, n_select, n_iterations=100):
+def get_slices(X, types, n_select, n_vectors, n_iterations=100):
     # DISCUSS
-    # TODO: create some more to have enough to select from
+    # TODO: create some more slices to have enough to select from
     # TODO: calculate this before
     n_vectors = int(np.ceil(n_iterations**(1 / len(types))))
 
@@ -31,17 +31,17 @@ def get_slices(X, types, n_select, n_iterations=100):
 
     # DISCUSS
     # remove empty and very small slices
-    # TODO: pass to calculate_contrast in order to avoid recalculation
+    # TODO: select by almost equal size
     sums = np.sum(slices, axis=1)
-    indices = sums > 10
+    indices = sums > 1
     if np.any(~indices):
         slices = slices[indices]
 
     # reduce to n_iterations and return
     if len(slices) > n_iterations:
         indices = np.random.choice(range(0, len(slices)), n_iterations)
-        return slices[indices]
-    return slices
+        return slices[indices], sums[indices]
+    return slices, sums
 
 
 def get_categorical_slices(X, n_select, n_vectors):

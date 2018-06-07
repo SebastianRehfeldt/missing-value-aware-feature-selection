@@ -58,7 +58,7 @@ def calculate_ranking(relevances, redundancies, names):
             red = _calculate_redundancy(redundancies[f], set(ranking.keys()))
             score = _combine_scores(relevances[f], red)
 
-            if score > best_score:
+            if score >= best_score:
                 best_score, best_feature = score, f
 
         ranking[best_feature] = best_score

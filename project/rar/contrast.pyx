@@ -4,25 +4,25 @@ cimport numpy as np
 import numpy as np
 from time import time
 
-def calculate_contrasts(y_type, slices, cache):
+def calculate_contrasts(y_type, slices, cache, slice_lengths):
     return {
         "numeric": _calculate_contrasts_ks,
         "nominal": _calculate_contrasts_kld
-    }[y_type](slices, cache)
+    }[y_type](slices, cache, slice_lengths)
 
 
-def _calculate_contrasts_ks(slices, cache):
+def _calculate_contrasts_ks(slices, cache, slice_lengths):
     cdef int n = len(slices) 
     cdef int i = 0
     cdef double[:] y_sorted = cache["sorted"]
 
+    cdef int[:] lengths = slice_lengths
     cdef np.uint8_t[:,:] slices_int = slices.view(dtype=np.uint8, type=np.matrix)
-    cdef int[:] slice_lengths = np.sum(slices_int, axis=1, dtype=int)
 
     cdef double[:] contrasts = np.zeros(n)
     with nogil, parallel(num_threads=1):
         for i in prange(n, schedule='static'):
-            contrasts[i] = _calculate_max_dist(y_sorted, slices_int[i,:], slice_lengths[i])
+            contrasts[i] = _calculate_max_dist(y_sorted, slices_int[i,:], lengths[i])
     return contrasts
 
 cdef public double _calculate_max_dist(double[:] m, np.uint8_t[:] slice_, int n_c) nogil:
@@ -51,7 +51,7 @@ cdef public double _calculate_max_dist(double[:] m, np.uint8_t[:] slice_, int n_
                 max_dist = distance
     return max_dist
 
-def _calculate_contrasts_kld(slices, cache):
+def _calculate_contrasts_kld(slices, cache, slice_lengths):
     values_m = cache["values"]
     probs_m = cache["probs"]
     sorted_y = cache["sorted"]
