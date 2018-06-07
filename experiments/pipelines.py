@@ -40,10 +40,8 @@ if __name__ == '__main__':
         data.f_types,
         data.l_type,
         data.shape,
-        n_jobs=4,
-        k=11,
     )
-    knn = KNN(data.f_types, data.l_type, knn_neighbors=20)
+    knn = KNN(data.f_types, data.l_type)
     tree = Tree(data.to_table().domain)
     imputer = Imputer(data.f_types, strategy="mice")
 
@@ -61,7 +59,6 @@ if __name__ == '__main__':
         ('reduce', rknn),
         ('classify', knn),
     ])
-    """
     X_new = rknn.fit_transform(data.X, data.y)
     types = pd.Series(data.f_types, X_new.columns.values)
     new_data = data.replace(True, X=X_new, shape=X_new.shape, f_types=types)
@@ -71,21 +68,11 @@ if __name__ == '__main__':
         ("imputer", Imputer(new_data.f_types, strategy="mice")),
         ('classify', new_knn),
     ])
-    """
-    #pipe9 = Pipeline(steps=[('reduce', pso), ('classify', knn)])
+    pipe9 = Pipeline(steps=[('reduce', pso), ('classify', knn)])
     pipe10 = Pipeline(steps=[('reduce', rar), ('classify', knn)])
 
     pipelines = [
-        #pipe1,
-        #pipe2,
-        #pipe3,
-        #pipe4,
-        #pipe5,
-        #pipe6,
-        #pipe7,
-        #pipe8,
-        #pipe9,
-        pipe10
+        pipe1, pipe2, pipe3, pipe4, pipe5, pipe6, pipe7, pipe8, pipe9, pipe10
     ]
 
     scores = []
