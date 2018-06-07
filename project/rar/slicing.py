@@ -33,9 +33,10 @@ def get_slices(X, types, n_select, n_vectors, n_iterations=100):
     # remove empty and very small slices
     # TODO: select by almost equal size
     sums = np.sum(slices, axis=1)
-    indices = sums > 1
+    indices = sums > 10
     if np.any(~indices):
         slices = slices[indices]
+        sums = sums[indices]
 
     # reduce to n_iterations and return
     if len(slices) > n_iterations:

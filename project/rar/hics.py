@@ -17,7 +17,6 @@ class HICS():
     def evaluate_subspace(self, subspace, target):
         # TODO increase iterations when having many missing values?
         # TODO increase relevance if missingness is predictive
-        # TODO: check how contrast can be > 0 in ks test
         # TODO: different value ranges from tests?
         # use 1-exp(-KLD(P,Q)) to normalize kld
         X, y, t = self._complete(subspace, target)
