@@ -94,10 +94,9 @@ class RaR(Subspacing):
         target = random.choice(open_features)
 
         rel, red = self.hics.evaluate_subspace(subspace, target)
-        # TODO: normalize instead of clip
         return {
             "relevance": rel,
-            "redundancy": min(1, red),
+            "redundancy": red,
             "target": target,
         }
 
