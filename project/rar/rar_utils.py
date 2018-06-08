@@ -53,7 +53,6 @@ def calculate_ranking(relevances, redundancies, names):
     open_features = deepcopy(names)
     open_features.remove(best[0])
 
-    # TODO: improve speed
     # stepwise add features
     while len(open_features) > 0:
         best_score, best_feature = 0, None
