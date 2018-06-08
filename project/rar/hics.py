@@ -1,9 +1,6 @@
 import numpy as np
-import pandas as pd
 from .contrast import calculate_contrasts
 from .slicing import get_slices
-
-from time import time
 
 
 class HICS():
@@ -17,8 +14,6 @@ class HICS():
     def evaluate_subspace(self, subspace, target):
         # TODO increase iterations when having many missing values?
         # TODO increase relevance if missingness is predictive
-        # TODO: different value ranges from tests?
-        # use 1-exp(-KLD(P,Q)) to normalize kld
         X, y, t = self._complete(subspace, target)
         l_type = self.data.l_type
         t_type = self.data.f_types[target]
@@ -29,29 +24,22 @@ class HICS():
         alpha_d = self.params["alpha"]**(1 / X.shape[1])
         n_select = int(alpha_d * X.shape[0])
 
-        start = time()
         slices, slice_lengths = get_slices(X, types, n_select, n_iterations)
         if len(slices) == 0:
             return 0, 0
 
-        # print("Slicing", time() - start)
-
-        start = time()
         c_cache = self._create_cache(y, l_type, True)
         t_cache = self._create_cache(t, t_type)
-        # print("Caching", time() - start)
 
-        start = time()
         relevances = calculate_contrasts(l_type, slices, c_cache,
                                          slice_lengths)
-        # print("Relevances (KLD)", time() - start)
 
-        start = time()
         redundancies = calculate_contrasts(t_type, slices, t_cache,
                                            slice_lengths)
-        # print("Redundancies (KS)", time() - start)
-        # print(1/0)
-        return np.mean(relevances), np.mean(redundancies)
+
+        relevance = 1 - np.exp(-1 * np.mean(relevances))
+        redundancy = 1 - np.mean(redundancies)
+        return relevance, redundancy
 
     def _create_cache(self, y, y_type, is_sorted=False):
         sorted_y = np.sort(y) if not is_sorted else y
