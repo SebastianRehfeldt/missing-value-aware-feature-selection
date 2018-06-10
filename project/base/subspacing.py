@@ -51,6 +51,7 @@ class Subspacing(Selector):
     def _fit(self):
         subspaces = self._get_unique_subscapes()
         score_map = self._evaluate_subspaces(subspaces)
+        self.score_map = score_map
         importances = self._deduce_feature_importances(score_map)
         self.feature_importances.update(importances)
 

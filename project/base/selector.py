@@ -103,7 +103,7 @@ class Selector(ABC):
             y {df.series} -- New label vector
         """
         self.fit(X, y)
-        return self.transform(X)
+        return self.transform(X, k)
 
     def get_ranking(self):
         return sorted(

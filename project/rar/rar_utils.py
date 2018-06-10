@@ -17,6 +17,7 @@ def _combine_scores(rel, red):
 
 
 def _calculate_redundancy(samples, selected_features):
+    # TODO: think about what to do when there are no samples/ admissables
     intersections = [
         set(s[0]).intersection(selected_features) for s in samples
     ]
@@ -63,7 +64,7 @@ def calculate_ranking(relevances, redundancies, names):
             score = _combine_scores(relevances[f], red)
 
             if score >= best_score:
-                best_score, best_feature = score, f
+                best_score, best_feature = deepcopy(score), deepcopy(f)
 
         ranking[best_feature] = best_score
         open_features.remove(best_feature)
