@@ -1,7 +1,7 @@
 """
     RaR class for feature selection
 """
-import random
+import numpy as np
 from math import factorial, ceil, log
 
 from project.base import Subspacing
@@ -91,7 +91,10 @@ class RaR(Subspacing):
             types {pd.series} -- Series containing the feature types
         """
         open_features = [n for n in self.names if n not in subspace]
-        target = random.choice(open_features)
+
+        # TODO: evaluate multiple targets
+        n_targets = min(len(open_features), 1)
+        target = np.random.choice(open_features, n_targets, False)[0]
 
         rel, red = self.hics.evaluate_subspace(subspace, target)
         return {
@@ -108,5 +111,7 @@ class RaR(Subspacing):
             knowledgebase {list} -- List of subspace results
         """
         relevances = deduce_relevances(self.names, knowledgebase)
+        self.relevances = relevances
         redundancies = sort_redundancies_by_target(knowledgebase)
+        self.redundancies = redundancies
         return calculate_ranking(relevances, redundancies, self.names)

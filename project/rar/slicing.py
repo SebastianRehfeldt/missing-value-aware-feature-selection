@@ -75,11 +75,11 @@ def get_numerical_slices(X, n_select, n_vectors):
     slices = np.zeros((n_vectors, X.shape[0]), dtype=bool)
     for i, start in enumerate(start_positions):
         # DISCUSS
-        """
         start_value = X[sorted_indices[start]]
         end_value = X[sorted_indices[start + (n_select - 1)]]
         slices[i] = np.logical_and(X >= start_value, X <= end_value)
         """
         idx = sorted_indices[start:start + n_select - 1]
         slices[i, idx] = True
+        """
     return slices
