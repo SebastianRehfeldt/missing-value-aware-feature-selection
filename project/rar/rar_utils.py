@@ -6,9 +6,10 @@ def sort_redundancies_by_target(knowledgebase):
     redundancies = defaultdict(list)
     for subset in knowledgebase:
         features = subset["features"]
-        target = subset["score"]["target"]
-        redundancy = subset["score"]["redundancy"]
-        redundancies[target].append((features, redundancy))
+        targets = subset["score"]["targets"]
+        scores = subset["score"]["redundancies"]
+        for target, redundancy in zip(targets, scores):
+            redundancies[target].append((features, redundancy))
     return redundancies
 
 
