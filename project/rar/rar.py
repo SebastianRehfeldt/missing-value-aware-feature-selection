@@ -23,7 +23,8 @@ class RaR(Subspacing):
 
     def _update_params(self, **kwargs):
         alpha = kwargs.get("alpha", self._get_alpha())
-        beta = kwargs.get("beta", 0.05)
+        beta = kwargs.get("beta", 0.01)
+        n_targets = kwargs.get("n_targets", 3)
         eval_method = kwargs.get("eval_method", "rar")
         approach = kwargs.get("approach", "deletion")
         max_subspaces = kwargs.get("max_subspaces", 1000)
@@ -34,6 +35,7 @@ class RaR(Subspacing):
         self.params.update({
             "alpha": alpha,
             "beta": beta,
+            "n_targets": n_targets,
             "eval_method": eval_method,
             "approach": approach,
             "max_subspaces": max_subspaces,
@@ -91,16 +93,14 @@ class RaR(Subspacing):
             types {pd.series} -- Series containing the feature types
         """
         open_features = [n for n in self.names if n not in subspace]
+        n_targets = min(len(open_features), self.params["n_targets"])
+        targets = np.random.choice(open_features, n_targets, False)
 
-        # TODO: evaluate multiple targets
-        n_targets = min(len(open_features), 1)
-        target = np.random.choice(open_features, n_targets, False)[0]
-
-        rel, red = self.hics.evaluate_subspace(subspace, target)
+        rel, red_s = self.hics.evaluate_subspace(subspace, targets)
         return {
             "relevance": rel,
-            "redundancy": red,
-            "target": target,
+            "redundancies": red_s,
+            "targets": targets,
         }
 
     def _deduce_feature_importances(self, knowledgebase):
