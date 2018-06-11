@@ -1,15 +1,15 @@
 import numpy as np
+import pandas as pd
 from .contrast import calculate_contrasts
 from .slicing import get_slices
+from project.utils.imputer import Imputer
 
 
 class HICS():
     def __init__(self, data, nans, **params):
-        # TODO increase iterations when having many missing values?
-        # TODO increase relevance if missingness is predictive
+        # TODO: increase iterations when having many missing values?
+        # TODO: increase relevance if missingness is predictive
         # TODO: calculate alpha_d before and account for nans
-        # TODO: implement imputation
-        # TODO: cache sorted labels correctly (use argsort)
         self.data = data
         self.nans = nans
         self.params = params
@@ -19,6 +19,18 @@ class HICS():
         types = self.data.f_types[subspace]
         if self.params["approach"] == "deletion":
             X, y, indices = self._apply_deletion(subspace)
+
+        if self.params["approach"] == "imputation":
+            target_types = [self.data.f_types[t] for t in targets]
+            target_types = pd.Series(target_types, index=targets)
+            all_types = pd.concat([types, target_types], axis=0)
+            cols = np.hstack((subspace, targets))
+
+            imputer = Imputer(all_types, "knn")
+            X_complete = imputer._complete(self.data.X[cols])
+            T = X_complete[targets]
+            X = X_complete[subspace]
+            y = self.data.y
 
         if X.shape[0] < 10:
             return 0, [], True
@@ -44,6 +56,10 @@ class HICS():
                 t_nans = self.nans[target][indices]
                 t = self.data.X[target][indices][~t_nans]
                 t_slices = slices[:, ~t_nans]
+
+            if self.params["approach"] == "imputation":
+                t = T[target]
+                t_slices = slices
 
             cache = self._create_cache(t, t_type, t_slices, lengths)
             red_s = calculate_contrasts(cache)

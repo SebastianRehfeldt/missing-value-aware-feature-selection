@@ -12,15 +12,22 @@ name = "madelon"
 name = "boston"
 name = "analcatdata_reviewer"
 name = "musk"
-name = "iris"
 name = "isolet"
 name = "semeion"
 name = "ionosphere"
-data = data_loader.load_data(name, "csv")
+name = "iris"
+data = data_loader.load_data(name, "arff")
 print(data.shape, flush=True)
 
-data = introduce_missing_values(data, missing_rate=0)
+data = introduce_missing_values(data, missing_rate=0.9)
 data = scale_data(data)
+
+#%%
+from project.utils.imputer import Imputer
+imputer = Imputer(data.f_types, strategy="mice")
+completed = imputer.complete(data)
+
+data.X.head()
 
 # %%
 from project.rar.rar import RaR
@@ -30,20 +37,28 @@ rar = RaR(
     data.f_types,
     data.l_type,
     data.shape,
-    n_jobs=4,
+    n_jobs=1,
+    approach="imputation",
+    n_targets=0,
     max_subspaces=5000,
     contrast_iterations=100,
 )
 
-rar.fit(data.X, data.y)
-#pprint(rar.feature_importances)
-#print(time() - start)
+rar.fit(completed.X, data.y)
+pprint(rar.get_ranking())
+print(time() - start)
 
 # %%
-X_new = rar.transform(data.X, 4)
-X_new.head()
+rar.score_map
+# %%
+X_new = rar.transform(data.X, 25)
 
+X_new.head()
 X_new.corr().style.background_gradient()
+
+# %%
+# rar.redundancies["V193"]
+# rar.get_ranking()
 
 # %%
 types = pd.Series(data.f_types, X_new.columns.values)
@@ -54,17 +69,18 @@ new_data.X.shape
 # %%
 import numpy as np
 from project.classifier import KNN
-from sklearn.pipeline import Pipeline
 from sklearn.cross_validation import cross_val_score, StratifiedKFold
 from sklearn.metrics import f1_score, make_scorer
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import GaussianNB
 
 knn = KNN(new_data.f_types, new_data.l_type, knn_neighbors=20)
 clf = KNeighborsClassifier(n_neighbors=20)
+gnb = GaussianNB()
 
 cv = StratifiedKFold(new_data.y, n_folds=3, shuffle=True)
 scorer = make_scorer(f1_score, average="micro")
 
 scores = cross_val_score(
-    knn, new_data.X, new_data.y, cv=cv, scoring=scorer, n_jobs=3)
+    clf, new_data.X, new_data.y, cv=cv, scoring=scorer, n_jobs=3)
 print(np.mean(scores), scores)

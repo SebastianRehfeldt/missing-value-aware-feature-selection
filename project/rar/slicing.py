@@ -62,7 +62,6 @@ def get_slices_by_mating(X, types, n_select, n_iterations):
 
 
 def get_categorical_slices(X, n_select, n_vectors):
-    # TODO: sample from category to get more slices
     values, counts = np.unique(X, return_counts=True)
     value_dict = dict(zip(values, counts))
     index_dict = {val: np.where(X == val)[0] for val in values}
@@ -81,7 +80,6 @@ def get_categorical_slices(X, n_select, n_vectors):
 
 
 def get_numerical_slices(X, n_select, n_vectors):
-    # TODO: Think of how to support nan's here (probabilistic slicing)
     # TODO: similarity using replace=False
     sorted_indices = np.argsort(X)
     max_start = X.shape[0] - n_select
