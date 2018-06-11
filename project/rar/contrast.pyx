@@ -4,20 +4,20 @@ cimport numpy as np
 import numpy as np
 from time import time
 
-def calculate_contrasts(y_type, slices, cache, slice_lengths):
+def calculate_contrasts(cache):
     return {
         "numeric": _calculate_contrasts_ks,
         "nominal": _calculate_contrasts_kld
-    }[y_type](slices, cache, slice_lengths)
+    }[cache["type"]](cache)
 
 
-def _calculate_contrasts_ks(slices, cache, slice_lengths):
-    cdef int n = len(slices) 
+def _calculate_contrasts_ks(cache):
+    cdef int n = len(cache["slices"]) 
     cdef int i = 0
     cdef double[:] y_sorted = cache["sorted"]
 
-    cdef int[:] lengths = slice_lengths
-    cdef np.uint8_t[:,:] slices_int = slices.view(dtype=np.uint8, type=np.matrix)
+    cdef int[:] lengths = cache["lengths"]
+    cdef np.uint8_t[:,:] slices_int = cache["slices"].view(dtype=np.uint8, type=np.matrix)
 
     cdef double[:] contrasts = np.zeros(n)
     with nogil, parallel(num_threads=1):
@@ -51,10 +51,11 @@ cdef public double _calculate_max_dist(double[:] m, np.uint8_t[:] slice_, int n_
                 max_dist = distance
     return max_dist
 
-def _calculate_contrasts_kld(slices, cache, slice_lengths):
+def _calculate_contrasts_kld(cache):
     values_m = cache["values"]
     probs_m = cache["probs"]
     sorted_y = cache["sorted"]
+    slices = cache["slices"]
 
     cdfs = np.zeros((len(slices), len(values_m)))
     for i, s in enumerate(slices):

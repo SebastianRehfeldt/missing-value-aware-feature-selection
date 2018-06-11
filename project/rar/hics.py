@@ -8,9 +8,10 @@ class HICS():
         # TODO increase iterations when having many missing values?
         # TODO increase relevance if missingness is predictive
         # TODO: calculate alpha_d before and account for nans
+        # TODO: ignore subspaces with 0 slices
         # TODO: implement imputation
         # TODO: cache sorted labels correctly (use argsort)
-        # TODO: ignore subspaces with 0 slices
+        # TODO: multi-d relevance smaller than single-d
         self.data = data
         self.nans = nans
         self.params = params
@@ -30,9 +31,8 @@ class HICS():
             return 0, [0] * len(targets)
 
         # Compute relevance
-        l_type = self.data.l_type
-        l_cache = self._create_cache(y, l_type)
-        relevances = calculate_contrasts(l_type, slices, l_cache, lengths)
+        cache = self._create_cache(y, self.data.l_type, slices, lengths)
+        relevances = calculate_contrasts(cache)
         relevance = 1 - np.exp(-1 * np.mean(relevances))
 
         # Compute redundancies
@@ -44,25 +44,30 @@ class HICS():
                 t = self.data.X[target][indices][~t_nans]
                 t_slices = slices[:, ~t_nans]
 
-            t_cache = self._create_cache(t, t_type)
-            red_s = calculate_contrasts(t_type, t_slices, t_cache, lengths)
+            cache = self._create_cache(t, t_type, t_slices, lengths)
+            red_s = calculate_contrasts(cache)
             redundancies.append(1 - np.mean(red_s))
 
         return relevance, redundancies
 
-    def _create_cache(self, y, y_type):
-        sorted_y = np.sort(y)
+    def _create_cache(self, y, y_type, slices, lengths):
+        sorted_indices = np.argsort(y.values)
+        sorted_y = y[sorted_indices].values
 
-        if y_type == "numeric":
-            return {"sorted": sorted_y}
-        else:
+        cache = {
+            "type": y_type,
+            "lengths": lengths,  # no need to sort
+            "sorted": sorted_y,
+            "slices": slices[:, sorted_indices],
+        }
+
+        if y_type == "nominal":
             values, counts = np.unique(sorted_y, return_counts=True)
-            probs = counts / len(sorted_y)
-            return {
+            cache.update({
                 "values": values,
-                "probs": probs,
-                "sorted": sorted_y,
-            }
+                "probs": counts / len(sorted_y),
+            })
+        return cache
 
     def _apply_deletion(self, subspace):
         nan_indices = np.sum(self.nans[subspace], axis=1) == 0
