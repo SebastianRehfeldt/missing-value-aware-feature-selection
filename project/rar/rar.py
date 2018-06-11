@@ -114,4 +114,6 @@ class RaR(Subspacing):
         self.relevances = relevances
         redundancies = sort_redundancies_by_target(knowledgebase)
         self.redundancies = redundancies
-        return calculate_ranking(relevances, redundancies, self.names)
+        redundancies_1d = self.data.X.corr().fillna(0)
+        return calculate_ranking(relevances, redundancies, redundancies_1d,
+                                 self.names)

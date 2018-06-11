@@ -9,7 +9,7 @@ def get_slices(X, types, n_select, n_iterations=100):
     slices = {
         "mating": get_slices_by_mating,
         "simple": get_slices_simple,
-    }["simple"](X, types, n_select, n_iterations)
+    }["mating"](X, types, n_select, n_iterations)
 
     # DISCUSS
     # remove empty and very small slices
