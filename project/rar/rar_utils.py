@@ -1,3 +1,4 @@
+import numpy as np
 from copy import deepcopy
 from collections import defaultdict
 
@@ -18,7 +19,6 @@ def _combine_scores(rel, red):
 
 
 def _calculate_redundancy(samples, selected_features):
-    # TODO: think about what to do when there are no samples/ admissables
     intersections = [
         set(s[0]).intersection(selected_features) for s in samples
     ]
@@ -26,6 +26,11 @@ def _calculate_redundancy(samples, selected_features):
     # get admissables
     admissables = [(s, intersections[i]) for i, s in enumerate(samples)
                    if len(intersections[i]) > 0]
+
+    # TODO: think about what to do when there are no samples/ admissables
+    # mean of samples or check inverse?
+    if len(admissables) == 0:
+        return np.mean([s[1] for s in samples])
 
     # get minimum redundancy of justified samples
     max_red = 0

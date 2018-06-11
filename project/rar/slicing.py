@@ -2,10 +2,42 @@ import itertools
 import numpy as np
 
 
-def get_slices(X, types, n_select, n_vectors, n_iterations=100):
+def get_slices(X, types, n_select, n_iterations=100):
     # DISCUSS
     # TODO: create some more slices to have enough to select from
-    # TODO: calculate this before
+    # TODO: pass options, n_iterations, n_select, pooling approach
+    slices = {
+        "mating": get_slices_by_mating,
+        "simple": get_slices_simple,
+    }["simple"](X, types, n_select, n_iterations)
+
+    # DISCUSS
+    # remove empty and very small slices
+    # TODO: select by almost equal size
+    sums = np.sum(slices, axis=1)
+    indices = sums > 10
+    if np.any(~indices):
+        slices = slices[indices]
+        sums = sums[indices]
+
+    # reduce to n_iterations and return
+    if len(slices) > n_iterations:
+        indices = np.random.choice(range(0, len(slices)), n_iterations)
+        return slices[indices], sums[indices]
+    return slices, sums
+
+
+def get_slices_simple(X, types, n_select, n_iterations):
+    slices = np.ones((n_iterations, X.shape[0]), dtype=bool)
+    for col in X:
+        slices.__iand__({
+            "nominal": get_categorical_slices,
+            "numeric": get_numerical_slices
+        }[types[col]](X[col].values, n_select, n_iterations))
+    return slices
+
+
+def get_slices_by_mating(X, types, n_select, n_iterations):
     n_vectors = int(np.ceil(n_iterations**(1 / len(types))))
 
     # pooling
@@ -28,21 +60,7 @@ def get_slices(X, types, n_select, n_vectors, n_iterations=100):
             slices[i, :] = np.all(combinations[s], axis=0)
     else:
         slices = pool[0]
-
-    # DISCUSS
-    # remove empty and very small slices
-    # TODO: select by almost equal size
-    sums = np.sum(slices, axis=1)
-    indices = sums > 10
-    if np.any(~indices):
-        slices = slices[indices]
-        sums = sums[indices]
-
-    # reduce to n_iterations and return
-    if len(slices) > n_iterations:
-        indices = np.random.choice(range(0, len(slices)), n_iterations)
-        return slices[indices], sums[indices]
-    return slices, sums
+    return slices
 
 
 def get_categorical_slices(X, n_select, n_vectors):
