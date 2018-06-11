@@ -52,7 +52,7 @@ class HICS():
 
     def _create_cache(self, y, y_type, slices, lengths):
         sorted_indices = np.argsort(y.values)
-        sorted_y = y[sorted_indices].values
+        sorted_y = y.values[sorted_indices]
 
         cache = {
             "type": y_type,
