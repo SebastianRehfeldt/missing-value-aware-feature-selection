@@ -19,6 +19,9 @@ def _combine_scores(rel, red):
 
 
 def _calculate_redundancy(samples, selected_features):
+    if len(samples) == 0:
+        return 0
+
     intersections = [
         set(s[0]).intersection(selected_features) for s in samples
     ]
@@ -27,8 +30,6 @@ def _calculate_redundancy(samples, selected_features):
     admissables = [(s, intersections[i]) for i, s in enumerate(samples)
                    if len(intersections[i]) > 0]
 
-    # TODO: think about what to do when there are no samples/ admissables
-    # mean of samples or check inverse?
     if len(admissables) == 0:
         return np.mean([s[1] for s in samples])
 
@@ -65,9 +66,10 @@ def calculate_ranking(relevances, redundancies, redundancies_1d, names):
         best_score, best_feature = 0, None
         selected = set(ranking.keys())
 
+        # deduce redundancies of features to previous feature
         reds_1d = redundancies_1d[list(selected)].T
         for f in open_features:
-            # deduce redundancy of feature to previous feature
+            # TODO: smarter combination of pearson and sample redundancy
             red = _calculate_redundancy(redundancies[f], selected)
             max_red_1d = np.max(np.abs(reds_1d[f].values))
             red = np.mean([red, max_red_1d])
