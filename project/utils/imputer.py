@@ -76,7 +76,9 @@ class Imputer():
         """
         cols = self.f_types.loc[self.f_types == "numeric"].index
         if X[cols].isnull().values.any():
-            X[cols] = self._get_imputer().complete(X[cols])
+            X_copy = X.copy()
+            X_copy[cols] = self._get_imputer().complete(X_copy[cols])
+            return X_copy
         return X
 
     def complete(self, data):
@@ -91,10 +93,12 @@ class Imputer():
         """
         Get imputer for strategy
         """
+        if self.strategy == "simple":
+            return SimpleFill()
+
         return {
             "knn": KNN,
             "mice": MICE,
             "matrix": MatrixFactorization,
-            "simple": SimpleFill,
             "soft": SoftImpute,
         }[self.strategy](verbose=False)
