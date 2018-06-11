@@ -96,12 +96,20 @@ class RaR(Subspacing):
         n_targets = min(len(open_features), self.params["n_targets"])
         targets = np.random.choice(open_features, n_targets, False)
 
-        rel, red_s = self.hics.evaluate_subspace(subspace, targets)
-        return {
-            "relevance": rel,
-            "redundancies": red_s,
-            "targets": targets,
-        }
+        rel, red_s, is_empty = self.hics.evaluate_subspace(subspace, targets)
+
+        if is_empty:
+            return {
+                "relevance": 0,
+                "redundancies": [],
+                "targets": [],
+            }
+        else:
+            return {
+                "relevance": rel,
+                "redundancies": red_s,
+                "targets": targets,
+            }
 
     def _deduce_feature_importances(self, knowledgebase):
         """

@@ -65,15 +65,6 @@ class Subspacing(Selector):
         n_subspaces, start = self.params["n_subspaces"], 0
         subspaces = [None] * n_subspaces
 
-        # DISCUSS
-        """
-        # evaluate each feature independently
-        if lower == 1:
-            for i, name in enumerate(self.names):
-                subspaces[i] = [name]
-            start, lower = len(self.names), 2
-        """
-
         # add multi-d subspaces
         max_retries = 10
         for i in range(start, n_subspaces):

@@ -3,7 +3,6 @@ import numpy as np
 
 
 def get_slices(X, types, n_select, n_iterations=100):
-    # DISCUSS
     # TODO: create some more slices to have enough to select from
     # TODO: pass options, n_iterations, n_select, pooling approach
     slices = {
@@ -11,7 +10,6 @@ def get_slices(X, types, n_select, n_iterations=100):
         "simple": get_slices_simple,
     }["mating"](X, types, n_select, n_iterations)
 
-    # DISCUSS
     # remove empty and very small slices
     # TODO: select by almost equal size
     sums = np.sum(slices, axis=1)
@@ -64,7 +62,6 @@ def get_slices_by_mating(X, types, n_select, n_iterations):
 
 
 def get_categorical_slices(X, n_select, n_vectors):
-    # DISCUSS
     # TODO: sample from category to get more slices
     values, counts = np.unique(X, return_counts=True)
     value_dict = dict(zip(values, counts))
@@ -92,7 +89,6 @@ def get_numerical_slices(X, n_select, n_vectors):
 
     slices = np.zeros((n_vectors, X.shape[0]), dtype=bool)
     for i, start in enumerate(start_positions):
-        # DISCUSS
         start_value = X[sorted_indices[start]]
         end_value = X[sorted_indices[start + (n_select - 1)]]
         slices[i] = np.logical_and(X >= start_value, X <= end_value)
