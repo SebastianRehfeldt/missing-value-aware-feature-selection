@@ -51,7 +51,7 @@ def _calculate_redundancy(samples, selected_features):
     return max_red
 
 
-def calculate_ranking(relevances, redundancies, names):
+def calculate_ranking(relevances, redundancies, redundancies_1d, names):
     best = sorted(relevances.items(), key=lambda k_v: k_v[1], reverse=True)[0]
 
     ranking = {}
@@ -64,11 +64,14 @@ def calculate_ranking(relevances, redundancies, names):
     while len(open_features) > 0:
         best_score, best_feature = 0, None
         selected = set(ranking.keys())
+
+        reds_1d = redundancies_1d[list(selected)].T
         for f in open_features:
             # deduce redundancy of feature to previous feature
             red = _calculate_redundancy(redundancies[f], selected)
+            max_red_1d = np.max(np.abs(reds_1d[f].values))
+            red = np.mean([red, max_red_1d])
             score = _combine_scores(relevances[f], red)
-
             if score >= best_score:
                 best_score, best_feature = deepcopy(score), deepcopy(f)
 
