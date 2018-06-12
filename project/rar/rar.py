@@ -27,6 +27,7 @@ class RaR(Subspacing):
         n_targets = kwargs.get("n_targets", 3)
         eval_method = kwargs.get("eval_method", "rar")
         approach = kwargs.get("approach", "deletion")
+        use_pearson = kwargs.get("use_pearson", True)
         max_subspaces = kwargs.get("max_subspaces", 1000)
         subspace_size = kwargs.get("subspace_size", self._get_size())
         slicing_method = kwargs.get("slicing_method", "mating")
@@ -40,6 +41,7 @@ class RaR(Subspacing):
             "n_targets": n_targets,
             "eval_method": eval_method,
             "approach": approach,
+            "use_pearson": use_pearson,
             "max_subspaces": max_subspaces,
             "subspace_size": subspace_size,
             "slicing_method": slicing_method,
@@ -126,6 +128,9 @@ class RaR(Subspacing):
         self.relevances = relevances
         redundancies = sort_redundancies_by_target(knowledgebase)
         self.redundancies = redundancies
-        redundancies_1d = self.data.X.corr().fillna(0)
+
+        redundancies_1d = None
+        if self.params["use_pearson"]:
+            redundancies_1d = self.data.X.corr().fillna(0)
         return calculate_ranking(relevances, redundancies, redundancies_1d,
                                  self.names)
