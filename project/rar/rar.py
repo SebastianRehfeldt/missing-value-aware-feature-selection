@@ -30,6 +30,7 @@ class RaR(Subspacing):
         max_subspaces = kwargs.get("max_subspaces", 1000)
         subspace_size = kwargs.get("subspace_size", self._get_size())
         subspace_method = kwargs.get("subspace_method", "adaptive")
+        imputation_method = kwargs.get("imputation_method", "knn")
         contrast_iterations = kwargs.get("contrast_iterations", 100)
 
         self.params.update({
@@ -41,6 +42,7 @@ class RaR(Subspacing):
             "max_subspaces": max_subspaces,
             "subspace_size": subspace_size,
             "subspace_method": subspace_method,
+            "imputation_method": imputation_method,
             "contrast_iterations": contrast_iterations,
         })
 
@@ -70,7 +72,7 @@ class RaR(Subspacing):
         beta = self.params["beta"]
         k = self.params["subspace_size"][1]
         l = self.shape[1]
-        s = 2
+        s = min(2, k)
 
         def _choose(n, k):
             return factorial(n) // factorial(k) // factorial(n - k)

@@ -69,7 +69,6 @@ def calculate_ranking(relevances, redundancies, redundancies_1d, names):
         # deduce redundancies of features to previous feature
         reds_1d = redundancies_1d[list(selected)].T
         for f in open_features:
-            # TODO: smarter combination of pearson and sample redundancy
             red = _calculate_redundancy(redundancies[f], selected)
             max_red_1d = np.max(np.abs(reds_1d[f].values))
             red = np.mean([red, max_red_1d])
