@@ -64,10 +64,12 @@ class HICS():
         return X, self.data.y, None, T
 
     def get_slices(self, X, types):
-        n_iterations = self.params["contrast_iterations"]
-        alpha_d = self.alphas_d[X.shape[1]]
-        n_select = int(alpha_d * X.shape[0])
-        return get_slices(X, types, n_select, n_iterations)
+        options = {
+            "slicing_method": self.params["slicing_method"],
+            "n_iterations": self.params["contrast_iterations"],
+            "n_select": int(self.alphas_d[X.shape[1]] * X.shape[0]),
+        }
+        return get_slices(X, types, **options)
 
     def _create_cache(self, y, y_type, slices, lengths):
         sorted_indices = np.argsort(y.values)
