@@ -48,7 +48,6 @@ def get_slices_by_mating(X, types, n_select, n_iterations):
 
     # mating
     if len(types) > 1:
-        # TODO partial slicing should go here
         combinations = list(itertools.product(*pool))
         selected = np.random.choice(
             range(len(combinations)), n_iterations, False)
@@ -68,7 +67,6 @@ def get_categorical_slices(X, n_select, n_vectors):
 
     slices = np.zeros((n_vectors, X.shape[0]), dtype=bool)
     for i in range(n_vectors):
-        # TODO: tackle slice similarity here?
         values = np.random.permutation(values)
         current_sum = 0
         for value in values:
@@ -80,7 +78,6 @@ def get_categorical_slices(X, n_select, n_vectors):
 
 
 def get_numerical_slices(X, n_select, n_vectors):
-    # TODO: similarity using replace=False
     sorted_indices = np.argsort(X)
     max_start = X.shape[0] - n_select
     start_positions = np.random.choice(range(0, max_start), n_vectors)
