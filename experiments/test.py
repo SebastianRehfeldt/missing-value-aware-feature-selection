@@ -19,15 +19,17 @@ name = "iris"
 data = data_loader.load_data(name, "arff")
 print(data.shape, flush=True)
 
-data = introduce_missing_values(data, missing_rate=0.9)
+data = introduce_missing_values(data, missing_rate=0)
 data = scale_data(data)
 
 #%%
+"""
 from project.utils.imputer import Imputer
 imputer = Imputer(data.f_types, strategy="mice")
 completed = imputer.complete(data)
 
 data.X.head()
+"""
 
 # %%
 from project.rar.rar import RaR
@@ -38,13 +40,13 @@ rar = RaR(
     data.l_type,
     data.shape,
     n_jobs=1,
-    approach="imputation",
-    n_targets=0,
+    approach="deletion",
+    n_targets=1,
     max_subspaces=5000,
     contrast_iterations=100,
 )
 
-rar.fit(completed.X, data.y)
+rar.fit(data.X, data.y)
 pprint(rar.get_ranking())
 print(time() - start)
 

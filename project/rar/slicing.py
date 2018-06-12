@@ -2,16 +2,13 @@ import itertools
 import numpy as np
 
 
-def get_slices(X, types, n_select, n_iterations=100):
-    # TODO: create some more slices to have enough to select from
-    # TODO: pass options, n_iterations, n_select, pooling approach
+def get_slices(X, types, n_select, n_iterations, slicing_method):
     slices = {
         "mating": get_slices_by_mating,
         "simple": get_slices_simple,
-    }["mating"](X, types, n_select, n_iterations)
+    }[slicing_method](X, types, n_select, int(1.25 * n_iterations))
 
     # remove empty and very small slices
-    # TODO: select by almost equal size
     sums = np.sum(slices, axis=1)
     indices = sums > 10
     if np.any(~indices):
