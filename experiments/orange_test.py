@@ -3,7 +3,7 @@ from time import time
 from project.utils import DataLoader, introduce_missing_values, scale_data
 
 data_loader = DataLoader()
-data = data_loader.load_data("iris", "arff")
+data = data_loader.load_data("isolet", "arff")
 data = introduce_missing_values(data, missing_rate=0)
 data = scale_data(data)
 
@@ -25,3 +25,8 @@ start = time()
 dist_model = Euclidean(normalize=True).fit(t)
 print(dist_model(t))
 print(time() - start)
+
+# %%
+from Orange.classification import RandomForestLearner
+learner = RandomForestLearner()
+learner.score_data(t)

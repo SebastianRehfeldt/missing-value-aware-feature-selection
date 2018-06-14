@@ -36,6 +36,7 @@ class HICS():
         return relevance, redundancies, False
 
     def _prepare_data(self, subspace, targets, types):
+        # TODO: check if nans exist (imputation would probably break)
         if self.params["approach"] == "deletion":
             X, y, indices, T = self._apply_deletion(subspace)
 
@@ -44,7 +45,7 @@ class HICS():
         return X, y, indices, T
 
     def _apply_deletion(self, subspace):
-        nan_indices = np.sum(self.nans[subspace], axis=1) == 0
+        nan_indices = np.sum(self.nans[subspace].values, axis=1) == 0
         new_X = self.data.X[subspace][nan_indices]
         new_y = self.data.y[nan_indices]
         return new_X, new_y, nan_indices, None
