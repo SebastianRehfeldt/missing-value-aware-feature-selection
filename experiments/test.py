@@ -12,17 +12,19 @@ name = "madelon"
 name = "boston"
 name = "analcatdata_reviewer"
 name = "musk"
-name = "isolet"
 name = "semeion"
+name = "isolet"
 name = "ionosphere"
+name = "heart-c"
 name = "iris"
 data = data_loader.load_data(name, "arff")
 print(data.shape, flush=True)
 
-data = introduce_missing_values(data, missing_rate=0)
+data = introduce_missing_values(data, missing_rate=0.7)
 data = scale_data(data)
+data.X.head()
 
-#%%
+# %%
 """
 from project.utils.imputer import Imputer
 imputer = Imputer(data.f_types, strategy="mice")
@@ -41,7 +43,8 @@ rar = RaR(
     data.shape,
     n_jobs=1,
     approach="deletion",
-    n_targets=1,
+    use_pearson=False,
+    n_targets=0,
     max_subspaces=5000,
     contrast_iterations=100,
 )
@@ -51,9 +54,7 @@ pprint(rar.get_ranking())
 print(time() - start)
 
 # %%
-rar.score_map
-# %%
-X_new = rar.transform(data.X, 25)
+X_new = rar.transform(data.X, 5)
 
 X_new.head()
 X_new.corr().style.background_gradient()
@@ -84,5 +85,5 @@ cv = StratifiedKFold(new_data.y, n_folds=3, shuffle=True)
 scorer = make_scorer(f1_score, average="micro")
 
 scores = cross_val_score(
-    clf, new_data.X, new_data.y, cv=cv, scoring=scorer, n_jobs=3)
+    gnb, new_data.X, new_data.y, cv=cv, scoring=scorer, n_jobs=3)
 print(np.mean(scores), scores)
