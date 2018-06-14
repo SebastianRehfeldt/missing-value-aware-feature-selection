@@ -7,6 +7,7 @@ from project.utils import Data
 # LC Weights equal relevance?
 # Discretization lowers relevance
 # Relevance of features in clusters (inside multiple clusters?)
+# Relevance of dependent features
 
 
 def xor_signs(X, subspace):
@@ -23,11 +24,11 @@ def xor_values(X, subspace):
 
 def create_dataset(n_samples=1000,
                    n_features=20,
-                   n_independent=15,
-                   n_dependent=5,
-                   n_relevant=7,
+                   n_independent=18,
+                   n_dependent=2,
+                   n_relevant=3,
                    n_discrete=0,
-                   n_clusters=2,
+                   n_clusters=0,
                    y_flip=0.01,
                    max_features_in_cluster=3,
                    max_discrete_values=10):
@@ -38,7 +39,6 @@ def create_dataset(n_samples=1000,
     X[:, :n_independent] = np.random.normal(0, 1.0, (n_samples, n_independent))
 
     # Add clusters on irrelevant features to last columns of array
-    relevant_indices = set([i for i in range(n_relevant)])
     clusters = {}
     for i in range(n_clusters):
         indices = [
@@ -46,7 +46,6 @@ def create_dataset(n_samples=1000,
         ]
         n_features_in_clust = np.random.randint(2, max_features_in_cluster + 1)
         subset = np.random.choice(indices, n_features_in_clust, False)
-        relevant_indices |= set(subset)
         clusters[i] = subset
 
         signs = xor_signs(X, subset)
@@ -55,10 +54,9 @@ def create_dataset(n_samples=1000,
         X[:, -pos] = signs * values
 
     # Add dependent features
-    relevant_indices = np.asarray(list(relevant_indices))
     for i in range(n_dependent):
-        lc = np.random.uniform(0, 1, len(relevant_indices))
-        X[:, i + n_independent] = np.sum(lc * X[:, relevant_indices], axis=1)
+        lc = np.random.uniform(0, 1, n_independent)
+        X[:, i + n_independent] = np.sum(lc * X[:, :n_independent], axis=1)
 
     # Add random noise
     X += np.random.normal(0, 0.1, size=(n_samples, n_features + n_clusters))
