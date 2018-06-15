@@ -1,12 +1,10 @@
 # %%
-import pandas as pd
 from time import time
-from pprint import pprint
 
-from experiments.generate_data import create_dataset
 from project.utils import introduce_missing_values, scale_data
+from project.utils.data import DataGenerator
 
-data, relevance_vector = create_dataset(
+generator = DataGenerator(
     n_samples=1000,
     n_features=20,
     n_independent=20,
@@ -16,7 +14,10 @@ data, relevance_vector = create_dataset(
     n_clusters=2,
     y_flip=0.01,
     max_features_in_cluster=3,
-    max_discrete_values=10)
+    max_discrete_values=10,
+)
+
+data, relevance_vector = generator.create_dataset()
 print(data.shape, flush=True)
 
 data = introduce_missing_values(data, missing_rate=0)
