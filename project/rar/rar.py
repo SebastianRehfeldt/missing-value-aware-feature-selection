@@ -76,7 +76,7 @@ class RaR(Subspacing):
         beta = self.params["beta"]
         k = self.params["subspace_size"][1]
         l = self.shape[1]
-        s = min(2, k)
+        s = min(3, k)
 
         def _choose(n, k):
             return factorial(n) // factorial(k) // factorial(n - k)

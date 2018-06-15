@@ -1,10 +1,8 @@
-# %%
 import numpy as np
 import pandas as pd
 from .data import Data
 
 # TODO: Discuss
-# Shuffle columns necessary?
 # Discretization lowers relevance
 # Relevance of features in clusters (inside multiple clusters?)
 # Relevance of dependent features
@@ -135,6 +133,9 @@ class DataGenerator():
         f_types = pd.Series(["numeric"] * self.n_features, index=names)
         f_types[self.discrete_features] = "nominal"
         l_type = "nominal"
+
+        shuffled_names = np.random.permutation(names)
+        X = X[shuffled_names]
 
         self.data = Data(X, y, f_types, l_type, X.shape)
         self.relevance_vector = pd.Series(self.relevance_vector, index=names)
