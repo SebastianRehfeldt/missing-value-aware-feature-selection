@@ -19,6 +19,8 @@ ALGORITHMS = {
             "eval_method": "tree"
         }
     },
+}
+"""
     "MI_Filter": {
         "should_impute": False,
         "class": Filter,
@@ -70,4 +72,4 @@ ALGORITHMS = {
             "n_subspaces": 1000,
         }
     }
-}
+"""
