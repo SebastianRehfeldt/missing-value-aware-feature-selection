@@ -33,11 +33,7 @@ def calculate_ndcg(gold_ranking, ranking):
 
 
 def calculate_sse(gold_ranking, ranking):
-    sse = 0
-    for feature, score in ranking:
-        diff = gold_ranking[feature] - score
-        sse += np.sqrt(diff**2)
-    return sse
+    return (gold_ranking - ranking).pow(2).sum()
 
 
 def calculate_mse(gold_ranking, ranking):
