@@ -1,5 +1,5 @@
 CONFIG = {
-    "n_runs": 2,
-    "n_insertions": 2,
-    "missing_rates": [0.0, 0.1]  #, 0.2, 0.5, 0.8],
+    "n_runs": 5,
+    "n_insertions": 5,
+    "missing_rates": [0.0, 0.2, 0.4, 0.6, 0.8],
 }
