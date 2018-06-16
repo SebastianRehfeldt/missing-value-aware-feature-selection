@@ -1,9 +1,9 @@
 DATASET_CONFIG = {
-    "n_samples": 1000,
+    "n_samples": 500,
     "n_features": 20,
     "n_independent": 20,
     "n_dependent": 0,
-    "n_relevant": 2,
+    "n_relevant": 4,
     "n_discrete": 0,
     "n_clusters": 2,
     "y_flip": 0.01,

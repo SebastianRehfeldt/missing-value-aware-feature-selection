@@ -4,6 +4,7 @@ data/**/*.csv
 data/**/*.txt
 data/**/*.json
 data/**/*.arff
+**/EXP_*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

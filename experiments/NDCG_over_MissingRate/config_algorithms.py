@@ -9,7 +9,7 @@ ALGORITHMS = {
             "approach": "deletion",
             "use_pearson": False,
             "n_targets": 0,
-            "n_subspaces": 2000,
+            "n_subspaces": 1000,
         }
     },
     "SFS + Tree": {
@@ -36,7 +36,18 @@ ALGORITHMS = {
             "approach": "imputation",
             "use_pearson": False,
             "n_targets": 0,
-            "n_subspaces": 2000,
+            "n_subspaces": 1000,
+        }
+    },
+    "RaR + Imputation (Mean)": {
+        "should_impute": False,
+        "class": RaR,
+        "config": {
+            "approach": "imputation",
+            "imputation_method": "simple",
+            "use_pearson": False,
+            "n_targets": 0,
+            "n_subspaces": 1000,
         }
     },
     "MICE + RaR": {
@@ -46,7 +57,7 @@ ALGORITHMS = {
         "config": {
             "use_pearson": False,
             "n_targets": 0,
-            "n_subspaces": 2000,
+            "n_subspaces": 1000,
         }
     },
     "KNN + RaR": {
@@ -56,7 +67,7 @@ ALGORITHMS = {
         "config": {
             "use_pearson": False,
             "n_targets": 0,
-            "n_subspaces": 2000,
+            "n_subspaces": 1000,
         }
     }
 }
