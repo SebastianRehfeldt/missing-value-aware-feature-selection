@@ -126,6 +126,7 @@ class DataGenerator():
 
     def _finalize(self):
         names = ["feature" + str(i) for i in range(self.n_features)]
+        names = np.random.permutation(names)
 
         X = pd.DataFrame(self.X[:, :self.n_features], columns=names)
         y = pd.Series(self.y, name="class")
@@ -136,9 +137,11 @@ class DataGenerator():
 
         shuffled_names = np.random.permutation(names)
         X = X[shuffled_names]
+        f_types = f_types[shuffled_names]
 
         self.data = Data(X, y, f_types, l_type, X.shape)
         self.relevance_vector = pd.Series(self.relevance_vector, index=names)
+        self.relevance_vector = self.relevance_vector[shuffled_names]
 
     def create_dataset(self):
         # Add independent features from N(0,1)
