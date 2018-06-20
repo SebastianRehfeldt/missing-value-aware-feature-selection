@@ -6,84 +6,89 @@ from pprint import pprint
 from project.utils import DataLoader
 from project.utils import introduce_missing_values, scale_data
 
-data_loader = DataLoader()
-name = "credit-approval"
-name = "madelon"
-name = "boston"
-name = "analcatdata_reviewer"
-name = "musk"
-name = "semeion"
-name = "isolet"
-name = "ionosphere"
-name = "heart-c"
-name = "iris"
-data = data_loader.load_data(name, "arff")
-print(data.shape, flush=True)
 
-data = introduce_missing_values(data, missing_rate=0.7)
-data = scale_data(data)
-data.X.head()
+if __name__ == "__main__":
 
-# %%
-"""
-from project.utils.imputer import Imputer
-imputer = Imputer(data.f_types, strategy="mice")
-completed = imputer.complete(data)
 
-data.X.head()
-"""
+    data_loader = DataLoader()
+    name = "credit-approval"
+    name = "madelon"
+    name = "boston"
+    name = "analcatdata_reviewer"
+    name = "musk"
+    name = "semeion"
+    name = "isolet"
+    name = "ionosphere"
+    name = "heart-c"
+    name = "iris"
+    data = data_loader.load_data(name, "arff")
+    print(data.shape, flush=True)
 
-# %%
-from project.rar.rar import RaR
+    data = introduce_missing_values(data, missing_rate=0.0)
+    data = scale_data(data)
+    data.X.head()
 
-start = time()
-rar = RaR(
-    data.f_types,
-    data.l_type,
-    data.shape,
-    n_jobs=1,
-    approach="deletion",
-    use_pearson=False,
-    n_targets=0,
-    max_subspaces=5000,
-    contrast_iterations=100,
-)
+    # %%
+    """
+    from project.utils.imputer import Imputer
+    imputer = Imputer(data.f_types, strategy="mice")
+    completed = imputer.complete(data)
+    
+    data.X.head()
+    """
 
-rar.fit(data.X, data.y)
-pprint(rar.get_ranking())
-print(time() - start)
+    # %%
+    from project.rar.rar import RaR
 
-# %%
-X_new = rar.transform(data.X, 5)
 
-X_new.head()
-X_new.corr().style.background_gradient()
+    start = time()
+    rar = RaR(
+        data.f_types,
+        data.l_type,
+        data.shape,
+        n_jobs=1,
+        approach="deletion",
+        use_pearson=False,
+        n_targets=0,
+        max_subspaces=5000,
+        contrast_iterations=100,
+    )
 
-# %%
-# rar.redundancies["V193"]
-# rar.get_ranking()
+    rar.fit(data.X, data.y)
+    pprint(rar.get_ranking())
+    print(time() - start)
 
-# %%
-types = pd.Series(data.f_types, X_new.columns.values)
-new_data = data.replace(True, X=X_new, shape=X_new.shape, f_types=types)
+    # %%
+    X_new = rar.transform(data.X, 5)
 
-new_data.X.shape
+    X_new.head()
+    X_new.corr().style.background_gradient()
 
-# %%
-import numpy as np
-from project.classifier import KNN
-from sklearn.cross_validation import cross_val_score, StratifiedKFold
-from sklearn.metrics import f1_score, make_scorer
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.naive_bayes import GaussianNB
+    # %%
+    # rar.redundancies["V193"]
+    # rar.get_ranking()
 
-knn = KNN(new_data.f_types, new_data.l_type, knn_neighbors=20)
-clf = KNeighborsClassifier(n_neighbors=20)
-gnb = GaussianNB()
+    # %%
+    types = pd.Series(data.f_types, X_new.columns.values)
+    new_data = data.replace(True, X=X_new, shape=X_new.shape, f_types=types)
 
-cv = StratifiedKFold(new_data.y, n_folds=3, shuffle=True)
-scorer = make_scorer(f1_score, average="micro")
+    new_data.X.shape
 
-scores = cross_val_score(
-    gnb, new_data.X, new_data.y, cv=cv, scoring=scorer, n_jobs=3)
-print(np.mean(scores), scores)
+    # %%
+    import numpy as np
+    from project.classifier import KNN
+    from sklearn.cross_validation import cross_val_score, StratifiedKFold
+    from sklearn.metrics import f1_score, make_scorer
+    from sklearn.neighbors import KNeighborsClassifier
+    from sklearn.naive_bayes import GaussianNB
+
+    knn = KNN(new_data.f_types, new_data.l_type, knn_neighbors=20)
+    clf = KNeighborsClassifier(n_neighbors=20)
+    gnb = GaussianNB()
+
+    cv = StratifiedKFold(new_data.y, n_folds=3, shuffle=True)
+    scorer = make_scorer(f1_score, average="micro")
+
+    scores = cross_val_score(
+        knn, new_data.X, new_data.y, cv=cv, scoring=scorer, n_jobs=3)
+    print(np.mean(scores), scores)
