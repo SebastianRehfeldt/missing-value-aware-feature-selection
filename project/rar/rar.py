@@ -56,6 +56,8 @@ class RaR(Subspacing):
     def _get_alpha(self):
         # make sure to have enough samples inside a slice
         min_samples = 30
+        if self.shape[0] == 0:
+            return 0
         return max(0.01, min_samples / self.shape[0])
 
     def _get_size(self):

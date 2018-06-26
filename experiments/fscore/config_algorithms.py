@@ -8,19 +8,20 @@ ALGORITHMS = {
         "config": {
             "approach": "deletion",
             "use_pearson": False,
-            "n_targets": 0,
-            "n_subspaces": 5000,
+            "n_targets": 3,
+            "n_subspaces": 2000,
+            "contrast_iterations": 250,
         }
     },
-    "RaR + Imputation (Mean)": {
-        "should_impute": False,
+    "Mean + RaR + Pearson": {
+        "should_impute": True,
+        "strategy": "simple",
         "class": RaR,
         "config": {
-            "approach": "imputation",
-            "imputation_method": "simple",
-            "use_pearson": False,
-            "n_targets": 0,
-            "n_subspaces": 5000,
+            "use_pearson": True,
+            "n_targets": 3,
+            "n_subspaces": 2000,
+            "contrast_iterations": 250,
         }
     },
     "Mean + RaR": {
@@ -29,18 +30,9 @@ ALGORITHMS = {
         "class": RaR,
         "config": {
             "use_pearson": False,
-            "n_targets": 0,
-            "n_subspaces": 5000,
-        }
-    },
-    "Deletion + RaR": {
-        "should_impute": False,
-        "should_delete": True,
-        "class": RaR,
-        "config": {
-            "use_pearson": False,
-            "n_targets": 0,
-            "n_subspaces": 5000,
+            "n_targets": 3,
+            "n_subspaces": 2000,
+            "contrast_iterations": 250,
         }
     },
     "MICE + RaR": {
@@ -49,8 +41,9 @@ ALGORITHMS = {
         "class": RaR,
         "config": {
             "use_pearson": False,
-            "n_targets": 0,
-            "n_subspaces": 5000,
+            "n_targets": 3,
+            "n_subspaces": 2000,
+            "contrast_iterations": 250,
         }
     },
     "KNN + RaR": {
@@ -59,8 +52,33 @@ ALGORITHMS = {
         "class": RaR,
         "config": {
             "use_pearson": False,
-            "n_targets": 0,
-            "n_subspaces": 5000,
+            "n_targets": 3,
+            "n_subspaces": 2000,
+            "contrast_iterations": 250,
+        }
+    },
+    "RKNN": {
+        "should_impute": False,
+        "class": RKNN,
+        "config": {
+            # "n_subspaces": 500,
+        },
+    },
+    "MI_Filter": {
+        "should_impute": False,
+        "class": Filter,
+        "config": {}
+    },
+}
+"""
+    "Deletion + RaR": {
+        "should_impute": False,
+        "should_delete": True,
+        "class": RaR,
+        "config": {
+            "use_pearson": False,
+            "n_targets": 3,
+            "n_subspaces": 2000,
         }
     },
     "SFS + Tree": {
@@ -70,26 +88,14 @@ ALGORITHMS = {
             "eval_method": "tree"
         }
     },
-    "RKNN": {
-        "should_impute": False,
-        "class": RKNN,
-        "config": {}
-    },
-}
-"""
     "RaR + Imputation": {
         "should_impute": False,
         "class": RaR,
         "config": {
             "approach": "imputation",
             "use_pearson": False,
-            "n_targets": 0,
+            "n_targets": 3,
             "n_subspaces": 1000,
         }
-    },
-    "MI_Filter": {
-        "should_impute": False,
-        "class": Filter,
-        "config": {}
     },
 """

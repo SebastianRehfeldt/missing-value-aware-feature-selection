@@ -17,8 +17,6 @@ ALGORITHMS = {
         "class": Filter,
         "config": {}
     },
-}
-"""
     "RKNN": {
         "should_impute": False,
         "class": RKNN,
@@ -65,4 +63,7 @@ ALGORITHMS = {
             "n_subspaces": 1000,
         }
     }
+}
+"""
+    
 """

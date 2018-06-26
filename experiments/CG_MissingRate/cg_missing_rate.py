@@ -14,8 +14,9 @@ from project.utils import introduce_missing_values, scale_data
 from project.utils.data import DataGenerator
 from project.utils.metrics import calculate_cg, calculate_ndcg
 from project.utils.imputer import Imputer
+from project.utils.deleter import Deleter
 
-EXPERIMENT_ID = "6"
+EXPERIMENT_ID = "60"
 EXPERIMENT_NAME = "CG_MissingRate"
 FOLDER = os.path.join(EXPERIMENTS_PATH, EXPERIMENT_NAME,
                       "EXP_" + EXPERIMENT_ID)
@@ -57,6 +58,10 @@ for i in range(CONFIG["n_runs"]):
                 if algorithm["should_impute"]:
                     imputer = Imputer(data.f_types, algorithm["strategy"])
                     data = imputer.complete(data)
+
+                if algorithm.get("should_delete", False):
+                    deleter = Deleter()
+                    data = deleter.remove(data)
 
                 selector = algorithm["class"](data.f_types, data.l_type,
                                               data.shape,

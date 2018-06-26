@@ -77,7 +77,6 @@ for i in range(CONFIG["n_runs"]):
             durations[missing_rate] = defaultdict(list)
 
         for key, scores in relevance_scores_run.items():
-            # TODO mean ranking
             df = pd.DataFrame(scores)
             mean_scores = df.mean(axis=0)
 
