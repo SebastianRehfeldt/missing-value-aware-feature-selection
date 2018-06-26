@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
 from .contrast import calculate_contrasts
-from .slicing import get_slices
+from .slicing import get_slices, get_partial_slices
+from time import clock
 
 
 class HICS():
@@ -10,6 +11,11 @@ class HICS():
         self.nans = nans
         self.params = params
         self._init_alphas()
+        self._init_n_selects()
+
+        if self.params["approach"] == "partial":
+            self._init_slices()
+            self._cache_label()
 
     def _init_alphas(self):
         alpha = self.params["alpha"]
@@ -18,7 +24,73 @@ class HICS():
             for i in range(1, self.params["subspace_size"][1] + 1)
         }
 
+    def _init_n_selects(self):
+        self.n_select_d = {
+            i: int(self.alphas_d[i] * self.data.shape[0])
+            for i in range(1, self.params["subspace_size"][1] + 1)
+        }
+
+    def _init_slices(self):
+        max_subspace_size = self.params["subspace_size"][1]
+        n_iterations = self.params["contrast_iterations"]
+
+        self.slices = {}
+        self.sorted_values = {}
+        self.sorted_indices = {}
+
+        for col in self.data.X:
+            sorted_values = self.data.X[col].sort_values()
+            self.sorted_values[col] = sorted_values
+            self.sorted_indices[col] = sorted_values.index
+
+            self.slices[col] = {}
+            for i in range(1, max_subspace_size + 1):
+                self.slices[col][i] = get_partial_slices(
+                    self.data.X[col],
+                    self.sorted_indices[col],
+                    self.nans[col],
+                    self.data.f_types[col],
+                    self.n_select_d[i],
+                    n_iterations,
+                )
+
+    def _cache_label(self):
+        self.sorted_indices = np.argsort(self.data.y.values)
+        self.label_values, self.label_counts = np.unique(
+            self.data.y.values, return_counts=True)
+
+    def combine_slices(self, subspace):
+        k = len(subspace)
+        if len(subspace) == 1:
+            slices = self.slices[subspace[0]][k]
+        elif len(subspace) == 2:
+            slice1 = self.slices[subspace[0]][k]
+            slice2 = self.slices[subspace[1]][k]
+            slices = np.logical_and(slice1, slice2)
+        else:
+            slice1 = self.slices[subspace[0]][k]
+            slice2 = self.slices[subspace[1]][k]
+            slices = np.logical_and(slice1, slice2)
+            for i in range(2, k):
+                slices.__iand__(self.slices[subspace[i]][k])
+
+        max_nans = int(np.floor(k / 2))
+        nan_sums = self.nans[subspace].sum(1)
+        slices[:, nan_sums > max_nans] = False
+        sums = np.sum(slices, axis=1).shape
+        return slices, sums
+
     def evaluate_subspace(self, subspace, targets=[]):
+        if self.params["approach"] == "partial":
+            slices, lengths = self.combine_slices(subspace)
+            cache = self._create_cache(
+                self.data.y, self.data.l_type, slices, lengths, is_sorted=True)
+            relevances = calculate_contrasts(cache)
+            relevance = np.mean(relevances)
+            if np.isnan(relevance):
+                return 0, [], False
+            return 1 - np.exp(-1 * relevance), [], False
+
         # Preparation
         types = self.data.f_types[subspace]
         X, y, indices, T = self._prepare_data(subspace, targets, types)
@@ -72,8 +144,12 @@ class HICS():
         }
         return get_slices(X, types, **options)
 
-    def _create_cache(self, y, y_type, slices, lengths):
-        sorted_indices = np.argsort(y.values)
+    def _create_cache(self, y, y_type, slices, lengths, is_sorted=False):
+        if not is_sorted:
+            sorted_indices = np.argsort(y.values)
+        else:
+            sorted_indices = self.sorted_indices
+
         sorted_y = y.values[sorted_indices]
 
         cache = {
@@ -84,7 +160,11 @@ class HICS():
         }
 
         if y_type == "nominal":
-            values, counts = np.unique(sorted_y, return_counts=True)
+            if not is_sorted:
+                values, counts = np.unique(sorted_y, return_counts=True)
+            else:
+                values, counts = self.label_values, self.label_counts
+
             cache.update({
                 "values": values,
                 "probs": counts / len(sorted_y),
