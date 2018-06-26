@@ -89,3 +89,35 @@ def get_numerical_slices(X, n_select, n_vectors):
         slices[i, idx] = True
         """
     return slices
+
+
+def get_slices_num(X, indices, nans, n_select, n_iterations):
+    slices = np.zeros((n_iterations, X.shape[0]), dtype=bool)
+
+    non_nan_count = indices.shape[0] - nans.sum()
+    max_start = non_nan_count - n_select
+    if max_start < 1:
+        # TODO: ACCOUNT FOR MISSING VALUES (also increase max_start if very small)
+        # print("No starting positions for slice")
+        max_start = max(10, int(non_nan_count / 2))
+
+    start_positions = np.random.choice(range(0, max_start), n_iterations)
+    for i, start in enumerate(start_positions):
+        """
+        start_value = X[indices[start]]
+        end_position = start + (n_select - 1)
+        end_position = min(end_position, non_nan_count - 1)
+        end_value = X[indices[end_position]]
+        # TODO: improve speed here
+        slices[i] = np.logical_and(X >= start_value, X <= end_value)
+        """
+        idx = indices[start:start + n_select - 1]
+        slices[i, idx] = True
+    return slices
+
+
+def get_partial_slices(X, indices, nans, f_type, n_select, n_iterations):
+    if f_type == "numeric":
+        slices = get_slices_num(X, indices, nans, n_select, n_iterations)
+        slices[:, nans] = True
+    return slices
