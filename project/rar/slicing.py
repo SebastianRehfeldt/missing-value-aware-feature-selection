@@ -116,8 +116,34 @@ def get_slices_num(X, indices, nans, n_select, n_iterations):
     return slices
 
 
+def get_slices_nom(X, n_select, n_iterations):
+    values, counts = np.unique(X, return_counts=True)
+    value_dict = dict(zip(values, counts))
+    index_dict = {val: np.where(X == val)[0] for val in values}
+
+    values_to_select = list(values)
+    contains_nans = "?" in values_to_select
+    if contains_nans:
+        values_to_select.remove("?")
+    slices = np.zeros((n_iterations, X.shape[0]), dtype=bool)
+    for i in range(n_iterations):
+        values_to_select = np.random.permutation(values_to_select)
+        current_sum = 0
+        for value in values:
+            if current_sum >= n_select:
+                break
+            slices[i, index_dict[value]] = True
+            current_sum += value_dict[value]
+
+    if contains_nans:
+        slices[:, index_dict["?"]] = True
+    return slices
+
+
 def get_partial_slices(X, indices, nans, f_type, n_select, n_iterations):
     if f_type == "numeric":
         slices = get_slices_num(X, indices, nans, n_select, n_iterations)
         slices[:, nans] = True
+    else:
+        slices = get_slices_nom(X, n_select, n_iterations)
     return slices
