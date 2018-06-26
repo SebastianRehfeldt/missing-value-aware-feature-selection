@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 from .contrast import calculate_contrasts
 from .slicing import get_slices, get_partial_slices
-from time import clock
 
 
 class HICS():
@@ -55,7 +54,7 @@ class HICS():
                 )
 
     def _cache_label(self):
-        self.sorted_indices = np.argsort(self.data.y.values)
+        self.label_indices = np.argsort(self.data.y.values)
         self.label_values, self.label_counts = np.unique(
             self.data.y.values, return_counts=True)
 
@@ -77,19 +76,29 @@ class HICS():
         max_nans = int(np.floor(k / 2))
         nan_sums = self.nans[subspace].sum(1)
         slices[:, nan_sums > max_nans] = False
-        sums = np.sum(slices, axis=1).shape
+        sums = np.sum(slices, axis=1)
+        # TODO: remove very small slices
         return slices, sums
 
     def evaluate_subspace(self, subspace, targets=[]):
         if self.params["approach"] == "partial":
             slices, lengths = self.combine_slices(subspace)
             cache = self._create_cache(
-                self.data.y, self.data.l_type, slices, lengths, is_sorted=True)
+                self.data.y,
+                self.data.l_type,
+                slices,
+                lengths,
+                self.label_indices,
+            )
             relevances = calculate_contrasts(cache)
             relevance = np.mean(relevances)
+
             if np.isnan(relevance):
-                return 0, [], False
-            return 1 - np.exp(-1 * relevance), [], False
+                return 0, [], True
+
+            redundancies = self.compute_partial_redundancies(
+                slices, lengths, targets)
+            return 1 - np.exp(-1 * relevance), redundancies, False
 
         # Preparation
         types = self.data.f_types[subspace]
@@ -144,11 +153,11 @@ class HICS():
         }
         return get_slices(X, types, **options)
 
-    def _create_cache(self, y, y_type, slices, lengths, is_sorted=False):
-        if not is_sorted:
+    def _create_cache(self, y, y_type, slices, lengths, label_indices=None):
+        if label_indices is not None:
             sorted_indices = np.argsort(y.values)
         else:
-            sorted_indices = self.sorted_indices
+            sorted_indices = label_indices
 
         sorted_y = y.values[sorted_indices]
 
@@ -160,7 +169,7 @@ class HICS():
         }
 
         if y_type == "nominal":
-            if not is_sorted:
+            if label_indices is not None:
                 values, counts = np.unique(sorted_y, return_counts=True)
             else:
                 values, counts = self.label_values, self.label_counts
@@ -189,7 +198,22 @@ class HICS():
                 t = T[target]
                 t_slices = slices[0]
 
+            # TODO: update slice lengths!
             cache = self._create_cache(t, t_type, t_slices, slices[1])
+            red_s = calculate_contrasts(cache)
+            redundancies.append(1 - np.mean(red_s))
+        return redundancies
+
+    def compute_partial_redundancies(self, slices, lengths, targets):
+        redundancies = []
+        for target in targets:
+            t_type = self.data.f_types[target]
+            t_nans = self.nans[target]
+            t = self.data.X[target][~t_nans]
+            t_indices = self.sorted_indices[target][~t_nans]
+            t_slices = slices[:, ~t_nans]
+            # TODO: update slice lengths!
+            cache = self._create_cache(t, t_type, t_slices, lengths, t_indices)
             red_s = calculate_contrasts(cache)
             redundancies.append(1 - np.mean(red_s))
         return redundancies

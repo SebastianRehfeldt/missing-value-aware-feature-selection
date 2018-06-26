@@ -12,15 +12,15 @@ name = "madelon"
 name = "boston"
 name = "analcatdata_reviewer"
 name = "musk"
-name = "heart-c"
-name = "isolet"
 name = "semeion"
+name = "isolet"
 name = "iris"
 name = "ionosphere"
+name = "heart-c"
 data = data_loader.load_data(name, "arff")
 print(data.shape, flush=True)
 
-data = introduce_missing_values(data, missing_rate=0.8)
+data = introduce_missing_values(data, missing_rate=0)
 data = scale_data(data)
 data.X.head()
 
@@ -35,15 +35,15 @@ rar = RaR(
     n_jobs=1,
     approach="partial",
     use_pearson=False,
-    n_targets=0,
+    n_targets=1,
     n_subspaces=800,
     subspace_size=(1, 3),
-    contrast_iterations=100,
+    contrast_iterations=250,
     slicing_method="simple",
 )
 
 rar.fit(data.X, data.y)
-pprint(rar.get_ranking())
+# pprint(rar.get_ranking())
 print(time() - start)
 
 # %%
