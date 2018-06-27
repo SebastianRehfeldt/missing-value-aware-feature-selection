@@ -6,7 +6,6 @@ from pprint import pprint
 from project.utils import DataLoader
 from project.utils import introduce_missing_values, scale_data
 
-<<<<<<< HEAD
 data_loader = DataLoader()
 name = "credit-approval"
 name = "madelon"
@@ -106,7 +105,6 @@ scorer = make_scorer(f1_score, average="micro")
 scores = cross_val_score(
     knn, new_data.X, new_data.y, cv=cv, scoring=scorer, n_jobs=3)
 print(np.mean(scores), scores)
-=======
 
 if __name__ == "__main__":
 
@@ -193,4 +191,3 @@ if __name__ == "__main__":
     scores = cross_val_score(
         knn, new_data.X, new_data.y, cv=cv, scoring=scorer, n_jobs=3)
     print(np.mean(scores), scores)
->>>>>>> fd01c4c2de422c878d53fa8bf584308bb9381d5f
