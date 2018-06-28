@@ -57,23 +57,6 @@ def get_slices_by_mating(X, types, n_select, n_iterations):
     return slices
 
 
-def get_categorical_slices(X, n_select, n_vectors):
-    values, counts = np.unique(X, return_counts=True)
-    value_dict = dict(zip(values, counts))
-    index_dict = {val: np.where(X == val)[0] for val in values}
-
-    slices = np.zeros((n_vectors, X.shape[0]), dtype=bool)
-    for i in range(n_vectors):
-        values = np.random.permutation(values)
-        current_sum = 0
-        for value in values:
-            if current_sum >= n_select:
-                break
-            slices[i, index_dict[value]] = True
-            current_sum += value_dict[value]
-    return slices
-
-
 def get_numerical_slices(X, n_select, n_vectors):
     sorted_indices = np.argsort(X)
     max_start = X.shape[0] - n_select
@@ -116,46 +99,50 @@ def get_slices_num(X, indices, nans, n_select, n_iterations):
     return slices
 
 
-def get_slices_nom(X, n_select, n_iterations):
+def get_categorical_slices(X,
+                           n_select,
+                           n_iterations,
+                           approach="partial",
+                           should_sample="False"):
     values, counts = np.unique(X, return_counts=True)
     value_dict = dict(zip(values, counts))
     index_dict = {val: np.where(X == val)[0] for val in values}
-
     values_to_select = list(values)
-    contains_nans = "?" in values_to_select
-    if contains_nans:
-        values_to_select.remove("?")
+
+    if approach == "partial":
+        contains_nans = "?" in values_to_select
+        if contains_nans:
+            values_to_select.remove("?")
+
     slices = np.zeros((n_iterations, X.shape[0]), dtype=bool)
     for i in range(n_iterations):
         values_to_select = np.random.permutation(values_to_select)
         current_sum = 0
         for value in values:
-            if current_sum >= n_select:
-                break
             current_sum += value_dict[value]
+
+            if current_sum >= n_select:
+                if should_sample:
+                    n_missing = n_select - (current_sum - value_dict[value])
+                    idx = np.random.choice(index_dict[value], n_missing, False)
+                    slices[i, idx] = True
+                else:
+                    slices[i, index_dict[value]] = True
+                break
+
             slices[i, index_dict[value]] = True
 
-            should_sample = False
-            if should_sample:
-                current_sum += value_dict[value]
-                if current_sum >= n_select:
-                    n_missing = n_select - (current_sum - value_dict[value])
-                    sampled_indices = np.random.choice(index_dict[value],
-                                                       n_missing, False)
-                    slices[i, sampled_indices] = True
-                    break
-
-                slices[i, index_dict[value]] = True
-
-    if contains_nans:
+    if approach == "partial" and contains_nans:
         slices[:, index_dict["?"]] = True
     return slices
 
 
-def get_partial_slices(X, indices, nans, f_type, n_select, n_iterations):
+def get_partial_slices(X, indices, nans, f_type, n_select, n_iterations,
+                       approach, should_sample):
     if f_type == "numeric":
         slices = get_slices_num(X, indices, nans, n_select, n_iterations)
         slices[:, nans] = True
     else:
-        slices = get_slices_nom(X, n_select, n_iterations)
+        slices = get_categorical_slices(X, n_select, n_iterations, approach,
+                                        should_sample)
     return slices
