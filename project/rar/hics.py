@@ -35,6 +35,7 @@ class HICS():
 
         self.slices = {}
         for col in self.data.X:
+            # TODO: sort the whole matrix at once and cache sorted indices
             sorted_values = self.data.X[col].sort_values()
 
             self.slices[col] = {}
@@ -46,12 +47,16 @@ class HICS():
                     self.data.f_types[col],
                     self.n_select_d[i],
                     n_iterations,
+                    self.params["approach"],
+                    self.params["sample_slices"],
                 )
 
     def _cache_label(self):
         self.label_indices = np.argsort(self.data.y.values)
         self.label_values, self.label_counts = np.unique(
-            self.data.y.values, return_counts=True)
+            self.data.y.values,
+            return_counts=True,
+        )
 
     def combine_slices(self, subspace):
         k = len(subspace)

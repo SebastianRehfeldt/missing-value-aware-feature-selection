@@ -13,15 +13,15 @@ name = "boston"
 name = "analcatdata_reviewer"
 name = "credit-approval"  # standard config
 name = "musk"  # standard config
-name = "heart-c"  # 800 subspaces, alpha = 0,2, 100 iterations, (1,3)
 name = "iris"
 name = "isolet"
 name = "semeion"
 name = "ionosphere"  #a06, a05 (fscore of 0.9), alpha=0.02, (1,3), 250 iterations...
+name = "heart-c"  # 800 subspaces, alpha = 0,2, 100 iterations, (1,3)
 data = data_loader.load_data(name, "arff")
 print(data.shape, flush=True)
 
-data = introduce_missing_values(data, missing_rate=0)
+data = introduce_missing_values(data, missing_rate=0.2)
 data = scale_data(data)
 data.X.head()
 """
@@ -38,15 +38,16 @@ rar = RaR(
     data.l_type,
     data.shape,
     n_jobs=1,
-    approach="partial",
+    approach="deletion",
     use_pearson=False,
     n_targets=0,
     n_subspaces=800,
     subspace_size=(1, 3),
     contrast_iterations=250,
-    alpha=0.02,
+    alpha=0.2,
     slicing_method="simple",
     redundancy_approach="arvind",
+    sample_slices=True,
 )
 
 rar.fit(data.X, data.y)

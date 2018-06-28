@@ -28,6 +28,7 @@ class RaR(Subspacing):
         eval_method = kwargs.get("eval_method", "rar")
         approach = kwargs.get("approach", "deletion")
         max_subspaces = kwargs.get("max_subspaces", 1000)
+        sample_slices = kwargs.get("sample_slices", True)
         subspace_size = kwargs.get("subspace_size", self._get_size())
         slicing_method = kwargs.get("slicing_method", "mating")
         subspace_method = kwargs.get("subspace_method", "adaptive")
@@ -42,6 +43,7 @@ class RaR(Subspacing):
             "eval_method": eval_method,
             "approach": approach,
             "max_subspaces": max_subspaces,
+            "sample_slices": sample_slices,
             "subspace_size": subspace_size,
             "slicing_method": slicing_method,
             "subspace_method": subspace_method,
