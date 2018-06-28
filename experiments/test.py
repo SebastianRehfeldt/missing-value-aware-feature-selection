@@ -6,21 +6,21 @@ from pprint import pprint
 from project.utils import DataLoader
 from project.utils import introduce_missing_values, scale_data
 
-data_loader = DataLoader()
-name = "credit-approval"
+data_loader = DataLoader(ignored_attributes=["molecule_name"])
 name = "madelon"
 name = "boston"
 name = "analcatdata_reviewer"
-name = "musk"
+name = "semeion"
 name = "isolet"
 name = "iris"
-name = "semeion"
-name = "heart-c"
-name = "ionosphere"  #a06, a05 (fscore of 0.9), alpha=0.02, 250iterations...
+name = "credit-approval"  # standard config
+name = "musk"  # standard config
+name = "ionosphere"  #a06, a05 (fscore of 0.9), alpha=0.02, (1,3), 250 iterations...
+name = "heart-c"  # 800 subspaces, alpha = 0,2, 100 iterations, (1,3)
 data = data_loader.load_data(name, "arff")
 print(data.shape, flush=True)
 
-data = introduce_missing_values(data, missing_rate=0)
+data = introduce_missing_values(data, missing_rate=0.9)
 data = scale_data(data)
 data.X.head()
 
@@ -36,9 +36,9 @@ rar = RaR(
     approach="partial",
     use_pearson=False,
     n_targets=0,
-    n_subspaces=1500,
+    n_subspaces=800,
     subspace_size=(1, 3),
-    contrast_iterations=250,
+    contrast_iterations=100,
     alpha=0.02,
     slicing_method="simple",
 )
@@ -48,7 +48,7 @@ pprint(rar.get_ranking())
 print(time() - start)
 
 # %%
-X_new = rar.transform(data.X, 3)
+X_new = rar.transform(data.X, 5)
 X_new.head()
 X_new.corr().style.background_gradient()
 
@@ -64,18 +64,18 @@ selector = RKNN(
     data.l_type,
     data.shape,
     n_jobs=3,
-    #n_subspaces=100,
+    n_subspaces=100,
 ).fit(data.X, data.y)
 selector.get_ranking()
 
-X_new = filter_.transform(data.X, 5)
+X_new = selector.transform(data.X, 50)
 X_new.corr().style.background_gradient()
 """
 
 types = pd.Series(data.f_types, X_new.columns.values)
 new_data = data.replace(True, X=X_new, shape=X_new.shape, f_types=types)
 
-new_data.X.shape
+print(new_data.X.shape)
 
 import numpy as np
 from project.classifier import KNN
@@ -92,5 +92,5 @@ cv = StratifiedKFold(new_data.y, n_folds=5, shuffle=True)
 scorer = make_scorer(f1_score, average="micro")
 
 scores = cross_val_score(
-    knn, new_data.X, new_data.y, cv=cv, scoring=scorer, n_jobs=3)
+    clf, new_data.X, new_data.y, cv=cv, scoring=scorer, n_jobs=3)
 print(np.mean(scores), scores)
