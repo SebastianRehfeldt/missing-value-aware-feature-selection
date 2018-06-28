@@ -57,13 +57,11 @@ X_new = rar.transform(data.X, k)
 X_new.head()
 X_new.corr().style.background_gradient()
 
-if False:
+#%%
+if True:
     types = pd.Series(data.f_types, X_new.columns.values)
     X_new = Imputer(types, strategy="knn")._complete(X_new)
     X_new.head()
-
-if True:
-    X_new = data_completed.X[rar.get_selected_features(k=k)]
 
 # %%
 from project.feature_selection import Filter
@@ -86,13 +84,9 @@ X_new = selector.transform(data.X, k)
 X_new.corr().style.background_gradient()
 
 # %%
-if False:
+if True:
     types = pd.Series(data.f_types, X_new.columns.values)
     X_new = Imputer(types, strategy="knn")._complete(X_new)
-    X_new.head()
-
-if True:
-    X_new = data_completed.X[rar.get_selected_features(k=k)]
 
 # %%
 types = pd.Series(data.f_types, X_new.columns.values)
@@ -115,5 +109,5 @@ cv = StratifiedKFold(new_data.y, n_folds=5, shuffle=True)
 scorer = make_scorer(f1_score, average="micro")
 
 scores = cross_val_score(
-    knn, new_data.X, new_data.y, cv=cv, scoring=scorer, n_jobs=3)
+    gnb, new_data.X, new_data.y, cv=cv, scoring=scorer, n_jobs=3)
 print(np.mean(scores), scores)
