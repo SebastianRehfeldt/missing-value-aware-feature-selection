@@ -5,28 +5,29 @@ from pprint import pprint
 
 from project.utils import DataLoader
 from project.utils import introduce_missing_values, scale_data
+from project.utils.imputer import Imputer
 
 data_loader = DataLoader(ignored_attributes=["molecule_name"])
 name = "madelon"
 name = "boston"
 name = "analcatdata_reviewer"
-name = "semeion"
-name = "isolet"
-name = "iris"
 name = "credit-approval"  # standard config
 name = "musk"  # standard config
 name = "heart-c"  # 800 subspaces, alpha = 0,2, 100 iterations, (1,3)
+name = "iris"
+name = "isolet"
+name = "semeion"
 name = "ionosphere"  #a06, a05 (fscore of 0.9), alpha=0.02, (1,3), 250 iterations...
 data = data_loader.load_data(name, "arff")
 print(data.shape, flush=True)
 
-data = introduce_missing_values(data, missing_rate=0.7)
+data = introduce_missing_values(data, missing_rate=0)
 data = scale_data(data)
 data.X.head()
-
-from project.utils.imputer import Imputer
+"""
 data_completed = Imputer(data.f_types, strategy="mice").complete(data)
 data_completed.X.head()
+"""
 
 # %%
 from project.rar.rar import RaR
@@ -39,12 +40,13 @@ rar = RaR(
     n_jobs=1,
     approach="partial",
     use_pearson=False,
-    n_targets=0,
+    n_targets=2,
     n_subspaces=800,
     subspace_size=(1, 3),
     contrast_iterations=250,
     alpha=0.02,
     slicing_method="simple",
+    redundancy_approach="arvind",
 )
 
 rar.fit(data.X, data.y)
@@ -52,12 +54,12 @@ pprint(rar.get_ranking())
 print(time() - start)
 
 # %%
-k = 4
+k = 20
 X_new = rar.transform(data.X, k)
 X_new.head()
 X_new.corr().style.background_gradient()
 
-#%%
+# %%
 if True:
     types = pd.Series(data.f_types, X_new.columns.values)
     X_new = Imputer(types, strategy="knn")._complete(X_new)
@@ -109,5 +111,5 @@ cv = StratifiedKFold(new_data.y, n_folds=5, shuffle=True)
 scorer = make_scorer(f1_score, average="micro")
 
 scores = cross_val_score(
-    gnb, new_data.X, new_data.y, cv=cv, scoring=scorer, n_jobs=3)
+    clf, new_data.X, new_data.y, cv=cv, scoring=scorer, n_jobs=3)
 print(np.mean(scores), scores)

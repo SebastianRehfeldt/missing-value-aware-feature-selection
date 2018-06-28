@@ -18,7 +18,7 @@ def _combine_scores(rel, red):
     return 2 * (1 - red) * rel / ((1 - red) + rel)
 
 
-def _calculate_redundancy(samples, selected_features):
+def _deduce_redundancy(samples, selected_features):
     if len(samples) == 0:
         return 0
 
@@ -52,7 +52,7 @@ def _calculate_redundancy(samples, selected_features):
     return max_red
 
 
-def calculate_ranking(relevances, redundancies, redundancies_1d, names):
+def calculate_ranking(relevances, redundancies, names):
     best = sorted(relevances.items(), key=lambda k_v: k_v[1], reverse=True)[0]
 
     ranking = {}
@@ -67,15 +67,8 @@ def calculate_ranking(relevances, redundancies, redundancies_1d, names):
         selected = set(ranking.keys())
 
         # deduce redundancies of features to previous feature
-        if redundancies_1d is not None:
-            reds_1d = redundancies_1d[list(selected)].T
-
         for f in open_features:
-            red = _calculate_redundancy(redundancies[f], selected)
-            if redundancies_1d is not None:
-                max_red_1d = np.max(np.abs(reds_1d[f].values))
-                red = np.mean([red, max_red_1d])
-
+            red = _deduce_redundancy(redundancies[f], selected)
             score = _combine_scores(relevances[f], red)
             if score >= best_score:
                 best_score, best_feature = deepcopy(score), deepcopy(f)
@@ -85,7 +78,18 @@ def calculate_ranking(relevances, redundancies, redundancies_1d, names):
     return ranking
 
 
-def calculate_ranking2(hics, relevances, names):
+def create_subspace(best_feature, selected):
+    n_max = min(2, len(selected))
+    n_choose = np.random.choice(range(n_max), 1)[0]
+    subspace = list(np.random.choice(selected, n_choose, False))
+
+    # make sure the last feature is inside subspace
+    if best_feature not in subspace:
+        subspace.append(best_feature)
+    return subspace
+
+
+def calculate_ranking2(hics, relevances, names, n_targets):
     best = sorted(relevances.items(), key=lambda k_v: k_v[1], reverse=True)[0]
     best_feature = best[0]
 
@@ -97,31 +101,32 @@ def calculate_ranking2(hics, relevances, names):
 
     # stepwise add features
     max_redundancies = {feature: 0 for feature in open_features}
-    # TODO only calculate for n first open features
+    max_calculations = max(10, int(np.sqrt(len(open_features))))
+    if max_calculations * len(open_features) * n_targets > 10000:
+        max_calculations = 5
+        n_targets = 1
+
     while len(open_features) > 0:
         selected = list(ranking.keys())
 
-        # deduce redundancies of features to previous feature
-        n = min(3, len(selected))
-        redundancies = np.zeros((n, len(open_features)))
-        for i in range(n):
-            subspace = [best_feature]
-            if len(selected) > 1:
-                n_max = min(2, len(selected))
-                n_choose = np.random.choice(range(n_max), 1)[0]
-                subspace = list(np.random.choice(selected, n_choose, False))
-                if best_feature not in subspace:
-                    subspace.append(best_feature)
+        if len(selected) <= max_calculations:
+            n = min(n_targets, len(selected))
+            redundancies = np.zeros((n, len(open_features)))
 
-            slices, lengths = hics.combine_slices(subspace)
-            redundancies[i, :] = hics.compute_partial_redundancies(
-                slices, lengths, open_features)
+            # compute redundancies to previous features using n subspaces
+            for i in range(n):
+                subspace = create_subspace(best_feature, selected)
+                slices, lengths = hics.combine_slices(subspace)
+                redundancies[i, :] = hics.compute_partial_redundancies(
+                    slices, lengths, open_features)
 
-        redundancies = np.max(redundancies, axis=0)
-        for i, feature in enumerate(open_features):
-            redundancy = max(redundancies[i], max_redundancies[feature])
-            max_redundancies[feature] = redundancy
-            redundancies[i] = redundancy
+            redundancies = np.max(redundancies, axis=0)
+            for i, feature in enumerate(open_features):
+                redundancy = max(redundancies[i], max_redundancies[feature])
+                max_redundancies[feature] = redundancy
+                redundancies[i] = redundancy
+        else:
+            redundancies = [max_redundancies[f] for f in open_features]
 
         combined_scores = [
             _combine_scores(relevances[f], redundancies[i])
@@ -133,5 +138,4 @@ def calculate_ranking2(hics, relevances, names):
         ranking[best_feature] = combined_scores[best_index]
         open_features.remove(best_feature)
 
-    hics.redundancies = max_redundancies
     return ranking

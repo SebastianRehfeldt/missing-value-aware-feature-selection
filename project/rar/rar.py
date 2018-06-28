@@ -27,13 +27,13 @@ class RaR(Subspacing):
         n_targets = kwargs.get("n_targets", 3)
         eval_method = kwargs.get("eval_method", "rar")
         approach = kwargs.get("approach", "deletion")
-        use_pearson = kwargs.get("use_pearson", True)
         max_subspaces = kwargs.get("max_subspaces", 1000)
         subspace_size = kwargs.get("subspace_size", self._get_size())
         slicing_method = kwargs.get("slicing_method", "mating")
         subspace_method = kwargs.get("subspace_method", "adaptive")
         imputation_method = kwargs.get("imputation_method", "knn")
         contrast_iterations = kwargs.get("contrast_iterations", 100)
+        redundancy_approach = kwargs.get("redundancy_approach", "arvind")
 
         self.params.update({
             "alpha": alpha,
@@ -41,13 +41,13 @@ class RaR(Subspacing):
             "n_targets": n_targets,
             "eval_method": eval_method,
             "approach": approach,
-            "use_pearson": use_pearson,
             "max_subspaces": max_subspaces,
             "subspace_size": subspace_size,
             "slicing_method": slicing_method,
             "subspace_method": subspace_method,
             "imputation_method": imputation_method,
             "contrast_iterations": contrast_iterations,
+            "redundancy_approach": redundancy_approach,
         })
 
         n_subspaces = self._get_n_subspaces()
@@ -100,9 +100,12 @@ class RaR(Subspacing):
             X {df} -- Dataframe containing the features
             types {pd.series} -- Series containing the feature types
         """
-        open_features = [n for n in self.names if n not in subspace]
-        n_targets = min(len(open_features), self.params["n_targets"])
-        targets = np.random.choice(open_features, n_targets, False)
+        if self.params["redundancy_approach"] == "tom":
+            open_features = [n for n in self.names if n not in subspace]
+            n_targets = min(len(open_features), self.params["n_targets"])
+            targets = np.random.choice(open_features, n_targets, False)
+        else:
+            targets = []
 
         rel, red_s, is_empty = self.hics.evaluate_subspace(subspace, targets)
 
@@ -127,14 +130,10 @@ class RaR(Subspacing):
             knowledgebase {list} -- List of subspace results
         """
         relevances = deduce_relevances(self.names, knowledgebase)
-        self.relevances = relevances
         redundancies = sort_redundancies_by_target(knowledgebase)
-        self.redundancies = redundancies
 
-        redundancies_1d = None
-        if self.params["use_pearson"]:
-            redundancies_1d = self.data.X.corr().fillna(0)
+        if self.params["redundancy_approach"] == "tom":
+            return calculate_ranking(relevances, redundancies, self.names)
 
-        return calculate_ranking2(self.hics, relevances, self.names)
-        return calculate_ranking(relevances, redundancies, redundancies_1d,
-                                 self.names)
+        n_targets = self.params["n_targets"]
+        return calculate_ranking2(self.hics, relevances, self.names, n_targets)
