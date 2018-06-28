@@ -59,6 +59,8 @@ class HICS():
         )
 
     def combine_slices(self, subspace):
+        # TODO: MOVE SLICE COMBINATION LOGIC TO SLICING
+        # TODO: FAULT TOLERANCE SHOULD STAY HERE
         k = len(subspace)
         if len(subspace) == 1:
             slices = self.slices[subspace[0]][k]
@@ -81,6 +83,7 @@ class HICS():
         return slices, sums
 
     def evaluate_subspace(self, subspace, targets=[]):
+        # TODO: UNIFY
         if self.params["approach"] == "partial":
             slices, lengths = self.combine_slices(subspace)
             cache = self._create_cache(
@@ -205,6 +208,7 @@ class HICS():
         return redundancies
 
     def compute_partial_redundancies(self, slices, lengths, targets):
+        # TODO: UNIFY WITH FUNCTION BEFORE
         redundancies = []
         for target in targets:
             t_type = self.data.f_types[target]
