@@ -12,11 +12,11 @@ name = "madelon"
 name = "boston"
 name = "analcatdata_reviewer"
 name = "musk"
-name = "semeion"
 name = "isolet"
 name = "iris"
-name = "ionosphere"
+name = "semeion"
 name = "heart-c"
+name = "ionosphere"  #a06, a05 (fscore of 0.9), alpha=0.02, 250iterations...
 data = data_loader.load_data(name, "arff")
 print(data.shape, flush=True)
 
@@ -35,28 +35,29 @@ rar = RaR(
     n_jobs=1,
     approach="partial",
     use_pearson=False,
-    n_targets=1,
-    n_subspaces=800,
+    n_targets=0,
+    n_subspaces=1500,
     subspace_size=(1, 3),
     contrast_iterations=250,
+    alpha=0.02,
     slicing_method="simple",
 )
 
 rar.fit(data.X, data.y)
-# pprint(rar.get_ranking())
+pprint(rar.get_ranking())
 print(time() - start)
 
 # %%
-X_new = rar.transform(data.X, 5)
+X_new = rar.transform(data.X, 3)
 X_new.head()
 X_new.corr().style.background_gradient()
 
 # %%
+"""
 from project.feature_selection import Filter
 filter_ = Filter(data.f_types, data.l_type, data.shape).fit(data.X, data.y)
 filter_.get_ranking()
 
-# %%
 from project.feature_selection import RKNN
 selector = RKNN(
     data.f_types,
@@ -67,17 +68,15 @@ selector = RKNN(
 ).fit(data.X, data.y)
 selector.get_ranking()
 
-# %%
-X_new = selector.transform(data.X, 5)
+X_new = filter_.transform(data.X, 5)
 X_new.corr().style.background_gradient()
+"""
 
-# %%
 types = pd.Series(data.f_types, X_new.columns.values)
 new_data = data.replace(True, X=X_new, shape=X_new.shape, f_types=types)
 
 new_data.X.shape
 
-# %%
 import numpy as np
 from project.classifier import KNN
 from sklearn.cross_validation import cross_val_score, StratifiedKFold

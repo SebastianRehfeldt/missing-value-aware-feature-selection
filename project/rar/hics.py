@@ -34,19 +34,14 @@ class HICS():
         n_iterations = self.params["contrast_iterations"]
 
         self.slices = {}
-        self.sorted_values = {}
-        self.sorted_indices = {}
-
         for col in self.data.X:
             sorted_values = self.data.X[col].sort_values()
-            self.sorted_values[col] = sorted_values
-            self.sorted_indices[col] = sorted_values.index
 
             self.slices[col] = {}
             for i in range(1, max_subspace_size + 1):
                 self.slices[col][i] = get_partial_slices(
                     self.data.X[col],
-                    self.sorted_indices[col],
+                    sorted_values.index,
                     self.nans[col],
                     self.data.f_types[col],
                     self.n_select_d[i],
@@ -154,7 +149,7 @@ class HICS():
         return get_slices(X, types, **options)
 
     def _create_cache(self, y, y_type, slices, lengths, label_indices=None):
-        if label_indices is not None:
+        if label_indices is None:
             sorted_indices = np.argsort(y.values)
         else:
             sorted_indices = label_indices
@@ -169,10 +164,10 @@ class HICS():
         }
 
         if y_type == "nominal":
-            if label_indices is not None:
-                values, counts = np.unique(sorted_y, return_counts=True)
-            else:
+            if self.params["approach"] == "partial" and self.data.y.name == y.name:
                 values, counts = self.label_values, self.label_counts
+            else:
+                values, counts = np.unique(sorted_y, return_counts=True)
 
             cache.update({
                 "values": values,
@@ -210,10 +205,9 @@ class HICS():
             t_type = self.data.f_types[target]
             t_nans = self.nans[target]
             t = self.data.X[target][~t_nans]
-            t_indices = self.sorted_indices[target][~t_nans]
             t_slices = slices[:, ~t_nans]
             # TODO: update slice lengths!
-            cache = self._create_cache(t, t_type, t_slices, lengths, t_indices)
+            cache = self._create_cache(t, t_type, t_slices, lengths)
             red_s = calculate_contrasts(cache)
-            redundancies.append(1 - np.mean(red_s))
+            redundancies.append(np.mean(red_s))
         return redundancies
