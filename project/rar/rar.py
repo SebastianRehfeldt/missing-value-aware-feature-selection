@@ -6,7 +6,7 @@ from math import factorial, ceil, log
 
 from project.base import Subspacing
 from .optimizer import deduce_relevances
-from .rar_utils import sort_redundancies_by_target, calculate_ranking, calculate_ranking2
+from .rar_utils import sort_redundancies_by_target, get_ranking_arvind, get_ranking_tom
 
 
 class RaR(Subspacing):
@@ -100,12 +100,11 @@ class RaR(Subspacing):
             X {df} -- Dataframe containing the features
             types {pd.series} -- Series containing the feature types
         """
+        targets = []
         if self.params["redundancy_approach"] == "tom":
             open_features = [n for n in self.names if n not in subspace]
             n_targets = min(len(open_features), self.params["n_targets"])
             targets = np.random.choice(open_features, n_targets, False)
-        else:
-            targets = []
 
         rel, red_s, is_empty = self.hics.evaluate_subspace(subspace, targets)
 
@@ -130,10 +129,19 @@ class RaR(Subspacing):
             knowledgebase {list} -- List of subspace results
         """
         relevances = deduce_relevances(self.names, knowledgebase)
-        redundancies = sort_redundancies_by_target(knowledgebase)
-
-        if self.params["redundancy_approach"] == "tom":
-            return calculate_ranking(relevances, redundancies, self.names)
-
         n_targets = self.params["n_targets"]
-        return calculate_ranking2(self.hics, relevances, self.names, n_targets)
+
+        # return ranking based on relevances only
+        if n_targets == 0:
+            return sorted(
+                relevances.items(),
+                key=lambda k_v: k_v[1],
+                reverse=True,
+            )
+
+        # combine relevances with redundancies as done by tom or arvind
+        if self.params["redundancy_approach"] == "tom":
+            redundancies = sort_redundancies_by_target(knowledgebase)
+            return get_ranking_tom(relevances, redundancies, self.names)
+
+        return get_ranking_arvind(self.hics, relevances, self.names, n_targets)
