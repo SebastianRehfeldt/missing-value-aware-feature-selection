@@ -15,14 +15,18 @@ name = "isolet"
 name = "iris"
 name = "credit-approval"  # standard config
 name = "musk"  # standard config
-name = "ionosphere"  #a06, a05 (fscore of 0.9), alpha=0.02, (1,3), 250 iterations...
 name = "heart-c"  # 800 subspaces, alpha = 0,2, 100 iterations, (1,3)
+name = "ionosphere"  #a06, a05 (fscore of 0.9), alpha=0.02, (1,3), 250 iterations...
 data = data_loader.load_data(name, "arff")
 print(data.shape, flush=True)
 
-data = introduce_missing_values(data, missing_rate=0.9)
+data = introduce_missing_values(data, missing_rate=0.7)
 data = scale_data(data)
 data.X.head()
+
+from project.utils.imputer import Imputer
+data_completed = Imputer(data.f_types, strategy="mice").complete(data)
+data_completed.X.head()
 
 # %%
 from project.rar.rar import RaR
@@ -38,7 +42,7 @@ rar = RaR(
     n_targets=0,
     n_subspaces=800,
     subspace_size=(1, 3),
-    contrast_iterations=100,
+    contrast_iterations=250,
     alpha=0.02,
     slicing_method="simple",
 )
@@ -48,30 +52,49 @@ pprint(rar.get_ranking())
 print(time() - start)
 
 # %%
-X_new = rar.transform(data.X, 5)
+k = 4
+X_new = rar.transform(data.X, k)
 X_new.head()
 X_new.corr().style.background_gradient()
 
-# %%
-"""
-from project.feature_selection import Filter
-filter_ = Filter(data.f_types, data.l_type, data.shape).fit(data.X, data.y)
-filter_.get_ranking()
+if False:
+    types = pd.Series(data.f_types, X_new.columns.values)
+    X_new = Imputer(types, strategy="knn")._complete(X_new)
+    X_new.head()
 
+if True:
+    X_new = data_completed.X[rar.get_selected_features(k=k)]
+
+# %%
+from project.feature_selection import Filter
+selector = Filter(data.f_types, data.l_type, data.shape).fit(data.X, data.y)
+selector.get_ranking()
+
+# %%
 from project.feature_selection import RKNN
 selector = RKNN(
     data.f_types,
     data.l_type,
     data.shape,
-    n_jobs=3,
-    n_subspaces=100,
+    n_jobs=4,
+    # n_subspaces=100,
 ).fit(data.X, data.y)
 selector.get_ranking()
 
-X_new = selector.transform(data.X, 50)
+# %%
+X_new = selector.transform(data.X, k)
 X_new.corr().style.background_gradient()
-"""
 
+# %%
+if False:
+    types = pd.Series(data.f_types, X_new.columns.values)
+    X_new = Imputer(types, strategy="knn")._complete(X_new)
+    X_new.head()
+
+if True:
+    X_new = data_completed.X[rar.get_selected_features(k=k)]
+
+# %%
 types = pd.Series(data.f_types, X_new.columns.values)
 new_data = data.replace(True, X=X_new, shape=X_new.shape, f_types=types)
 
@@ -92,5 +115,5 @@ cv = StratifiedKFold(new_data.y, n_folds=5, shuffle=True)
 scorer = make_scorer(f1_score, average="micro")
 
 scores = cross_val_score(
-    clf, new_data.X, new_data.y, cv=cv, scoring=scorer, n_jobs=3)
+    knn, new_data.X, new_data.y, cv=cv, scoring=scorer, n_jobs=3)
 print(np.mean(scores), scores)
