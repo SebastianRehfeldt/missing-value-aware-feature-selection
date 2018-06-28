@@ -97,22 +97,21 @@ def calculate_ranking2(hics, relevances, names):
 
     # stepwise add features
     max_redundancies = {feature: 0 for feature in open_features}
+    # TODO only calculate for n first open features
     while len(open_features) > 0:
         selected = list(ranking.keys())
 
         # deduce redundancies of features to previous feature
-        n = min(1, len(selected))
+        n = min(3, len(selected))
         redundancies = np.zeros((n, len(open_features)))
         for i in range(n):
             subspace = [best_feature]
-            """
             if len(selected) > 1:
                 n_max = min(2, len(selected))
                 n_choose = np.random.choice(range(n_max), 1)[0]
                 subspace = list(np.random.choice(selected, n_choose, False))
                 if best_feature not in subspace:
                     subspace.append(best_feature)
-            """
 
             slices, lengths = hics.combine_slices(subspace)
             redundancies[i, :] = hics.compute_partial_redundancies(

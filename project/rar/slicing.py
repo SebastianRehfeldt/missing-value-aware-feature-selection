@@ -132,8 +132,20 @@ def get_slices_nom(X, n_select, n_iterations):
         for value in values:
             if current_sum >= n_select:
                 break
-            slices[i, index_dict[value]] = True
             current_sum += value_dict[value]
+            slices[i, index_dict[value]] = True
+
+            should_sample = False
+            if should_sample:
+                current_sum += value_dict[value]
+                if current_sum >= n_select:
+                    n_missing = n_select - (current_sum - value_dict[value])
+                    sampled_indices = np.random.choice(index_dict[value],
+                                                       n_missing, False)
+                    slices[i, sampled_indices] = True
+                    break
+
+                slices[i, index_dict[value]] = True
 
     if contains_nans:
         slices[:, index_dict["?"]] = True
