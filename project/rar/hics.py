@@ -196,7 +196,7 @@ class HICS():
             # TODO: update slice lengths!
             cache = self._create_cache(t, t_type, t_slices, slices[1])
             red_s = calculate_contrasts(cache)
-            redundancies.append(1 - np.mean(red_s))
+            redundancies.append(np.mean(red_s))
         return redundancies
 
     def compute_partial_redundancies(self, slices, lengths, targets):
