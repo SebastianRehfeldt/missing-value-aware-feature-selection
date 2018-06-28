@@ -52,7 +52,7 @@ def _deduce_redundancy(samples, selected_features):
     return max_red
 
 
-def calculate_ranking(relevances, redundancies, names):
+def get_ranking_tom(relevances, redundancies, names):
     best = sorted(relevances.items(), key=lambda k_v: k_v[1], reverse=True)[0]
 
     ranking = {}
@@ -89,7 +89,7 @@ def create_subspace(best_feature, selected):
     return subspace
 
 
-def calculate_ranking2(hics, relevances, names, n_targets):
+def get_ranking_arvind(hics, relevances, names, n_targets):
     best = sorted(relevances.items(), key=lambda k_v: k_v[1], reverse=True)[0]
     best_feature = best[0]
 
@@ -103,22 +103,24 @@ def calculate_ranking2(hics, relevances, names, n_targets):
     max_redundancies = {feature: 0 for feature in open_features}
     max_calculations = max(10, int(np.sqrt(len(open_features))))
     if max_calculations * len(open_features) * n_targets > 10000:
-        max_calculations = 5
-        n_targets = 1
+        max_calculations, n_targets = 5, 1
 
     while len(open_features) > 0:
         selected = list(ranking.keys())
 
+        # compute redundancies to previous features using n subspaces
+        # increase speed by only updating redundancies in first iterations
         if len(selected) <= max_calculations:
             n = min(n_targets, len(selected))
             redundancies = np.zeros((n, len(open_features)))
-
-            # compute redundancies to previous features using n subspaces
             for i in range(n):
                 subspace = create_subspace(best_feature, selected)
                 slices, lengths = hics.combine_slices(subspace)
                 redundancies[i, :] = hics.compute_partial_redundancies(
-                    slices, lengths, open_features)
+                    slices,
+                    lengths,
+                    open_features,
+                )
 
             redundancies = np.max(redundancies, axis=0)
             for i, feature in enumerate(open_features):
@@ -137,5 +139,4 @@ def calculate_ranking2(hics, relevances, names, n_targets):
         best_feature = open_features[best_index]
         ranking[best_feature] = combined_scores[best_index]
         open_features.remove(best_feature)
-
     return ranking
