@@ -6,7 +6,7 @@ from math import factorial, ceil, log
 
 from project.base import Subspacing
 from .optimizer import deduce_relevances
-from .rar_utils import sort_redundancies_by_target, calculate_ranking
+from .rar_utils import sort_redundancies_by_target, calculate_ranking, calculate_ranking2
 
 
 class RaR(Subspacing):
@@ -134,5 +134,7 @@ class RaR(Subspacing):
         redundancies_1d = None
         if self.params["use_pearson"]:
             redundancies_1d = self.data.X.corr().fillna(0)
+
+        return calculate_ranking2(self.hics, relevances, self.names)
         return calculate_ranking(relevances, redundancies, redundancies_1d,
                                  self.names)
