@@ -57,58 +57,61 @@ class HICS():
             return_counts=True,
         )
 
-    def get_fault_tolerant_slices(self, subspace):
-        dim = len(subspace)
-        slices = [self.slices[subspace[i]][dim] for i in range(dim)]
-        slices = combine_slices(slices)
-
-        max_nans = int(np.floor(dim / 2))
-        nan_sums = self.nans[subspace].sum(1)
-        slices[:, nan_sums > max_nans] = False
-
-        # TODO: min samples should be a param and adapt to mr
-        options = {
-            "n_iterations": self.params["contrast_iterations"],
-            "min_samples": 3,
-        }
-        return prune_slices(slices, **options)
-
     def evaluate_subspace(self, subspace, targets=[]):
-        # TODO: UNIFY
+        # TODO: create params for min samples and slices
+        # GET SLICES
         if self.params["approach"] == "partial":
+            y, indices, T = self.data.y, None, None
             slices, lengths = self.get_fault_tolerant_slices(subspace)
-            cache = self._create_cache(
-                self.data.y,
-                self.data.l_type,
-                slices,
-                lengths,
-                self.label_indices,
-            )
-            relevances = calculate_contrasts(cache)
-            relevance = np.mean(relevances)
-
-            if np.isnan(relevance):
+        else:
+            types = self.data.f_types[subspace]
+            X, y, indices, T = self._prepare_data(subspace, targets, types)
+            if X.shape[0] < 10:
                 return 0, [], True
+            slices, lengths = self.get_slices(X, types)
 
-            redundancies = self.compute_partial_redundancies(
-                slices, lengths, targets)
-            return 1 - np.exp(-1 * relevance), redundancies, False
-
-        # Preparation
-        types = self.data.f_types[subspace]
-        X, y, indices, T = self._prepare_data(subspace, targets, types)
-        if X.shape[0] < 10:
+        # RETURN IF TOO FEW SLICES
+        if len(slices) <= 5:
             return 0, [], True
 
-        # Get slices
-        slices = self.get_slices(X, types)
-        if len(slices[0]) <= 5:
-            return 0, [], True
+        # COMPUTE RELEVANCE AND REDUNDANCIES
+        rels = self.get_relevance(y, slices, lengths)
+        reds = self.get_redundancies(slices, lengths, targets, indices, T)
+        return rels, reds, False
 
-        # Compute relevance and redundancy
-        relevance = self.compute_relevance(slices, y)
-        redundancies = self.compute_redundancies(slices, targets, indices, T)
-        return relevance, redundancies, False
+    def get_relevance(self, y, slices, lengths):
+        indices = None
+        if self.params["approach"] == "partial":
+            indices = self.label_indices
+
+        l_type = self.data.l_type
+        cache = self._create_cache(y, l_type, slices, lengths, indices)
+        relevances = calculate_contrasts(cache)
+        return 1 - np.exp(-1 * np.mean(relevances))
+
+    def get_redundancies(self, slices, lengths, targets, indices=None, T=None):
+        redundancies = []
+        for target in targets:
+            t_type = self.data.f_types[target]
+            if self.params["approach"] == "deletion":
+                t_nans = self.nans[target][indices]
+                t = self.data.X[target][indices][~t_nans]
+                t_slices = slices[:, ~t_nans]
+
+            if self.params["approach"] == "partial":
+                t_nans = self.nans[target]
+                t = self.data.X[target][~t_nans]
+                t_slices = slices[:, ~t_nans]
+
+            if self.params["approach"] == "imputation":
+                t = T[target]
+                t_slices = slices
+
+            # TODO: update slice lengths!
+            cache = self._create_cache(t, t_type, t_slices, lengths)
+            red_s = calculate_contrasts(cache)
+            redundancies.append(np.mean(red_s))
+        return redundancies
 
     def _prepare_data(self, subspace, targets, types):
         # TODO: check if nans exist (imputation would probably break)
@@ -139,44 +142,6 @@ class HICS():
         X = X_complete[subspace]
         return X, self.data.y, None, T
 
-    def compute_relevance(self, slices, y):
-        cache = self._create_cache(y, self.data.l_type, *slices)
-        relevances = calculate_contrasts(cache)
-        return 1 - np.exp(-1 * np.mean(relevances))
-
-    def compute_redundancies(self, slices, targets, indices, T):
-        redundancies = []
-        for target in targets:
-            t_type = self.data.f_types[target]
-            if self.params["approach"] == "deletion":
-                t_nans = self.nans[target][indices]
-                t = self.data.X[target][indices][~t_nans]
-                t_slices = slices[0][:, ~t_nans]
-
-            if self.params["approach"] == "imputation":
-                t = T[target]
-                t_slices = slices[0]
-
-            # TODO: update slice lengths!
-            cache = self._create_cache(t, t_type, t_slices, slices[1])
-            red_s = calculate_contrasts(cache)
-            redundancies.append(np.mean(red_s))
-        return redundancies
-
-    def compute_partial_redundancies(self, slices, lengths, targets):
-        # TODO: UNIFY WITH FUNCTION BEFORE
-        redundancies = []
-        for target in targets:
-            t_type = self.data.f_types[target]
-            t_nans = self.nans[target]
-            t = self.data.X[target][~t_nans]
-            t_slices = slices[:, ~t_nans]
-            # TODO: update slice lengths!
-            cache = self._create_cache(t, t_type, t_slices, lengths)
-            red_s = calculate_contrasts(cache)
-            redundancies.append(np.mean(red_s))
-        return redundancies
-
     def get_slices(self, X, types, **opts):
         # TODO: use this function from init slices when slicing is unified
         options = {
@@ -188,6 +153,22 @@ class HICS():
         }
         options.update(opts)
         return get_slices(X, types, **options)
+
+    def get_fault_tolerant_slices(self, subspace):
+        dim = len(subspace)
+        slices = [self.slices[subspace[i]][dim] for i in range(dim)]
+        slices = combine_slices(slices)
+
+        max_nans = int(np.floor(dim / 2))
+        nan_sums = self.nans[subspace].sum(1)
+        slices[:, nan_sums > max_nans] = False
+
+        # TODO: min samples should be a param and adapt to mr
+        options = {
+            "n_iterations": self.params["contrast_iterations"],
+            "min_samples": 3,
+        }
+        return prune_slices(slices, **options)
 
     def _create_cache(self, y, y_type, slices, lengths, label_indices=None):
         if label_indices is None:
