@@ -104,7 +104,7 @@ def get_ranking_arvind(hics, relevances, names, n_targets):
     max_redundancies = {feature: 0 for feature in open_features}
     max_calculations = max(30, int(np.sqrt(len(open_features))))
     if max_calculations * len(open_features) * n_targets > 10000:
-        max_calculations, n_targets = 5, 1
+        max_calculations, n_targets = 10, 1
 
     while len(open_features) > 0:
         selected = list(ranking.keys())
