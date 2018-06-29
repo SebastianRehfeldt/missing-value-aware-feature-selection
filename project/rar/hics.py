@@ -30,24 +30,30 @@ class HICS():
         }
 
     def _init_slices(self):
-        self.slices = {}
+        self.slices, self.sorted_indices = {}, {}
+
         for col in self.data.X:
-            # TODO: sort the whole matrix at once
-            # TODO: cache and reuse sorted indices
-            # TODO: cache values and counts for categorical features
-            # in partial approach
             X = self.data.X[col].to_frame()
             types = pd.Series(self.data.f_types[col], [col])
-            sorted_values = self.data.X[col].sort_values()
+
+            self.sorted_indices[col] = np.argsort(self.data.X[col].values)
+            if types[col] == "nominal":
+                values, counts = np.unique(X, return_counts=True)
 
             self.slices[col] = {}
             for i in range(1, self.params["subspace_size"][1] + 1):
                 opts = {
                     "n_select": self.n_select_d[i],
-                    "indices": sorted_values.index,
-                    "nans": self.nans[col],
                     "min_samples": 0,
+                    "indices": self.sorted_indices[col],
+                    "nans": self.nans[col],
                 }
+                if types[col] == "nominal":
+                    opts.update({
+                        "values": values,
+                        "counts": counts,
+                    })
+
                 self.slices[col][i] = self.get_slices(X, types, **opts)[0]
 
     def _cache_label(self):
@@ -82,6 +88,7 @@ class HICS():
         indices = None
         if self.params["approach"] == "partial":
             indices = self.label_indices
+            slices = slices[:, indices]
 
         l_type = self.data.l_type
         cache = self._create_cache(y, l_type, slices, lengths, indices)
@@ -89,27 +96,32 @@ class HICS():
         return 1 - np.exp(-1 * np.mean(relevances))
 
     def get_redundancies(self, slices, lengths, targets, indices=None, T=None):
+        cache_idx = None
         redundancies = []
         for target in targets:
             t_type = self.data.f_types[target]
             if self.params["approach"] == "deletion":
                 t_nans = self.nans[target][indices]
                 t = self.data.X[target][indices][~t_nans]
+                t_slices = slices[:, ~t_nans]
 
             if self.params["approach"] == "partial":
                 t_nans = self.nans[target]
                 t = self.data.X[target][~t_nans]
+                t_slices = slices[:, ~t_nans]
+                non_nan_count = np.sum(~t_nans)
+                cache_idx = self.sorted_indices[target][:non_nan_count]
+                t_slices = slices[:, cache_idx]
 
             if self.params["approach"] in ["deletion", "partial"]:
-                t_slices = slices[:, ~t_nans]
-                t_slices, lengths = prune_slices(t_slices,
-                                                 self.params["min_samples"])
+                min_samples = self.params["min_samples"]
+                t_slices, lengths = prune_slices(t_slices, min_samples)
 
             if self.params["approach"] == "imputation":
                 t = T[target]
                 t_slices = slices
 
-            cache = self._create_cache(t, t_type, t_slices, lengths)
+            cache = self._create_cache(t, t_type, t_slices, lengths, cache_idx)
             red_s = calculate_contrasts(cache)
             redundancies.append(np.mean(red_s))
         return redundancies
@@ -164,22 +176,24 @@ class HICS():
         return prune_slices(slices, self.params["min_samples"])
 
     def _create_cache(self, y, y_type, slices, lengths, cached_indices=None):
+        # When passing cached indices, the slices are already sorted
         if cached_indices is None:
             sorted_indices = np.argsort(y.values)
+            slices = slices[:, sorted_indices]
         else:
             sorted_indices = cached_indices
 
         sorted_y = y.values[sorted_indices]
-
         cache = {
             "type": y_type,
             "lengths": lengths,
             "sorted": sorted_y,
-            "slices": slices[:, sorted_indices],
+            "slices": slices,
         }
 
         if y_type == "nominal":
-            if self.params["approach"] == "partial" and self.data.y.name == y.name:
+            y_name = self.data.y.name
+            if self.params["approach"] == "partial" and y_name == y.name:
                 values, counts = self.label_values, self.label_counts
             else:
                 values, counts = np.unique(sorted_y, return_counts=True)

@@ -49,6 +49,7 @@ def get_numerical_slices(X, **options):
     max_start = X.shape[0] - n_select
     max_value = max(X)
     if options["approach"] == "partial":
+        # TODO: speed up?
         non_nan_count = indices.shape[0] - nans.sum()
         max_start = non_nan_count - n_select
         max_value = X[indices[non_nan_count - 1]]
@@ -75,7 +76,11 @@ def get_numerical_slices(X, **options):
 def get_categorical_slices(X, **options):
     n_iterations, n_select = options["n_iterations"], options["n_select"]
 
-    values, counts = np.unique(X, return_counts=True)
+    if options["approach"] == "partial":
+        values, counts = options["values"], options["counts"]
+    else:
+        values, counts = np.unique(X, return_counts=True)
+
     value_dict = dict(zip(values, counts))
     index_dict = {val: np.where(X == val)[0] for val in values}
     values_to_select = list(values)

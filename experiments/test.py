@@ -1,4 +1,5 @@
 # %%
+import numpy as np
 import pandas as pd
 from time import time
 from pprint import pprint
@@ -14,14 +15,14 @@ name = "analcatdata_reviewer"
 name = "credit-approval"  # standard config
 name = "musk"  # standard config
 name = "isolet"
-name = "semeion"
-name = "ionosphere"  # 800 subspaces, alpha=0.02, 250 iterations ,(1,3)
 name = "iris"
 name = "heart-c"  # 800 subspaces, alpha = 0,2, 100 iterations, (1,3)
+name = "ionosphere"  # 800 subspaces, alpha=0.02, 250 iterations ,(1,3)
+name = "semeion"
 data = data_loader.load_data(name, "arff")
 print(data.shape, flush=True)
 
-data = introduce_missing_values(data, missing_rate=0.5)
+data = introduce_missing_values(data, missing_rate=0)
 data = scale_data(data)
 data.X.head()
 
@@ -37,19 +38,19 @@ rar = RaR(
     approach="partial",
     n_targets=1,
     n_subspaces=800,
-    subspace_size=(1, 3),
+    subspace_size=(1, 4),
     contrast_iterations=250,
     alpha=0.2,
-    redundancy_approach="arvind",
-    sample_slices=True,
+    redundancy_approach="tom",
+    sample_slices=False,
 )
 
 rar.fit(data.X, data.y)
-pprint(rar.get_ranking())
+# pprint(rar.get_ranking())
 print(time() - start)
 
 # %%
-k = 20
+k = 30
 X_new = rar.transform(data.X, k)
 X_new.head()
 X_new.corr().style.background_gradient()
