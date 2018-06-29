@@ -12,7 +12,7 @@ def get_slices(X, types, **options):
     slices = combine_slices(slices)
 
     # remove empty and very small slices
-    return prune_slices(slices, **options)
+    return prune_slices(slices, options["min_samples"])
 
 
 def combine_slices(slices):
@@ -28,17 +28,12 @@ def combine_slices(slices):
     return slices
 
 
-def prune_slices(slices, **options):
+def prune_slices(slices, min_samples=5):
     sums = np.sum(slices, axis=1)
-    indices = sums > options["min_samples"]
+    indices = sums > min_samples
     if np.any(~indices):
         slices = slices[indices]
         sums = sums[indices]
-
-    n_iterations = options["n_iterations"]
-    if len(slices) > n_iterations:
-        indices = np.random.choice(range(0, len(slices)), n_iterations)
-        return slices[indices], sums[indices]
     return slices, sums
 
 

@@ -96,18 +96,19 @@ class HICS():
             if self.params["approach"] == "deletion":
                 t_nans = self.nans[target][indices]
                 t = self.data.X[target][indices][~t_nans]
-                t_slices = slices[:, ~t_nans]
 
             if self.params["approach"] == "partial":
                 t_nans = self.nans[target]
                 t = self.data.X[target][~t_nans]
+
+            if self.params["approach"] in ["deletion", "partial"]:
                 t_slices = slices[:, ~t_nans]
+                t_slices, lengths = prune_slices(t_slices, min_samples=5)
 
             if self.params["approach"] == "imputation":
                 t = T[target]
                 t_slices = slices
 
-            # TODO: update slice lengths!
             cache = self._create_cache(t, t_type, t_slices, lengths)
             red_s = calculate_contrasts(cache)
             redundancies.append(np.mean(red_s))
@@ -162,19 +163,14 @@ class HICS():
         max_nans = int(np.floor(dim / 2))
         nan_sums = self.nans[subspace].sum(1)
         slices[:, nan_sums > max_nans] = False
+        # TODO: make it a param
+        return prune_slices(slices, min_samples=5)
 
-        # TODO: min samples should be a param and adapt to mr
-        options = {
-            "n_iterations": self.params["contrast_iterations"],
-            "min_samples": 3,
-        }
-        return prune_slices(slices, **options)
-
-    def _create_cache(self, y, y_type, slices, lengths, label_indices=None):
-        if label_indices is None:
+    def _create_cache(self, y, y_type, slices, lengths, cached_indices=None):
+        if cached_indices is None:
             sorted_indices = np.argsort(y.values)
         else:
-            sorted_indices = label_indices
+            sorted_indices = cached_indices
 
         sorted_y = y.values[sorted_indices]
 
