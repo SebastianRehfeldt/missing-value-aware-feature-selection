@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
 from .contrast import calculate_contrasts
-from .slicing import get_slices, get_partial_slices, combine_slices, prune_slices
+from .slicing import get_slices, combine_slices, prune_slices
+from .slicing import get_categorical_slices, get_slices_num
 
 
 class HICS():
@@ -31,26 +32,37 @@ class HICS():
 
     def _init_slices(self):
         max_subspace_size = self.params["subspace_size"][1]
-        n_iterations = self.params["contrast_iterations"]
 
         self.slices = {}
         for col in self.data.X:
             # TODO: sort the whole matrix at once
-            # TODO: cache sorted indices
+            # TODO: cache and reuse sorted indices
+            # TODO: cache values and counts for categorical features
+            # in partial approach
+            # TODO: min samples should be a param and adapt to mr
             sorted_values = self.data.X[col].sort_values()
 
             self.slices[col] = {}
             for i in range(1, max_subspace_size + 1):
-                self.slices[col][i] = get_partial_slices(
-                    self.data.X[col],
-                    sorted_values.index,
-                    self.nans[col],
-                    self.data.f_types[col],
-                    self.n_select_d[i],
-                    n_iterations,
-                    self.params["approach"],
-                    self.params["sample_slices"],
-                )
+                options = {
+                    "n_select": self.n_select_d[i],
+                    "n_iterations": self.params["contrast_iterations"],
+                    "approach": self.params["approach"],
+                    "should_sample": self.params["sample_slices"],
+                    "min_samples": 3,
+                }
+                if self.data.f_types[col] == "numeric":
+                    self.slices[col][i] = get_slices_num(
+                        self.data.X[col],
+                        sorted_values.index,
+                        self.nans[col],
+                        **options,
+                    )
+                else:
+                    self.slices[col][i] = get_categorical_slices(
+                        self.data.X[col],
+                        **options,
+                    )
 
     def _cache_label(self):
         self.label_indices = np.argsort(self.data.y.values)
@@ -67,7 +79,11 @@ class HICS():
         max_nans = int(np.floor(dim / 2))
         nan_sums = self.nans[subspace].sum(1)
         slices[:, nan_sums > max_nans] = False
-        return prune_slices(slices, self.params["contrast_iterations"])
+        options = {
+            "n_iterations": self.params["contrast_iterations"],
+            "min_samples": 3,
+        }
+        return prune_slices(slices, **options)
 
     def evaluate_subspace(self, subspace, targets=[]):
         # TODO: UNIFY
@@ -135,41 +151,6 @@ class HICS():
         X = X_complete[subspace]
         return X, self.data.y, None, T
 
-    def get_slices(self, X, types):
-        # TODO: update options when slicing functions are unified
-        options = {
-            "n_iterations": self.params["contrast_iterations"],
-            "n_select": int(self.alphas_d[X.shape[1]] * X.shape[0]),
-        }
-        return get_slices(X, types, **options)
-
-    def _create_cache(self, y, y_type, slices, lengths, label_indices=None):
-        if label_indices is None:
-            sorted_indices = np.argsort(y.values)
-        else:
-            sorted_indices = label_indices
-
-        sorted_y = y.values[sorted_indices]
-
-        cache = {
-            "type": y_type,
-            "lengths": lengths,
-            "sorted": sorted_y,
-            "slices": slices[:, sorted_indices],
-        }
-
-        if y_type == "nominal":
-            if self.params["approach"] == "partial" and self.data.y.name == y.name:
-                values, counts = self.label_values, self.label_counts
-            else:
-                values, counts = np.unique(sorted_y, return_counts=True)
-
-            cache.update({
-                "values": values,
-                "probs": counts / len(sorted_y),
-            })
-        return cache
-
     def compute_relevance(self, slices, y):
         cache = self._create_cache(y, self.data.l_type, *slices)
         relevances = calculate_contrasts(cache)
@@ -207,3 +188,41 @@ class HICS():
             red_s = calculate_contrasts(cache)
             redundancies.append(np.mean(red_s))
         return redundancies
+
+    def get_slices(self, X, types):
+        # TODO: use this function from init slices when slicing is unified
+        options = {
+            "n_select": int(self.alphas_d[X.shape[1]] * X.shape[0]),
+            "n_iterations": self.params["contrast_iterations"],
+            "approach": self.params["approach"],
+            "should_sample": self.params["sample_slices"],
+            "min_samples": 3,
+        }
+        return get_slices(X, types, **options)
+
+    def _create_cache(self, y, y_type, slices, lengths, label_indices=None):
+        if label_indices is None:
+            sorted_indices = np.argsort(y.values)
+        else:
+            sorted_indices = label_indices
+
+        sorted_y = y.values[sorted_indices]
+
+        cache = {
+            "type": y_type,
+            "lengths": lengths,
+            "sorted": sorted_y,
+            "slices": slices[:, sorted_indices],
+        }
+
+        if y_type == "nominal":
+            if self.params["approach"] == "partial" and self.data.y.name == y.name:
+                values, counts = self.label_values, self.label_counts
+            else:
+                values, counts = np.unique(sorted_y, return_counts=True)
+
+            cache.update({
+                "values": values,
+                "probs": counts / len(sorted_y),
+            })
+        return cache
