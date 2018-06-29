@@ -58,7 +58,6 @@ class HICS():
         )
 
     def evaluate_subspace(self, subspace, targets=[]):
-        # TODO: create params for min samples and slices
         # GET SLICES
         if self.params["approach"] == "partial":
             y, indices, T = self.data.y, None, None
@@ -66,12 +65,12 @@ class HICS():
         else:
             types = self.data.f_types[subspace]
             X, y, indices, T = self._prepare_data(subspace, targets, types)
-            if X.shape[0] < 10:
+            if X.shape[0] < self.params["min_patterns"]:
                 return 0, [], True
             slices, lengths = self.get_slices(X, types)
 
         # RETURN IF TOO FEW SLICES
-        if len(slices) <= 5:
+        if len(slices) <= self.params["min_slices"]:
             return 0, [], True
 
         # COMPUTE RELEVANCE AND REDUNDANCIES
@@ -103,7 +102,8 @@ class HICS():
 
             if self.params["approach"] in ["deletion", "partial"]:
                 t_slices = slices[:, ~t_nans]
-                t_slices, lengths = prune_slices(t_slices, min_samples=5)
+                t_slices, lengths = prune_slices(t_slices,
+                                                 self.params["min_samples"])
 
             if self.params["approach"] == "imputation":
                 t = T[target]
@@ -115,7 +115,6 @@ class HICS():
         return redundancies
 
     def _prepare_data(self, subspace, targets, types):
-        # TODO: check if nans exist (imputation would probably break)
         if self.params["approach"] == "deletion":
             X, y, indices, T = self._apply_deletion(subspace)
 
@@ -144,7 +143,6 @@ class HICS():
         return X, self.data.y, None, T
 
     def get_slices(self, X, types, **opts):
-        # TODO: use this function from init slices when slicing is unified
         options = {
             "n_select": int(self.alphas_d[X.shape[1]] * X.shape[0]),
             "n_iterations": self.params["contrast_iterations"],
@@ -163,8 +161,7 @@ class HICS():
         max_nans = int(np.floor(dim / 2))
         nan_sums = self.nans[subspace].sum(1)
         slices[:, nan_sums > max_nans] = False
-        # TODO: make it a param
-        return prune_slices(slices, min_samples=5)
+        return prune_slices(slices, self.params["min_samples"])
 
     def _create_cache(self, y, y_type, slices, lengths, cached_indices=None):
         if cached_indices is None:
