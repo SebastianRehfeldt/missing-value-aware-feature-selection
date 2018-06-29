@@ -28,6 +28,9 @@ class RaR(Subspacing):
         n_targets = kwargs.get("n_targets", 3)
         eval_method = kwargs.get("eval_method", "rar")
         approach = kwargs.get("approach", "deletion")
+        min_slices = kwargs.get("min_slices", 5)
+        min_samples = kwargs.get("min_samples", 3)
+        min_patterns = kwargs.get("min_patterns", 10)
         max_subspaces = kwargs.get("max_subspaces", 1000)
         sample_slices = kwargs.get("sample_slices", True)
         subspace_size = kwargs.get("subspace_size", self._get_size())
@@ -45,6 +48,9 @@ class RaR(Subspacing):
             "n_targets": n_targets,
             "eval_method": eval_method,
             "approach": approach,
+            "min_slices": min_slices,
+            "min_samples": min_samples,
+            "min_patterns": min_patterns,
             "max_subspaces": max_subspaces,
             "sample_slices": sample_slices,
             "subspace_size": subspace_size,

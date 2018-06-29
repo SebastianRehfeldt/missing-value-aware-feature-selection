@@ -28,7 +28,7 @@ def combine_slices(slices):
     return slices
 
 
-def prune_slices(slices, min_samples=5):
+def prune_slices(slices, min_samples=3):
     sums = np.sum(slices, axis=1)
     indices = sums > min_samples
     if np.any(~indices):
@@ -45,7 +45,7 @@ def get_numerical_slices(X, **options):
     else:
         indices = np.argsort(X)
 
-    # TODO: ACCOUNT FOR MISSING VALUES (also increase max_start if very small)
+    # TODO: account for missing values (also increase max_start if range very small)
     max_start = X.shape[0] - n_select
     max_value = max(X)
     if options["approach"] == "partial":
