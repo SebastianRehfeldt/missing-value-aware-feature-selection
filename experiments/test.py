@@ -16,18 +16,14 @@ name = "musk"  # standard config
 name = "iris"
 name = "isolet"
 name = "semeion"
+name = "ionosphere"  # 800 subspaces, alpha=0.02, 250 iterations ,(1,3)
 name = "heart-c"  # 800 subspaces, alpha = 0,2, 100 iterations, (1,3)
-name = "ionosphere"  #a06, a05 (fscore of 0.9), alpha=0.02, (1,3), 250 iterations...
 data = data_loader.load_data(name, "arff")
 print(data.shape, flush=True)
 
-data = introduce_missing_values(data, missing_rate=0)
+data = introduce_missing_values(data, missing_rate=0.2)
 data = scale_data(data)
 data.X.head()
-"""
-data_completed = Imputer(data.f_types, strategy="mice").complete(data)
-data_completed.X.head()
-"""
 
 # %%
 from project.rar.rar import RaR
@@ -39,13 +35,13 @@ rar = RaR(
     data.shape,
     n_jobs=1,
     approach="partial",
-    n_targets=0,
+    n_targets=1,
     n_subspaces=800,
     subspace_size=(1, 3),
-    contrast_iterations=250,
-    alpha=0.02,
+    contrast_iterations=100,
+    alpha=0.2,
     redundancy_approach="arvind",
-    sample_slices=True,
+    sample_slices=False,
 )
 
 rar.fit(data.X, data.y)

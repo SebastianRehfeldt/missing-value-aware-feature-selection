@@ -100,8 +100,9 @@ def get_ranking_arvind(hics, relevances, names, n_targets):
     open_features.remove(best_feature)
 
     # stepwise add features
+    # TODO: find good heuristic for max_calculations
     max_redundancies = {feature: 0 for feature in open_features}
-    max_calculations = max(10, int(np.sqrt(len(open_features))))
+    max_calculations = max(30, int(np.sqrt(len(open_features))))
     if max_calculations * len(open_features) * n_targets > 10000:
         max_calculations, n_targets = 5, 1
 
@@ -115,7 +116,7 @@ def get_ranking_arvind(hics, relevances, names, n_targets):
             redundancies = np.zeros((n, len(open_features)))
             for i in range(n):
                 subspace = create_subspace(best_feature, selected)
-                slices, lengths = hics.combine_slices(subspace)
+                slices, lengths = hics.get_fault_tolerant_slices(subspace)
                 redundancies[i, :] = hics.compute_partial_redundancies(
                     slices,
                     lengths,
