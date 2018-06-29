@@ -17,8 +17,8 @@ name = "musk"  # standard config
 name = "heart-c"  # 800 subspaces, alpha = 0,2, 100 iterations, (1,3)
 name = "semeion"
 name = "iris"
-name = "isolet"
 name = "ionosphere"  # 800 subspaces, alpha=0.02, 250 iterations ,(1,3)
+name = "isolet"
 data = data_loader.load_data(name, "arff")
 print(data.shape, flush=True)
 
@@ -37,16 +37,16 @@ rar = RaR(
     n_jobs=1,
     approach="partial",
     n_targets=1,
-    n_subspaces=800,
-    subspace_size=(1, 3),
-    contrast_iterations=250,
+    n_subspaces=5000,
+    subspace_size=(1, 4),
+    contrast_iterations=100,
     alpha=0.02,
     redundancy_approach="tom",
     sample_slices=True,
 )
 
 rar.fit(data.X, data.y)
-pprint(rar.get_ranking())
+# pprint(rar.get_ranking())
 print(time() - start)
 
 # %%
