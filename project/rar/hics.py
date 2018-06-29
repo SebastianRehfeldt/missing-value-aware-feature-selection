@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from .contrast import calculate_contrasts
-from .slicing import get_slices, get_partial_slices
+from .slicing import get_slices, get_partial_slices, combine_slices, prune_slices
 
 
 class HICS():
@@ -35,7 +35,8 @@ class HICS():
 
         self.slices = {}
         for col in self.data.X:
-            # TODO: sort the whole matrix at once and cache sorted indices
+            # TODO: sort the whole matrix at once
+            # TODO: cache sorted indices
             sorted_values = self.data.X[col].sort_values()
 
             self.slices[col] = {}
@@ -59,28 +60,14 @@ class HICS():
         )
 
     def combine_slices(self, subspace):
-        # TODO: MOVE SLICE COMBINATION LOGIC TO SLICING
-        # TODO: FAULT TOLERANCE SHOULD STAY HERE
-        k = len(subspace)
-        if len(subspace) == 1:
-            slices = self.slices[subspace[0]][k]
-        elif len(subspace) == 2:
-            slice1 = self.slices[subspace[0]][k]
-            slice2 = self.slices[subspace[1]][k]
-            slices = np.logical_and(slice1, slice2)
-        else:
-            slice1 = self.slices[subspace[0]][k]
-            slice2 = self.slices[subspace[1]][k]
-            slices = np.logical_and(slice1, slice2)
-            for i in range(2, k):
-                slices.__iand__(self.slices[subspace[i]][k])
+        dim = len(subspace)
+        slices = [self.slices[subspace[i]][dim] for i in range(dim)]
+        slices = combine_slices(slices)
 
-        max_nans = int(np.floor(k / 2))
+        max_nans = int(np.floor(dim / 2))
         nan_sums = self.nans[subspace].sum(1)
         slices[:, nan_sums > max_nans] = False
-        sums = np.sum(slices, axis=1)
-        # TODO: remove very small slices
-        return slices, sums
+        return prune_slices(slices, self.params["contrast_iterations"])
 
     def evaluate_subspace(self, subspace, targets=[]):
         # TODO: UNIFY
@@ -149,8 +136,8 @@ class HICS():
         return X, self.data.y, None, T
 
     def get_slices(self, X, types):
+        # TODO: update options when slicing functions are unified
         options = {
-            "slicing_method": self.params["slicing_method"],
             "n_iterations": self.params["contrast_iterations"],
             "n_select": int(self.alphas_d[X.shape[1]] * X.shape[0]),
         }
