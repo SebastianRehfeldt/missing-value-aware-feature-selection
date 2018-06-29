@@ -32,8 +32,7 @@ def prune_slices(slices, min_samples=3):
     sums = np.sum(slices, axis=1)
     indices = sums > min_samples
     if np.any(~indices):
-        slices = slices[indices]
-        sums = sums[indices]
+        return slices[indices], sums[indices]
     return slices, sums
 
 
