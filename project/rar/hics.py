@@ -30,13 +30,13 @@ class HICS():
         }
 
     def _init_slices(self):
-        self.slices, self.sorted_indices = {}, {}
+        self.slices = {}
 
         for col in self.data.X:
             X = self.data.X[col].to_frame()
             types = pd.Series(self.data.f_types[col], [col])
 
-            self.sorted_indices[col] = np.argsort(self.data.X[col].values)
+            sorted_indices = np.argsort(self.data.X[col].values)
             if types[col] == "nominal":
                 values, counts = np.unique(X, return_counts=True)
 
@@ -45,7 +45,7 @@ class HICS():
                 opts = {
                     "n_select": self.n_select_d[i],
                     "min_samples": 0,
-                    "indices": self.sorted_indices[col],
+                    "indices": sorted_indices,
                     "nans": self.nans[col],
                 }
                 if types[col] == "nominal":
@@ -88,7 +88,6 @@ class HICS():
         indices = None
         if self.params["approach"] == "partial":
             indices = self.label_indices
-            slices = slices[:, indices]
 
         l_type = self.data.l_type
         cache = self._create_cache(y, l_type, slices, lengths, indices)
@@ -96,32 +95,27 @@ class HICS():
         return 1 - np.exp(-1 * np.mean(relevances))
 
     def get_redundancies(self, slices, lengths, targets, indices=None, T=None):
-        cache_idx = None
         redundancies = []
         for target in targets:
             t_type = self.data.f_types[target]
             if self.params["approach"] == "deletion":
                 t_nans = self.nans[target][indices]
                 t = self.data.X[target][indices][~t_nans]
-                t_slices = slices[:, ~t_nans]
 
             if self.params["approach"] == "partial":
                 t_nans = self.nans[target]
                 t = self.data.X[target][~t_nans]
-                t_slices = slices[:, ~t_nans]
-                non_nan_count = np.sum(~t_nans)
-                cache_idx = self.sorted_indices[target][:non_nan_count]
-                t_slices = slices[:, cache_idx]
 
             if self.params["approach"] in ["deletion", "partial"]:
                 min_samples = self.params["min_samples"]
+                t_slices = slices[:, ~t_nans]
                 t_slices, lengths = prune_slices(t_slices, min_samples)
 
             if self.params["approach"] == "imputation":
                 t = T[target]
                 t_slices = slices
 
-            cache = self._create_cache(t, t_type, t_slices, lengths, cache_idx)
+            cache = self._create_cache(t, t_type, t_slices, lengths)
             red_s = calculate_contrasts(cache)
             redundancies.append(np.mean(red_s))
         return redundancies
@@ -176,10 +170,8 @@ class HICS():
         return prune_slices(slices, self.params["min_samples"])
 
     def _create_cache(self, y, y_type, slices, lengths, cached_indices=None):
-        # When passing cached indices, the slices are already sorted
         if cached_indices is None:
             sorted_indices = np.argsort(y.values)
-            slices = slices[:, sorted_indices]
         else:
             sorted_indices = cached_indices
 
@@ -188,7 +180,7 @@ class HICS():
             "type": y_type,
             "lengths": lengths,
             "sorted": sorted_y,
-            "slices": slices,
+            "slices": slices[:, sorted_indices],
         }
 
         if y_type == "nominal":
