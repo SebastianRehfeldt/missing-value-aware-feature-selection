@@ -2,11 +2,8 @@ import itertools
 import numpy as np
 
 
-def get_slices(X, types, n_select, n_iterations, slicing_method):
-    slices = {
-        "mating": get_slices_by_mating,
-        "simple": get_slices_simple,
-    }[slicing_method](X, types, n_select, int(1.25 * n_iterations))
+def get_slices(X, types, n_select, n_iterations):
+    slices = get_slices_simple(X, types, n_select, int(1.25 * n_iterations))
 
     # remove empty and very small slices
     sums = np.sum(slices, axis=1)
@@ -30,32 +27,6 @@ def get_slices_simple(X, types, n_select, n_iterations):
             "nominal": get_categorical_slices,
             "numeric": get_numerical_slices
         }[types[col]](X[col].values, n_select, n_iterations))
-    return slices
-
-
-def get_slices_by_mating(X, types, n_select, n_iterations):
-    # TODO: REMOVE THIS
-    n_vectors = int(np.ceil(n_iterations**(1 / len(types))))
-
-    # pooling
-    pool = [None] * len(types)
-    for i, col in enumerate(X):
-        pool[i] = {
-            "nominal": get_categorical_slices,
-            "numeric": get_numerical_slices
-        }[types[col]](X[col].values, n_select, n_vectors)
-
-    # mating
-    if len(types) > 1:
-        combinations = list(itertools.product(*pool))
-        selected = np.random.choice(
-            range(len(combinations)), n_iterations, False)
-
-        slices = np.zeros((n_iterations, X.shape[0]), dtype=bool)
-        for i, s in enumerate(selected):
-            slices[i, :] = np.all(combinations[s], axis=0)
-    else:
-        slices = pool[0]
     return slices
 
 

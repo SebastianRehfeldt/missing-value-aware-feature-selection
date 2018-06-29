@@ -22,6 +22,7 @@ class RaR(Subspacing):
         self.hics = None
 
     def _update_params(self, **kwargs):
+        # TODO: create RaR config
         alpha = kwargs.get("alpha", self._get_alpha())
         beta = kwargs.get("beta", 0.01)
         n_targets = kwargs.get("n_targets", 3)
@@ -30,7 +31,6 @@ class RaR(Subspacing):
         max_subspaces = kwargs.get("max_subspaces", 1000)
         sample_slices = kwargs.get("sample_slices", True)
         subspace_size = kwargs.get("subspace_size", self._get_size())
-        slicing_method = kwargs.get("slicing_method", "mating")
         subspace_method = kwargs.get("subspace_method", "adaptive")
         imputation_method = kwargs.get("imputation_method", "knn")
         contrast_iterations = kwargs.get("contrast_iterations", 100)
@@ -45,7 +45,6 @@ class RaR(Subspacing):
             "max_subspaces": max_subspaces,
             "sample_slices": sample_slices,
             "subspace_size": subspace_size,
-            "slicing_method": slicing_method,
             "subspace_method": subspace_method,
             "imputation_method": imputation_method,
             "contrast_iterations": contrast_iterations,
@@ -111,17 +110,13 @@ class RaR(Subspacing):
         rel, red_s, is_empty = self.hics.evaluate_subspace(subspace, targets)
 
         if is_empty:
-            return {
-                "relevance": 0,
-                "redundancies": [],
-                "targets": [],
-            }
-        else:
-            return {
-                "relevance": rel,
-                "redundancies": red_s,
-                "targets": targets,
-            }
+            rel, red_s, targets = 0, [], []
+
+        return {
+            "relevance": rel,
+            "redundancies": red_s,
+            "targets": targets,
+        }
 
     def _deduce_feature_importances(self, knowledgebase):
         """
