@@ -168,7 +168,7 @@ class HICS():
     def get_fault_tolerant_slices(self, subspace):
         dim = len(subspace)
         slices = [self.slices[subspace[i]][dim] for i in range(dim)]
-        slices = combine_slices(slices)
+        slices = combine_slices(slices).copy()
 
         max_nans = int(np.floor(dim / 2))
         nan_sums = self.nans[subspace].sum(1)
