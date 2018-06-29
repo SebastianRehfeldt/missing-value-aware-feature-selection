@@ -30,6 +30,7 @@ class HICS():
         }
 
     def _init_slices(self):
+        # TODO: fill cache on the fly
         self.slices = {}
 
         for col in self.data.X:
