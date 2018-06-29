@@ -1,33 +1,57 @@
-import itertools
 import numpy as np
 
 
 def get_slices(X, types, n_select, n_iterations):
-    slices = get_slices_simple(X, types, n_select, int(1.25 * n_iterations))
+    # collect slices for each column
+    slices = [None] * X.shape[1]
+    for i, col in enumerate(X):
+        slices[i] = {
+            "nominal": get_categorical_slices,
+            "numeric": get_numerical_slices
+        }[types[col]](X[col].values, n_select, int(1.25 * n_iterations))
+    slices = combine_slices(slices)
 
     # remove empty and very small slices
+    return prune_slices(slices, n_iterations)
+
+
+def get_partial_slices(X, indices, nans, f_type, n_select, n_iterations,
+                       approach, should_sample):
+    # TODO: REMOVE THIS AND COMBINE WITH GET SLICES
+    if f_type == "numeric":
+        slices = get_slices_num(X, indices, nans, n_select, n_iterations,
+                                approach, should_sample)
+    else:
+        slices = get_categorical_slices(X, n_select, n_iterations, approach,
+                                        should_sample)
+    return slices
+
+
+def combine_slices(slices):
+    dimension = len(slices)
+    if dimension == 1:
+        return slices[0]
+    elif dimension == 2:
+        return np.logical_and(slices[0], slices[1])
+    else:
+        slices = np.logical_and(slices[0], slices[1])
+        for i in range(2, dimension):
+            slices.__iand__(slices[i])
+    return slices
+
+
+def prune_slices(slices, n_iterations, min_samples=3):
+    # TODO: make min samples a param and test (should adapt to mr)
     sums = np.sum(slices, axis=1)
-    indices = sums > 10
+    indices = sums > min_samples
     if np.any(~indices):
         slices = slices[indices]
         sums = sums[indices]
 
-    # reduce to n_iterations and return
     if len(slices) > n_iterations:
         indices = np.random.choice(range(0, len(slices)), n_iterations)
         return slices[indices], sums[indices]
     return slices, sums
-
-
-def get_slices_simple(X, types, n_select, n_iterations):
-    # TODO: USE FUNCTION FROM HICS
-    slices = np.ones((n_iterations, X.shape[0]), dtype=bool)
-    for col in X:
-        slices.__iand__({
-            "nominal": get_categorical_slices,
-            "numeric": get_numerical_slices
-        }[types[col]](X[col].values, n_select, n_iterations))
-    return slices
 
 
 def get_numerical_slices(X, n_select, n_vectors):
@@ -91,7 +115,7 @@ def get_categorical_slices(X,
                            approach="deletion",
                            should_sample=False):
     # TODO: REFACTOR PARAMS
-    # TODO: cache values and counts
+    # TODO: cache values and counts in partial approach
     values, counts = np.unique(X, return_counts=True)
     value_dict = dict(zip(values, counts))
     index_dict = {val: np.where(X == val)[0] for val in values}
@@ -122,16 +146,4 @@ def get_categorical_slices(X,
 
     if approach == "partial" and contains_nans:
         slices[:, index_dict["?"]] = True
-    return slices
-
-
-def get_partial_slices(X, indices, nans, f_type, n_select, n_iterations,
-                       approach, should_sample):
-    # TODO: REMOVE THIS AND COMBINE WITH GET SLICES
-    if f_type == "numeric":
-        slices = get_slices_num(X, indices, nans, n_select, n_iterations,
-                                approach, should_sample)
-    else:
-        slices = get_categorical_slices(X, n_select, n_iterations, approach,
-                                        should_sample)
     return slices

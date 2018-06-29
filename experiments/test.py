@@ -5,7 +5,7 @@ from pprint import pprint
 
 from project.utils import DataLoader
 from project.utils import introduce_missing_values, scale_data
-from project.utils.imputer import Imputer
+# from project.utils.imputer import Imputer
 
 data_loader = DataLoader(ignored_attributes=["molecule_name"])
 name = "madelon"
@@ -21,7 +21,7 @@ name = "ionosphere"  #a06, a05 (fscore of 0.9), alpha=0.02, (1,3), 250 iteration
 data = data_loader.load_data(name, "arff")
 print(data.shape, flush=True)
 
-data = introduce_missing_values(data, missing_rate=0.2)
+data = introduce_missing_values(data, missing_rate=2)
 data = scale_data(data)
 data.X.head()
 """
@@ -38,14 +38,13 @@ rar = RaR(
     data.l_type,
     data.shape,
     n_jobs=1,
-    approach="partial",
+    approach="deletion",
     n_targets=0,
     n_subspaces=800,
     subspace_size=(1, 3),
     contrast_iterations=250,
     alpha=0.02,
-    slicing_method="simple",
-    redundancy_approach="arvind",
+    redundancy_approach="tom",
     sample_slices=True,
 )
 
