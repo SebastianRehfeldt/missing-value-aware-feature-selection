@@ -117,7 +117,7 @@ def get_ranking_arvind(hics, relevances, names, n_targets):
             for i in range(n):
                 subspace = create_subspace(best_feature, selected)
                 slices, lengths = hics.get_fault_tolerant_slices(subspace)
-                redundancies[i, :] = hics.compute_partial_redundancies(
+                redundancies[i, :] = hics.get_redundancies(
                     slices,
                     lengths,
                     open_features,

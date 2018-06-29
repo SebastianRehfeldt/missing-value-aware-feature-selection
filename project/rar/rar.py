@@ -36,6 +36,9 @@ class RaR(Subspacing):
         contrast_iterations = kwargs.get("contrast_iterations", 100)
         redundancy_approach = kwargs.get("redundancy_approach", "arvind")
 
+        if approach == "deletion":
+            redundancy_approach = "tom"
+
         self.params.update({
             "alpha": alpha,
             "beta": beta,
