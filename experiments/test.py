@@ -21,7 +21,7 @@ name = "heart-c"  # 800 subspaces, alpha = 0,2, 100 iterations, (1,3)
 data = data_loader.load_data(name, "arff")
 print(data.shape, flush=True)
 
-data = introduce_missing_values(data, missing_rate=0)
+data = introduce_missing_values(data, missing_rate=0.4)
 data = scale_data(data)
 data.X.head()
 
@@ -41,7 +41,7 @@ rar = RaR(
     contrast_iterations=100,
     alpha=0.2,
     redundancy_approach="arvind",
-    sample_slices=True,
+    sample_slices=False,
 )
 
 rar.fit(data.X, data.y)
