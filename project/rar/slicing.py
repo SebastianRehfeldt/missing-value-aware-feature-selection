@@ -22,10 +22,10 @@ def combine_slices(slices):
     elif dimension == 2:
         return np.logical_and(slices[0], slices[1])
     else:
-        slices = np.logical_and(slices[0], slices[1])
+        combined_slices = np.logical_and(slices[0], slices[1])
         for i in range(2, dimension):
-            slices.__iand__(slices[i])
-    return slices
+            combined_slices.__iand__(slices[i])
+    return combined_slices
 
 
 def prune_slices(slices, min_samples=3):
