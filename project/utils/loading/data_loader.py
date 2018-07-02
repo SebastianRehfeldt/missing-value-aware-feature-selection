@@ -122,7 +122,10 @@ class DataLoader():
             config = json.load(json_data)
             self.target = config["default_target_attribute"]
             self.ignored_attributes.append(config["row_id_attribute"])
-            self.ignored_attributes.append(config["ignore_attribute"])
+            to_ignore = config["ignore_attribute"]
+            if to_ignore is not None:
+                self.ignored_attributes.append(to_ignore.replace("\"", ""))
+            print("Ignored attributes:", self.ignored_attributes)
 
     ####################################################################################
     ###########################           CSV           ################################

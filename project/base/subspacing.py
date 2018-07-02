@@ -99,6 +99,8 @@ class Subspacing(Selector):
         chunks = self._get_chunks(subspaces, chunk_size)
 
         knowledgebase = Parallel(
-            n_jobs=n_jobs, mmap_mode="r", max_nbytes="1K")(
-                delayed(self._evaluate)(chunk) for chunk in chunks)
+            n_jobs=n_jobs,
+            mmap_mode="r",
+            max_nbytes="1G",
+        )(delayed(self._evaluate)(chunk) for chunk in chunks)
         return list(itertools.chain.from_iterable(knowledgebase))

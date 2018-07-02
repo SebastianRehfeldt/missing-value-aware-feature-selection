@@ -6,7 +6,7 @@ from math import factorial, ceil, log
 
 from project.base import Subspacing
 from .optimizer import deduce_relevances
-from .rar_utils import sort_redundancies_by_target, calculate_ranking
+from .rar_utils import sort_redundancies_by_target, get_ranking_arvind, get_ranking_tom
 
 
 class RaR(Subspacing):
@@ -22,18 +22,25 @@ class RaR(Subspacing):
         self.hics = None
 
     def _update_params(self, **kwargs):
+        # TODO: create RaR config
         alpha = kwargs.get("alpha", self._get_alpha())
         beta = kwargs.get("beta", 0.01)
         n_targets = kwargs.get("n_targets", 3)
         eval_method = kwargs.get("eval_method", "rar")
         approach = kwargs.get("approach", "deletion")
-        use_pearson = kwargs.get("use_pearson", True)
+        min_slices = kwargs.get("min_slices", 5)
+        min_samples = kwargs.get("min_samples", 3)
+        min_patterns = kwargs.get("min_patterns", 10)
         max_subspaces = kwargs.get("max_subspaces", 1000)
+        sample_slices = kwargs.get("sample_slices", True)
         subspace_size = kwargs.get("subspace_size", self._get_size())
-        slicing_method = kwargs.get("slicing_method", "mating")
         subspace_method = kwargs.get("subspace_method", "adaptive")
         imputation_method = kwargs.get("imputation_method", "knn")
         contrast_iterations = kwargs.get("contrast_iterations", 100)
+        redundancy_approach = kwargs.get("redundancy_approach", "arvind")
+
+        if approach == "deletion":
+            redundancy_approach = "tom"
 
         self.params.update({
             "alpha": alpha,
@@ -41,13 +48,16 @@ class RaR(Subspacing):
             "n_targets": n_targets,
             "eval_method": eval_method,
             "approach": approach,
-            "use_pearson": use_pearson,
+            "min_slices": min_slices,
+            "min_samples": min_samples,
+            "min_patterns": min_patterns,
             "max_subspaces": max_subspaces,
+            "sample_slices": sample_slices,
             "subspace_size": subspace_size,
-            "slicing_method": slicing_method,
             "subspace_method": subspace_method,
             "imputation_method": imputation_method,
             "contrast_iterations": contrast_iterations,
+            "redundancy_approach": redundancy_approach,
         })
 
         n_subspaces = self._get_n_subspaces()
@@ -100,24 +110,22 @@ class RaR(Subspacing):
             X {df} -- Dataframe containing the features
             types {pd.series} -- Series containing the feature types
         """
-        open_features = [n for n in self.names if n not in subspace]
-        n_targets = min(len(open_features), self.params["n_targets"])
-        targets = np.random.choice(open_features, n_targets, False)
+        targets = []
+        if self.params["redundancy_approach"] == "tom":
+            open_features = [n for n in self.names if n not in subspace]
+            n_targets = min(len(open_features), self.params["n_targets"])
+            targets = np.random.choice(open_features, n_targets, False)
 
         rel, red_s, is_empty = self.hics.evaluate_subspace(subspace, targets)
 
         if is_empty:
-            return {
-                "relevance": 0,
-                "redundancies": [],
-                "targets": [],
-            }
-        else:
-            return {
-                "relevance": rel,
-                "redundancies": red_s,
-                "targets": targets,
-            }
+            rel, red_s, targets = 0, [], []
+
+        return {
+            "relevance": rel,
+            "redundancies": red_s,
+            "targets": targets,
+        }
 
     def _deduce_feature_importances(self, knowledgebase):
         """
@@ -127,12 +135,19 @@ class RaR(Subspacing):
             knowledgebase {list} -- List of subspace results
         """
         relevances = deduce_relevances(self.names, knowledgebase)
-        self.relevances = relevances
-        redundancies = sort_redundancies_by_target(knowledgebase)
-        self.redundancies = redundancies
+        n_targets = self.params["n_targets"]
 
-        redundancies_1d = None
-        if self.params["use_pearson"]:
-            redundancies_1d = self.data.X.corr().fillna(0)
-        return calculate_ranking(relevances, redundancies, redundancies_1d,
-                                 self.names)
+        # return ranking based on relevances only
+        if n_targets == 0:
+            return sorted(
+                relevances.items(),
+                key=lambda k_v: k_v[1],
+                reverse=True,
+            )
+
+        # combine relevances with redundancies as done by tom or arvind
+        if self.params["redundancy_approach"] == "tom":
+            redundancies = sort_redundancies_by_target(knowledgebase)
+            return get_ranking_tom(relevances, redundancies, self.names)
+
+        return get_ranking_arvind(self.hics, relevances, self.names, n_targets)
