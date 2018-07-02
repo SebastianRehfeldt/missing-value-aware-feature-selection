@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
-from .contrast import calculate_contrasts
-from .slicing import get_slices, combine_slices, prune_slices
+from .contrast import calculate_contrasts, calculate_contrasts2
+from .slicing import get_slices, combine_slices, combine_slices2, prune_slices
 
 
 class HICS():
@@ -12,7 +12,7 @@ class HICS():
         self._init_alphas()
         self._init_n_selects()
 
-        if self.params["approach"] == "partial":
+        if self.params["approach"] in ["partial", "fuzzy"]:
             self._init_slices()
             self._cache_label()
 
@@ -69,6 +69,9 @@ class HICS():
         if self.params["approach"] == "partial":
             y, indices, T = self.data.y, None, None
             slices, lengths = self.get_fault_tolerant_slices(subspace)
+        elif self.params["approach"] == "fuzzy":
+            y, indices, T = self.data.y, None, None
+            slices, lengths = self.get_fuzzy_slices(subspace)
         else:
             types = self.data.f_types[subspace]
             X, y, indices, T = self._prepare_data(subspace, targets, types)
@@ -87,12 +90,15 @@ class HICS():
 
     def get_relevance(self, y, slices, lengths):
         indices = None
-        if self.params["approach"] == "partial":
+        if self.params["approach"] in ["partial", "fuzzy"]:
             indices = self.label_indices
 
         l_type = self.data.l_type
         cache = self._create_cache(y, l_type, slices, lengths, indices)
-        relevances = calculate_contrasts(cache)
+        if self.params["approach"] == "fuzzy":
+            relevances = calculate_contrasts2(cache)
+        else:
+            relevances = calculate_contrasts(cache)
         return 1 - np.exp(-1 * np.mean(relevances))
 
     def get_redundancies(self, slices, lengths, targets, indices=None, T=None):
@@ -103,11 +109,11 @@ class HICS():
                 t_nans = self.nans[target][indices]
                 t = self.data.X[target][indices][~t_nans]
 
-            if self.params["approach"] == "partial":
+            if self.params["approach"] in ["partial", "fuzzy"]:
                 t_nans = self.nans[target]
                 t = self.data.X[target][~t_nans]
 
-            if self.params["approach"] in ["deletion", "partial"]:
+            if self.params["approach"] in ["deletion", "partial", "fuzzy"]:
                 min_samples = self.params["min_samples"]
                 t_slices = slices[:, ~t_nans]
                 t_slices, lengths = prune_slices(t_slices, min_samples)
@@ -117,7 +123,10 @@ class HICS():
                 t_slices = slices
 
             cache = self._create_cache(t, t_type, t_slices, lengths)
-            red_s = calculate_contrasts(cache)
+            if self.params["approach"] == "fuzzy":
+                red_s = calculate_contrasts2(cache)
+            else:
+                red_s = calculate_contrasts(cache)
             redundancies.append(np.mean(red_s))
         return redundancies
 
@@ -170,6 +179,12 @@ class HICS():
         slices[:, nan_sums > max_nans] = False
         return prune_slices(slices, self.params["min_samples"])
 
+    def get_fuzzy_slices(self, subspace):
+        dim = len(subspace)
+        slices = [self.slices[subspace[i]][dim] for i in range(dim)]
+        slices = combine_slices2(slices).copy()
+        return prune_slices(slices, self.params["min_samples"])
+
     def _create_cache(self, y, y_type, slices, lengths, cached_indices=None):
         if cached_indices is None:
             sorted_indices = np.argsort(y.values)
@@ -186,7 +201,8 @@ class HICS():
 
         if y_type == "nominal":
             y_name = self.data.y.name
-            if self.params["approach"] == "partial" and y_name == y.name:
+            if self.params["approach"] in ["partial", "fuzzy"
+                                           ] and y_name == y.name:
                 values, counts = self.label_values, self.label_counts
             else:
                 values, counts = np.unique(sorted_y, return_counts=True)

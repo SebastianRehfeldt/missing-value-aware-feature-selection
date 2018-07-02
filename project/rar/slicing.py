@@ -28,6 +28,19 @@ def combine_slices(slices):
     return slices
 
 
+def combine_slices2(slices):
+    dimension = len(slices)
+    if dimension == 1:
+        return slices[0]
+    elif dimension == 2:
+        return slices[0] * slices[1]
+    else:
+        slices = slices[0] * slices[1]
+        for i in range(2, dimension):
+            slices.__imul__(slices[i])
+    return slices
+
+
 def prune_slices(slices, min_samples=3):
     sums = np.sum(slices, axis=1)
     indices = sums > min_samples
@@ -39,7 +52,7 @@ def prune_slices(slices, min_samples=3):
 def get_numerical_slices(X, **options):
     n_iterations, n_select = options["n_iterations"], options["n_select"]
 
-    if options["approach"] == "partial":
+    if options["approach"] in ["partial", "fuzzy"]:
         indices, nans = options["indices"], options["nans"]
     else:
         indices = np.argsort(X)
@@ -47,7 +60,7 @@ def get_numerical_slices(X, **options):
     # TODO: account for missing values (also increase max_start if range very small)
     max_start = X.shape[0] - n_select
     max_value = max(X)
-    if options["approach"] == "partial":
+    if options["approach"] in ["partial", "fuzzy"]:
         # TODO: speed up?
         non_nan_count = indices.shape[0] - nans.sum()
         max_start = non_nan_count - n_select
@@ -56,7 +69,9 @@ def get_numerical_slices(X, **options):
             max_start = max(10, int(non_nan_count / 2))
 
     start_positions = np.random.choice(range(0, max_start), n_iterations)
-    slices = np.zeros((n_iterations, X.shape[0]), dtype=bool)
+
+    dtype = float if options["approach"] == "fuzzy" else bool
+    slices = np.zeros((n_iterations, X.shape[0]), dtype=dtype)
     for i, start in enumerate(start_positions):
         if options["should_sample"]:
             idx = indices[start:start + n_select - 1]
@@ -69,13 +84,15 @@ def get_numerical_slices(X, **options):
 
     if options["approach"] == "partial":
         slices[:, nans] = True
+    if options["approach"] == "fuzzy":
+        slices[:, nans] = 0.125
     return slices
 
 
 def get_categorical_slices(X, **options):
     n_iterations, n_select = options["n_iterations"], options["n_select"]
 
-    if options["approach"] == "partial":
+    if options["approach"] in ["partial", "fuzzy"]:
         values, counts = options["values"], options["counts"]
     else:
         values, counts = np.unique(X, return_counts=True)
@@ -84,12 +101,13 @@ def get_categorical_slices(X, **options):
     index_dict = {val: np.where(X == val)[0] for val in values}
     values_to_select = list(values)
 
-    if options["approach"] == "partial":
+    if options["approach"] in ["partial", "fuzzy"]:
         contains_nans = "?" in values_to_select
         if contains_nans:
             values_to_select.remove("?")
 
-    slices = np.zeros((n_iterations, X.shape[0]), dtype=bool)
+    dtype = float if options["approach"] == "fuzzy" else bool
+    slices = np.zeros((n_iterations, X.shape[0]), dtype=dtype)
     for i in range(n_iterations):
         values_to_select = np.random.permutation(values_to_select)
         current_sum = 0
@@ -109,4 +127,6 @@ def get_categorical_slices(X, **options):
 
     if options["approach"] == "partial" and contains_nans:
         slices[:, index_dict["?"]] = True
+    if options["approach"] == "fuzzy" and contains_nans:
+        slices[:, index_dict["?"]] = 0.125
     return slices
