@@ -144,7 +144,7 @@ def _calculate_probs_kld2(y, slice_, values_m):
     counts = np.zeros(m)
     prev = 0
     for i in range(m):
-        counts[i] = np.sum(slice_[prev:indices[i]]) / weight_sum
+        counts[i] = np.sum(slice_[prev:indices[i]])
         prev = indices[i]
     
-    return counts
+    return counts / weight_sum

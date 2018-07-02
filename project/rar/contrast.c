@@ -5801,7 +5801,7 @@ static PyObject *__pyx_pf_7project_3rar_8contrast_14_calculate_probs_kld2(CYTHON
  *     counts = np.zeros(m)
  *     prev = 0             # <<<<<<<<<<<<<<
  *     for i in range(m):
- *         counts[i] = np.sum(slice_[prev:indices[i]]) / weight_sum
+ *         counts[i] = np.sum(slice_[prev:indices[i]])
  */
   __Pyx_INCREF(__pyx_int_0);
   __pyx_v_prev = __pyx_int_0;
@@ -5810,7 +5810,7 @@ static PyObject *__pyx_pf_7project_3rar_8contrast_14_calculate_probs_kld2(CYTHON
  *     counts = np.zeros(m)
  *     prev = 0
  *     for i in range(m):             # <<<<<<<<<<<<<<
- *         counts[i] = np.sum(slice_[prev:indices[i]]) / weight_sum
+ *         counts[i] = np.sum(slice_[prev:indices[i]])
  *         prev = indices[i]
  */
   __pyx_t_1 = __pyx_v_m;
@@ -5821,7 +5821,7 @@ static PyObject *__pyx_pf_7project_3rar_8contrast_14_calculate_probs_kld2(CYTHON
     /* "project/rar/contrast.pyx":147
  *     prev = 0
  *     for i in range(m):
- *         counts[i] = np.sum(slice_[prev:indices[i]]) / weight_sum             # <<<<<<<<<<<<<<
+ *         counts[i] = np.sum(slice_[prev:indices[i]])             # <<<<<<<<<<<<<<
  *         prev = indices[i]
  * 
  */
@@ -5881,33 +5881,32 @@ static PyObject *__pyx_pf_7project_3rar_8contrast_14_calculate_probs_kld2(CYTHON
       }
     }
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_6 = __Pyx_PyNumber_Divide(__pyx_t_5, __pyx_v_weight_sum); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 147, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_6);
+    if (unlikely(__Pyx_SetItemInt(__pyx_v_counts, __pyx_v_i, __pyx_t_5, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 0, 0) < 0)) __PYX_ERR(0, 147, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (unlikely(__Pyx_SetItemInt(__pyx_v_counts, __pyx_v_i, __pyx_t_6, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 0, 0) < 0)) __PYX_ERR(0, 147, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
     /* "project/rar/contrast.pyx":148
  *     for i in range(m):
- *         counts[i] = np.sum(slice_[prev:indices[i]]) / weight_sum
+ *         counts[i] = np.sum(slice_[prev:indices[i]])
  *         prev = indices[i]             # <<<<<<<<<<<<<<
  * 
- *     return counts
+ *     return counts / weight_sum
  */
-    __pyx_t_6 = __Pyx_GetItemInt(__pyx_v_indices, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 0, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 148, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_6);
-    __Pyx_DECREF_SET(__pyx_v_prev, __pyx_t_6);
-    __pyx_t_6 = 0;
+    __pyx_t_5 = __Pyx_GetItemInt(__pyx_v_indices, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 0, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 148, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    __Pyx_DECREF_SET(__pyx_v_prev, __pyx_t_5);
+    __pyx_t_5 = 0;
   }
 
   /* "project/rar/contrast.pyx":150
  *         prev = indices[i]
  * 
- *     return counts             # <<<<<<<<<<<<<<
+ *     return counts / weight_sum             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_INCREF(__pyx_v_counts);
-  __pyx_r = __pyx_v_counts;
+  __pyx_t_5 = __Pyx_PyNumber_Divide(__pyx_v_counts, __pyx_v_weight_sum); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 150, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_r = __pyx_t_5;
+  __pyx_t_5 = 0;
   goto __pyx_L0;
 
   /* "project/rar/contrast.pyx":138
