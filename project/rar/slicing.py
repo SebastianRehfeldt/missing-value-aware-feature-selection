@@ -85,7 +85,7 @@ def get_numerical_slices(X, **options):
     if options["approach"] == "partial":
         slices[:, nans] = True
     if options["approach"] == "fuzzy":
-        slices[:, nans] = 0.125
+        slices[:, nans] = n_select / non_nan_count
     return slices
 
 
@@ -128,5 +128,6 @@ def get_categorical_slices(X, **options):
     if options["approach"] == "partial" and contains_nans:
         slices[:, index_dict["?"]] = True
     if options["approach"] == "fuzzy" and contains_nans:
-        slices[:, index_dict["?"]] = 0.125
+        non_nan_count = X.shape[0] - value_dict["?"]
+        slices[:, index_dict["?"]] = n_select / non_nan_count
     return slices

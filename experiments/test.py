@@ -14,17 +14,16 @@ name = "boston"
 name = "analcatdata_reviewer"
 name = "credit-approval"  # standard config
 name = "musk"  # standard config
-name = "heart-c"  # 800 subspaces, alpha = 0,2, 100 iterations, (1,3)
-name = "semeion"
 name = "iris"
 name = "isolet"
+name = "semeion"
+name = "heart-c"  # 800 subspaces, alpha = 0,2, 100 iterations, (1,3)
 name = "ionosphere"  # 800 subspaces, alpha=0.02, 250 iterations ,(1,3)
 data = data_loader.load_data(name, "arff")
 print(data.shape, flush=True)
 
-data = introduce_missing_values(data, missing_rate=0.1)
+data = introduce_missing_values(data, missing_rate=0.9)
 data = scale_data(data)
-data.X.head()
 
 # %%
 from project.rar.rar import RaR
@@ -35,7 +34,7 @@ rar = RaR(
     data.l_type,
     data.shape,
     n_jobs=1,
-    approach="fuzzy",
+    approach="partial",
     n_targets=1,
     n_subspaces=800,
     subspace_size=(1, 3),
