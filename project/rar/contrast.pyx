@@ -14,9 +14,10 @@ def calculate_contrasts(cache):
 def _calculate_contrasts_ks(cache):
     cdef int n = len(cache["slices"]) 
     cdef int i = 0
-    cdef double[:] y_sorted = cache["sorted"]
 
-    cdef int[:] lengths = cache["lengths"]
+    cdef double[:] y_sorted = cache["sorted"]
+    cdef double[:] lengths = cache["lengths"]
+
     cdef np.uint8_t[:,:] slices_int = cache["slices"].view(dtype=np.uint8, type=np.matrix)
 
     cdef double[:] contrasts = np.zeros(n)
@@ -25,7 +26,7 @@ def _calculate_contrasts_ks(cache):
             contrasts[i] = _calculate_max_dist(y_sorted, slices_int[i,:], lengths[i])
     return contrasts
 
-cdef public double _calculate_max_dist(double[:] m, np.uint8_t[:] slice_, int n_c) nogil:
+cdef public double _calculate_max_dist(double[:] m, np.uint8_t[:] slice_, double n_c) nogil:
     if n_c == 0:
         return 0
     
@@ -88,9 +89,10 @@ def calculate_contrasts2(cache):
 def _calculate_contrasts_ks2(cache):
     cdef int n = len(cache["slices"]) 
     cdef int i = 0
-    cdef double[:] y_sorted = cache["sorted"]
 
+    cdef double[:] y_sorted = cache["sorted"]
     cdef double[:] lengths = cache["lengths"]
+
     cdef np.float_t[:,:] slices_float = cache["slices"].view(dtype=np.float, type=np.matrix)
 
     cdef double[:] contrasts = np.zeros(n)
