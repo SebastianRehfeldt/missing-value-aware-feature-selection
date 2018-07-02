@@ -16,33 +16,13 @@ def get_slices(X, types, **options):
 
 
 def combine_slices(slices):
-    dimension = len(slices)
-    if dimension == 1:
+    if len(slices) == 1:
         return slices[0]
-    elif dimension == 2:
-        return np.logical_and(slices[0], slices[1])
-    else:
-        combined_slices = np.logical_and(slices[0], slices[1])
-        for i in range(2, dimension):
-            combined_slices.__iand__(slices[i])
-    return combined_slices
-
-
-def combine_slices2(slices):
-    dimension = len(slices)
-    if dimension == 1:
-        return slices[0]
-    elif dimension == 2:
-        return slices[0] * slices[1]
-    else:
-        combined_slices = slices[0] * slices[1]
-        for i in range(2, dimension):
-            combined_slices.__imul__(slices[i])
-    return combined_slices
+    return np.multiply.reduce(slices, 1)
 
 
 def prune_slices(slices, min_samples=3):
-    sums = np.sum(slices, axis=1)
+    sums = np.sum(slices, axis=1, dtype=float)
     indices = sums > min_samples
     if np.any(~indices):
         return slices[indices], sums[indices]
@@ -70,7 +50,7 @@ def get_numerical_slices(X, **options):
 
     start_positions = np.random.choice(range(0, max_start), n_iterations)
 
-    dtype = float if options["approach"] == "fuzzy" else bool
+    dtype = np.float16 if options["approach"] == "fuzzy" else bool
     slices = np.zeros((n_iterations, X.shape[0]), dtype=dtype)
     for i, start in enumerate(start_positions):
         if options["should_sample"]:
@@ -106,7 +86,7 @@ def get_categorical_slices(X, **options):
         if contains_nans:
             values_to_select.remove("?")
 
-    dtype = float if options["approach"] == "fuzzy" else bool
+    dtype = np.float16 if options["approach"] == "fuzzy" else bool
     slices = np.zeros((n_iterations, X.shape[0]), dtype=dtype)
     for i in range(n_iterations):
         values_to_select = np.random.permutation(values_to_select)

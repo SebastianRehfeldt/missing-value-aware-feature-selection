@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from .contrast import calculate_contrasts, calculate_contrasts2
-from .slicing import get_slices, combine_slices, combine_slices2, prune_slices
+from .slicing import get_slices, combine_slices, prune_slices
 
 
 class HICS():
@@ -31,7 +31,15 @@ class HICS():
 
     def _init_slices(self):
         # TODO: fill cache on the fly
-        self.slices = {}
+        dtype = np.float16 if self.params["approach"] == "fuzzy" else bool
+        size = (self.data.shape[0], self.params["contrast_iterations"])
+        self.slices = {
+            col: {
+                i: np.zeros(size, dtype=dtype).copy()
+                for i in range(1, self.params["subspace_size"][1] + 1)
+            }
+            for col in self.data.X
+        }
 
         for col in self.data.X:
             X = self.data.X[col].to_frame()
@@ -41,7 +49,6 @@ class HICS():
             if types[col] == "nominal":
                 values, counts = np.unique(X, return_counts=True)
 
-            self.slices[col] = {}
             for i in range(1, self.params["subspace_size"][1] + 1):
                 opts = {
                     "n_select": self.n_select_d[i],
@@ -66,12 +73,9 @@ class HICS():
 
     def evaluate_subspace(self, subspace, targets=[]):
         # GET SLICES
-        if self.params["approach"] == "partial":
+        if self.params["approach"] in ["partial", "fuzzy"]:
             y, indices, T = self.data.y, None, None
-            slices, lengths = self.get_fault_tolerant_slices(subspace)
-        elif self.params["approach"] == "fuzzy":
-            y, indices, T = self.data.y, None, None
-            slices, lengths = self.get_fuzzy_slices(subspace)
+            slices, lengths = self.get_cached_slices(subspace)
         else:
             types = self.data.f_types[subspace]
             X, y, indices, T = self._prepare_data(subspace, targets, types)
@@ -169,20 +173,15 @@ class HICS():
         options.update(opts)
         return get_slices(X, types, **options)
 
-    def get_fault_tolerant_slices(self, subspace):
+    def get_cached_slices(self, subspace):
         dim = len(subspace)
         slices = [self.slices[subspace[i]][dim] for i in range(dim)]
         slices = combine_slices(slices).copy()
 
-        max_nans = int(np.floor(dim / 2))
-        nan_sums = self.nans[subspace].sum(1)
-        slices[:, nan_sums > max_nans] = False
-        return prune_slices(slices, self.params["min_samples"])
-
-    def get_fuzzy_slices(self, subspace):
-        dim = len(subspace)
-        slices = [self.slices[subspace[i]][dim] for i in range(dim)]
-        slices = combine_slices2(slices).copy()
+        if self.params["approach"] == "partial":
+            max_nans = int(np.floor(dim / 2))
+            nan_sums = self.nans[subspace].sum(1)
+            slices[:, nan_sums > max_nans] = False
         return prune_slices(slices, self.params["min_samples"])
 
     def _create_cache(self, y, y_type, slices, lengths, cached_indices=None):
