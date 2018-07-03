@@ -54,11 +54,11 @@ def get_numerical_slices(X, **options):
     slices = np.zeros((n_iterations, X.shape[0]), dtype=dtype)
     for i, start in enumerate(start_positions):
         if options["should_sample"]:
-            idx = indices[start:start + n_select - 1]
+            idx = indices[start:start + n_select]
             slices[i, idx] = True
         else:
             start_value = X[indices[start]]
-            end_position = start + (n_select - 1)
+            end_position = start + n_select
             end_value = min(X[indices[end_position]], max_value)
             slices[i] = np.logical_and(X >= start_value, X <= end_value)
 
