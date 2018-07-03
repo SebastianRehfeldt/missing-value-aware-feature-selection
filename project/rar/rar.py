@@ -26,6 +26,7 @@ class RaR(Subspacing):
         alpha = kwargs.get("alpha", self._get_alpha())
         beta = kwargs.get("beta", 0.01)
         n_targets = kwargs.get("n_targets", 3)
+        weight = kwargs.get("weight", 1)
         eval_method = kwargs.get("eval_method", "rar")
         approach = kwargs.get("approach", "deletion")
         min_slices = kwargs.get("min_slices", 5)
@@ -46,6 +47,7 @@ class RaR(Subspacing):
             "alpha": alpha,
             "beta": beta,
             "n_targets": n_targets,
+            "weight": weight,
             "eval_method": eval_method,
             "approach": approach,
             "min_slices": min_slices,
