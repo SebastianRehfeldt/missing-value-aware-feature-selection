@@ -52,6 +52,12 @@ class Data():
         y_salted = self._add_salt_y()
         return self.replace(copy=copy, X=X_salted, y=y_salted)
 
+    def shuffle_rows(self, copy=False):
+        indices = np.random.permutation(self.shape[0])
+        X_shuffled = self.X.iloc[indices].reset_index(drop=True)
+        y_shuffled = self.y.iloc[indices].reset_index(drop=True)
+        return self.replace(copy=copy, X=X_shuffled, y=y_shuffled)
+
     def to_table(self):
         attributes = [
             Data.get_variable(c_type, self.X.columns[i], self.X.iloc[:, i])

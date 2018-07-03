@@ -16,13 +16,13 @@ name = "credit-approval"  # standard config
 name = "musk"  # standard config
 name = "heart-c"  # 800 subspaces, alpha = 0,2, 100 iterations, (1,3)
 name = "iris"
-name = "semeion"
 name = "isolet"
 name = "ionosphere"  # 800 subspaces, alpha=0.02, 250 iterations ,(1,3)
+name = "semeion"
 data = data_loader.load_data(name, "arff")
 print(data.shape, flush=True)
 
-mr = 0.7
+mr = 0
 data = introduce_missing_values(data, missing_rate=mr)
 data = scale_data(data)
 
@@ -35,13 +35,13 @@ rar = RaR(
     data.l_type,
     data.shape,
     n_jobs=1,
-    approach="fuzzy",
+    approach="partial",
     n_targets=1,
     n_subspaces=800,
     subspace_size=(1, 3),
-    contrast_iterations=250,
-    alpha=0.02,
-    redundancy_approach="tom",
+    contrast_iterations=100,
+    alpha=0.2,
+    redundancy_approach="arvind",
     weight=(1 - mr)**2,
     sample_slices=True,
 )
@@ -51,41 +51,10 @@ pprint(rar.get_ranking())
 print(time() - start)
 
 # %%
-k = 20
+k = 5
 X_new = rar.transform(data.X, k)
 X_new.head()
-X_new.corr().style.background_gradient()
-
-# %%
-if True:
-    types = pd.Series(data.f_types, X_new.columns.values)
-    X_new = Imputer(types, strategy="knn")._complete(X_new)
-    X_new.head()
-
-# %%
-from project.feature_selection import Filter
-selector = Filter(data.f_types, data.l_type, data.shape).fit(data.X, data.y)
-selector.get_ranking()
-
-# %%
-from project.feature_selection import RKNN
-selector = RKNN(
-    data.f_types,
-    data.l_type,
-    data.shape,
-    n_jobs=4,
-    # n_subspaces=100,
-).fit(data.X, data.y)
-selector.get_ranking()
-
-# %%
-X_new = selector.transform(data.X, k)
-X_new.corr().style.background_gradient()
-
-# %%
-if True:
-    types = pd.Series(data.f_types, X_new.columns.values)
-    X_new = Imputer(types, strategy="knn")._complete(X_new)
+#X_new.corr().style.background_gradient()
 
 # %%
 types = pd.Series(data.f_types, X_new.columns.values)
