@@ -36,7 +36,7 @@ class Subspacing(Selector):
         super()._init_parameters(**kwargs)
 
         # as suggested by rknn
-        n_subspaces = min(1000, int(self.shape[1]**2 / 2))
+        n_subspaces = min(1000, self.shape[1] * int(np.sqrt(self.shape[1])))
         n_subspaces = kwargs.get("n_subspaces", n_subspaces)
 
         size = int(np.sqrt(self.shape[1]))
