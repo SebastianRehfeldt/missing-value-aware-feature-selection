@@ -56,47 +56,13 @@ def _calculate_contrasts_kld(cache):
 
     cdfs = np.zeros((len(slices), len(values_m)))
     for i, s in enumerate(slices):
-        cdfs[i, :] = _calculate_probs_kld(sorted_y[s], values_m)
+        cdfs[i, :] = _calculate_probs_kld(sorted_y, s, values_m)
 
     cdfs += 1e-8
     return np.sum(cdfs * np.log2(cdfs / probs_m), axis=1)
 
 
-def _calculate_probs_kld(y_cond, values_m):
-    m = len(values_m)
-    
-    indices = np.searchsorted(y_cond, values_m, side="right") / len(y_cond)
-    counts = np.zeros(m)
-
-    prev = 0
-    for i in range(m):
-        counts[i] = indices[i] - prev
-        prev = indices[i]
-    
-    return counts
-
-def calculate_contrasts2(cache):
-    return {
-        "numeric": _calculate_contrasts_ks,
-        "nominal": _calculate_contrasts_kld2
-    }[cache["type"]](cache)
-
-
-def _calculate_contrasts_kld2(cache):
-    values_m = cache["values"]
-    probs_m = cache["probs"]
-    sorted_y = cache["sorted"]
-    slices = cache["slices"]
-
-    cdfs = np.zeros((len(slices), len(values_m)))
-    for i, s in enumerate(slices):
-        cdfs[i, :] = _calculate_probs_kld2(sorted_y, s, values_m)
-
-    cdfs += 1e-8
-    return np.sum(cdfs * np.log2(cdfs / probs_m), axis=1)
-
-
-def _calculate_probs_kld2(y, slice_, values_m):
+def _calculate_probs_kld(y, slice_, values_m):
     m = len(values_m)
     
     indices = np.searchsorted(y, values_m, side="right")
