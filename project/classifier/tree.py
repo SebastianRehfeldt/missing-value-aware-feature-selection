@@ -33,9 +33,10 @@ class Tree():
         self.attributes = [
             a for a in self.domain.attributes if a.name in X.columns.values
         ]
-        s_domain = Domain(self.attributes, class_vars=self.domain.class_var)
+        self.columns = [a.name for a in self.attributes]
 
-        rows = pd.concat([X, y], axis=1).values.tolist()
+        s_domain = Domain(self.attributes, class_vars=self.domain.class_var)
+        rows = pd.concat([X[self.columns], y], axis=1).values.tolist()
         train = Table.from_list(domain=s_domain, rows=rows)
 
         if isinstance(self.domain.class_var, DiscreteVariable):
@@ -53,7 +54,7 @@ class Tree():
         """
         X = assert_df(X)
         domain = Domain(list(self.attributes))
-        test = Table.from_list(domain, X.values.tolist())
+        test = Table.from_list(domain, X[self.columns].values.tolist())
 
         predictions = self.tree(test.X)
         if isinstance(self.domain.class_var, DiscreteVariable):
