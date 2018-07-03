@@ -56,6 +56,7 @@ class HICS():
                     "min_samples": 0,
                     "indices": sorted_indices,
                     "nans": self.nans[col],
+                    "weight": self.params["weight"]
                 }
                 if types[col] == "nominal":
                     opts.update({
@@ -127,9 +128,12 @@ class HICS():
                 t = T[target]
                 t_slices = slices
 
-            cache = self._create_cache(t, t_type, t_slices, lengths)
-            red_s = calculate_contrasts(cache)
-            redundancies.append(np.mean(red_s))
+            if len(t_slices) <= self.params["min_slices"]:
+                redundancies.append(0)
+            else:
+                cache = self._create_cache(t, t_type, t_slices, lengths)
+                red_s = calculate_contrasts(cache)
+                redundancies.append(np.mean(red_s))
         return redundancies
 
     def _prepare_data(self, subspace, targets, types):

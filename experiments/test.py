@@ -22,7 +22,8 @@ name = "ionosphere"  # 800 subspaces, alpha=0.02, 250 iterations ,(1,3)
 data = data_loader.load_data(name, "arff")
 print(data.shape, flush=True)
 
-data = introduce_missing_values(data, missing_rate=0)
+mr = 0.7
+data = introduce_missing_values(data, missing_rate=mr)
 data = scale_data(data)
 
 # %%
@@ -34,13 +35,14 @@ rar = RaR(
     data.l_type,
     data.shape,
     n_jobs=1,
-    approach="deletion",
+    approach="fuzzy",
     n_targets=1,
     n_subspaces=800,
     subspace_size=(1, 3),
     contrast_iterations=250,
     alpha=0.02,
     redundancy_approach="tom",
+    weight=(1 - mr)**2,
     sample_slices=True,
 )
 
