@@ -17,8 +17,8 @@ name = "musk"  # standard config
 name = "heart-c"  # 800 subspaces, alpha = 0,2, 100 iterations, (1,3)
 name = "iris"
 name = "isolet"
-name = "ionosphere"  # 800 subspaces, alpha=0.02, 250 iterations ,(1,3)
 name = "semeion"
+name = "ionosphere"  # 800 subspaces, alpha=0.02, 250 iterations ,(1,3)
 data = data_loader.load_data(name, "arff")
 print(data.shape, flush=True)
 
@@ -39,9 +39,9 @@ rar = RaR(
     n_targets=1,
     n_subspaces=800,
     subspace_size=(1, 3),
-    contrast_iterations=100,
+    contrast_iterations=250,
     alpha=0.2,
-    redundancy_approach="arvind",
+    redundancy_approach="tom",
     weight=(1 - mr)**2,
     sample_slices=True,
 )
@@ -54,7 +54,7 @@ print(time() - start)
 k = 5
 X_new = rar.transform(data.X, k)
 X_new.head()
-#X_new.corr().style.background_gradient()
+X_new.corr().style.background_gradient()
 
 # %%
 types = pd.Series(data.f_types, X_new.columns.values)
