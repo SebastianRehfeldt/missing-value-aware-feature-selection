@@ -30,7 +30,7 @@ class HICS():
         }
 
     def _init_slices(self):
-        # TODO: fill cache on the fly and find memory leak when cache is filled
+        # TODO: find memory leak when cache is filled
         # TODO: split up function
         dtype = np.float16 if self.params["approach"] == "fuzzy" else bool
         size = (self.data.shape[0], self.params["contrast_iterations"])
