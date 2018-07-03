@@ -79,6 +79,7 @@ def get_ranking_tom(relevances, redundancies, names):
 
 
 def create_subspace(best_feature, selected):
+    # TODO: get param for max subset size
     n_max = min(2, len(selected))
     n_choose = np.random.choice(range(n_max), 1)[0]
     subspace = list(np.random.choice(selected, n_choose, False))
