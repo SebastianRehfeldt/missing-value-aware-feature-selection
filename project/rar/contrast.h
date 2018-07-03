@@ -19,7 +19,6 @@
 #endif
 
 __PYX_EXTERN_C double _calculate_max_dist(__Pyx_memviewslice, __Pyx_memviewslice, double);
-__PYX_EXTERN_C double _calculate_max_dist2(__Pyx_memviewslice, __Pyx_memviewslice, double);
 
 #endif /* !__PYX_HAVE_API__project__rar__contrast */
 

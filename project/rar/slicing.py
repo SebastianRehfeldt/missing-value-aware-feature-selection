@@ -18,7 +18,7 @@ def get_slices(X, types, **options):
 def combine_slices(slices):
     if len(slices) == 1:
         return slices[0]
-    return np.multiply.reduce(slices, 1)
+    return np.multiply.reduce(slices, 0, dtype=slices[0].dtype)
 
 
 def prune_slices(slices, min_samples=3):

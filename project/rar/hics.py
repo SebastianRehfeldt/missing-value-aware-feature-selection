@@ -30,7 +30,8 @@ class HICS():
         }
 
     def _init_slices(self):
-        # TODO: fill cache on the fly
+        # TODO: fill cache on the fly and find memory leak when cache is filled
+        # TODO: split up function
         dtype = np.float16 if self.params["approach"] == "fuzzy" else bool
         size = (self.data.shape[0], self.params["contrast_iterations"])
         self.slices = {
@@ -99,6 +100,7 @@ class HICS():
 
         l_type = self.data.l_type
         cache = self._create_cache(y, l_type, slices, lengths, indices)
+        # TODO: combine
         if self.params["approach"] == "fuzzy":
             relevances = calculate_contrasts2(cache)
         else:
@@ -109,24 +111,28 @@ class HICS():
         redundancies = []
         for target in targets:
             t_type = self.data.f_types[target]
-            if self.params["approach"] == "deletion":
-                t_nans = self.nans[target][indices]
-                t = self.data.X[target][indices][~t_nans]
 
-            if self.params["approach"] in ["partial", "fuzzy"]:
-                t_nans = self.nans[target]
-                t = self.data.X[target][~t_nans]
-
+            # remove samples which have nans in target of redundancy calculation
             if self.params["approach"] in ["deletion", "partial", "fuzzy"]:
+                if self.params["approach"] == "deletion":
+                    t_nans = self.nans[target][indices]
+                    t = self.data.X[target][indices][~t_nans]
+                else:
+                    self.params["approach"] in ["partial", "fuzzy"]
+                    t_nans = self.nans[target]
+                    t = self.data.X[target][~t_nans]
+
                 min_samples = self.params["min_samples"]
                 t_slices = slices[:, ~t_nans]
                 t_slices, lengths = prune_slices(t_slices, min_samples)
 
+            # impute nans in redundancy target
             if self.params["approach"] == "imputation":
                 t = T[target]
                 t_slices = slices
 
             cache = self._create_cache(t, t_type, t_slices, lengths)
+            # TODO: combine
             if self.params["approach"] == "fuzzy":
                 red_s = calculate_contrasts2(cache)
             else:
