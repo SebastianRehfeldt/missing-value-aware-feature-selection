@@ -64,7 +64,7 @@ class Selector(ABC):
         X = assert_df(X).reset_index(drop=True)
         y = assert_series(y).reset_index(drop=True)
         data = Data(X, y, self.f_types, self.l_type, X.shape)
-        self.data = assert_data(data)
+        self.data = data.shuffle_rows()
 
         self.domain = None
         if self.params["eval_method"] == "tree":
