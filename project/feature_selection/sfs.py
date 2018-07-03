@@ -12,11 +12,12 @@ class SFS(Selector):
         """
         Calculate feature importances using sfs
         """
-        score_map = {}
+        self.feature_importances = {}
+        self.scores = []
         open_features = self.names[:]
 
-        features = []
-        while len(features) < self.params["k"]:
+        i, features = 0, []
+        while len(features) < self.data.shape[1]:
             scores = []
             for feature in open_features:
                 X_sel, types = self.data.get_subspace(features + [feature])
@@ -25,13 +26,9 @@ class SFS(Selector):
                                           **self.params)
                 scores.append(score)
 
-                if len(features) == 0:
-                    score_map[feature] = score
-
             next_feature = open_features[np.argsort(scores)[-1]]
             features.append(next_feature)
             open_features.remove(next_feature)
-
-        for f in open_features:
-            score_map[f] = -1 * score_map[f]
-        self.feature_importances = score_map
+            i += 1
+            self.feature_importances[next_feature] = 1 / i
+            self.scores.append(np.max(scores))
