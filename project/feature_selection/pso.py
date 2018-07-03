@@ -18,6 +18,7 @@ class PSO(Selector):
         super()._init_parameters(**kwargs)
         self.params["eval_method"] = kwargs.get("eval_method", "tree")
         self._set_pso_options(**kwargs)
+        self.params.update(self.default_options)
 
     def _set_pso_options(self, **kwargs):
         self.default_options = {
@@ -27,13 +28,14 @@ class PSO(Selector):
             "swarmsize": kwargs.get("swarmsize", 50),
             "maxiter": kwargs.get("maxiter", 100),
             "debug": kwargs.get("debug", False),
+            "minfunc": kwargs.get("minfunc", 1e-4)
         }
         # Own modification
         self.default_options.update({
             "swarmsize":
-            min(50, int(self.shape[1]**2 / 2)),
+            min(50, max(20, self.shape[1])),
             "maxiter":
-            min(100, self.shape[1]**2),
+            min(100, max(20, self.shape[1])),
         })
 
     def objective(self, x):
@@ -42,8 +44,14 @@ class PSO(Selector):
 
         subspace = self.data.X.columns[x > 0.6].tolist()
         X, types = self.data.get_subspace(subspace)
-        score = evaluate_subspace(X, self.data.y, types, self.data.l_type,
-                                  self.domain, **self.params)
+        score = evaluate_subspace(
+            X,
+            self.data.y,
+            types,
+            self.data.l_type,
+            self.domain,
+            **self.params,
+        )
 
         return 1 - score
 
