@@ -18,6 +18,7 @@ def _calculate_contrasts_ks(cache):
     cdef double[:] y_sorted = cache["sorted"]
     cdef double[:] lengths = cache["lengths"]
 
+    # TODO: normalize slice sums to 1 which makes max dist calc faster
     cdef np.float_t[:,:] slices = cache["slices"].astype(np.float)
 
     cdef double[:] contrasts = np.zeros(n)
@@ -49,10 +50,8 @@ cdef public double _calculate_max_dist(double[:] m, np.float_t[:] slice_, double
     return max_dist
 
 def _calculate_contrasts_kld(cache):
-    values_m = cache["values"]
-    probs_m = cache["probs"]
-    sorted_y = cache["sorted"]
-    slices = cache["slices"]
+    values_m, probs_m = cache["values"], cache["probs"]
+    sorted_y, slices = cache["sorted"], cache["slices"]
 
     cdfs = np.zeros((len(slices), len(values_m)))
     for i, s in enumerate(slices):
