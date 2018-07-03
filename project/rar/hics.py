@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from .contrast import calculate_contrasts, calculate_contrasts2
+from .contrast import calculate_contrasts
 from .slicing import get_slices, combine_slices, prune_slices
 
 
@@ -100,11 +100,7 @@ class HICS():
 
         l_type = self.data.l_type
         cache = self._create_cache(y, l_type, slices, lengths, indices)
-        # TODO: combine
-        if self.params["approach"] == "fuzzy":
-            relevances = calculate_contrasts2(cache)
-        else:
-            relevances = calculate_contrasts(cache)
+        relevances = calculate_contrasts(cache)
         return 1 - np.exp(-1 * np.mean(relevances))
 
     def get_redundancies(self, slices, lengths, targets, indices=None, T=None):
@@ -132,11 +128,7 @@ class HICS():
                 t_slices = slices
 
             cache = self._create_cache(t, t_type, t_slices, lengths)
-            # TODO: combine
-            if self.params["approach"] == "fuzzy":
-                red_s = calculate_contrasts2(cache)
-            else:
-                red_s = calculate_contrasts(cache)
+            red_s = calculate_contrasts(cache)
             redundancies.append(np.mean(red_s))
         return redundancies
 
