@@ -1164,9 +1164,6 @@ static PyObject *__Pyx_GetItemInt_Generic(PyObject *o, PyObject* j);
 static CYTHON_INLINE PyObject *__Pyx_GetItemInt_Fast(PyObject *o, Py_ssize_t i,
                                                      int is_list, int wraparound, int boundscheck);
 
-/* GetModuleGlobalName.proto */
-static CYTHON_INLINE PyObject *__Pyx_GetModuleGlobalName(PyObject *name);
-
 /* MemviewSliceInit.proto */
 #define __Pyx_BUF_MAX_NDIMS %(BUF_MAX_NDIMS)d
 #define __Pyx_MEMVIEW_DIRECT   1
@@ -1192,6 +1189,9 @@ static CYTHON_INLINE int __pyx_sub_acquisition_count_locked(
 #define __PYX_XDEC_MEMVIEW(slice, have_gil) __Pyx_XDEC_MEMVIEW(slice, have_gil, __LINE__)
 static CYTHON_INLINE void __Pyx_INC_MEMVIEW(__Pyx_memviewslice *, int, int);
 static CYTHON_INLINE void __Pyx_XDEC_MEMVIEW(__Pyx_memviewslice *, int, int);
+
+/* GetModuleGlobalName.proto */
+static CYTHON_INLINE PyObject *__Pyx_GetModuleGlobalName(PyObject *name);
 
 /* ArgTypeTest.proto */
 #define __Pyx_ArgTypeTest(obj, type, none_allowed, name, exact)\
@@ -1675,6 +1675,7 @@ static const char __pyx_k_mode[] = "mode";
 static const char __pyx_k_name[] = "name";
 static const char __pyx_k_ndim[] = "ndim";
 static const char __pyx_k_pack[] = "pack";
+static const char __pyx_k_prob[] = "prob";
 static const char __pyx_k_size[] = "size";
 static const char __pyx_k_step[] = "step";
 static const char __pyx_k_stop[] = "stop";
@@ -1738,6 +1739,7 @@ static const char __pyx_k_contiguous_and_direct[] = "<contiguous and direct>";
 static const char __pyx_k_MemoryView_of_r_object[] = "<MemoryView of %r object>";
 static const char __pyx_k_MemoryView_of_r_at_0x_x[] = "<MemoryView of %r at 0x%x>";
 static const char __pyx_k_contiguous_and_indirect[] = "<contiguous and indirect>";
+static const char __pyx_k_partial_distance_orange[] = "partial_distance_orange";
 static const char __pyx_k_Cannot_index_with_type_s[] = "Cannot index with type '%s'";
 static const char __pyx_k_Invalid_shape_in_axis_d_d[] = "Invalid shape in axis %d: %d.";
 static const char __pyx_k_itemsize_0_for_cython_array[] = "itemsize <= 0 for cython.array";
@@ -1827,7 +1829,9 @@ static PyObject *__pyx_n_s_numpy;
 static PyObject *__pyx_n_s_obj;
 static PyObject *__pyx_n_s_pack;
 static PyObject *__pyx_n_s_partial_distance;
+static PyObject *__pyx_n_s_partial_distance_orange;
 static PyObject *__pyx_n_s_pickle;
+static PyObject *__pyx_n_s_prob;
 static PyObject *__pyx_kp_s_project_shared_partial_distance;
 static PyObject *__pyx_n_s_pyx_PickleError;
 static PyObject *__pyx_n_s_pyx_checksum;
@@ -1861,7 +1865,8 @@ static PyObject *__pyx_n_s_unpack;
 static PyObject *__pyx_n_s_update;
 static PyObject *__pyx_n_s_x1;
 static PyObject *__pyx_n_s_x2;
-static PyObject *__pyx_pf_16partial_distance_partial_distance(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_x1, PyObject *__pyx_v_x2, PyObject *__pyx_v_kwargs); /* proto */
+static PyObject *__pyx_pf_16partial_distance_partial_distance_orange(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_x1, PyObject *__pyx_v_x2, PyObject *__pyx_v_kwargs); /* proto */
+static PyObject *__pyx_pf_16partial_distance_2partial_distance(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_x1, PyObject *__pyx_v_x2, PyObject *__pyx_v_kwargs); /* proto */
 static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __pyx_array_obj *__pyx_v_self, PyObject *__pyx_v_shape, Py_ssize_t __pyx_v_itemsize, PyObject *__pyx_v_format, PyObject *__pyx_v_mode, int __pyx_v_allocate_buffer); /* proto */
 static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array_2__getbuffer__(struct __pyx_array_obj *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
 static void __pyx_array___pyx_pf_15View_dot_MemoryView_5array_4__dealloc__(struct __pyx_array_obj *__pyx_v_self); /* proto */
@@ -1910,6 +1915,7 @@ static PyObject *__pyx_tp_new_memoryview(PyTypeObject *t, PyObject *a, PyObject 
 static PyObject *__pyx_tp_new__memoryviewslice(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_int_0;
 static PyObject *__pyx_int_1;
+static PyObject *__pyx_int_2;
 static PyObject *__pyx_int_184977713;
 static PyObject *__pyx_int_neg_1;
 static PyObject *__pyx_tuple__2;
@@ -1935,17 +1941,586 @@ static PyObject *__pyx_tuple__21;
 static PyObject *__pyx_tuple__22;
 static PyObject *__pyx_tuple__23;
 static PyObject *__pyx_tuple__25;
-static PyObject *__pyx_tuple__26;
 static PyObject *__pyx_tuple__27;
 static PyObject *__pyx_tuple__28;
 static PyObject *__pyx_tuple__29;
 static PyObject *__pyx_tuple__30;
+static PyObject *__pyx_tuple__31;
+static PyObject *__pyx_tuple__32;
 static PyObject *__pyx_codeobj__24;
-static PyObject *__pyx_codeobj__31;
+static PyObject *__pyx_codeobj__26;
+static PyObject *__pyx_codeobj__33;
 /* Late includes */
 
 /* "partial_distance.pyx":5
  * from libc.math cimport isnan, sqrt
+ * 
+ * def partial_distance_orange(x1, x2, **kwargs):             # <<<<<<<<<<<<<<
+ *     cdef str[:] f_types = kwargs["f_types"]
+ *     cdef int nominal_distance = kwargs["nominal_distance"]
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_16partial_distance_1partial_distance_orange(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_16partial_distance_1partial_distance_orange = {"partial_distance_orange", (PyCFunction)__pyx_pw_16partial_distance_1partial_distance_orange, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_16partial_distance_1partial_distance_orange(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  PyObject *__pyx_v_x1 = 0;
+  PyObject *__pyx_v_x2 = 0;
+  PyObject *__pyx_v_kwargs = 0;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("partial_distance_orange (wrapper)", 0);
+  __pyx_v_kwargs = PyDict_New(); if (unlikely(!__pyx_v_kwargs)) return NULL;
+  __Pyx_GOTREF(__pyx_v_kwargs);
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_x1,&__pyx_n_s_x2,0};
+    PyObject* values[2] = {0,0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        CYTHON_FALLTHROUGH;
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_x1)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+        CYTHON_FALLTHROUGH;
+        case  1:
+        if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_x2)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("partial_distance_orange", 1, 2, 2, 1); __PYX_ERR(0, 5, __pyx_L3_error)
+        }
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, __pyx_v_kwargs, values, pos_args, "partial_distance_orange") < 0)) __PYX_ERR(0, 5, __pyx_L3_error)
+      }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+    }
+    __pyx_v_x1 = values[0];
+    __pyx_v_x2 = values[1];
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("partial_distance_orange", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 5, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_DECREF(__pyx_v_kwargs); __pyx_v_kwargs = 0;
+  __Pyx_AddTraceback("partial_distance.partial_distance_orange", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_16partial_distance_partial_distance_orange(__pyx_self, __pyx_v_x1, __pyx_v_x2, __pyx_v_kwargs);
+
+  /* function exit code */
+  __Pyx_XDECREF(__pyx_v_kwargs);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_16partial_distance_partial_distance_orange(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_x1, PyObject *__pyx_v_x2, PyObject *__pyx_v_kwargs) {
+  __Pyx_memviewslice __pyx_v_f_types = { 0, 0, { 0 }, { 0 }, { 0 } };
+  int __pyx_v_nominal_distance;
+  double __pyx_v_squared_dist;
+  int __pyx_v_n;
+  int __pyx_v_i;
+  double __pyx_v_dist;
+  PyObject *__pyx_v_is_numerical = NULL;
+  double __pyx_v_prob;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  __Pyx_memviewslice __pyx_t_2 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  int __pyx_t_3;
+  Py_ssize_t __pyx_t_4;
+  int __pyx_t_5;
+  int __pyx_t_6;
+  Py_ssize_t __pyx_t_7;
+  int __pyx_t_8;
+  long double __pyx_t_9;
+  int __pyx_t_10;
+  PyObject *__pyx_t_11 = NULL;
+  double __pyx_t_12;
+  PyObject *__pyx_t_13 = NULL;
+  __Pyx_RefNannySetupContext("partial_distance_orange", 0);
+
+  /* "partial_distance.pyx":6
+ * 
+ * def partial_distance_orange(x1, x2, **kwargs):
+ *     cdef str[:] f_types = kwargs["f_types"]             # <<<<<<<<<<<<<<
+ *     cdef int nominal_distance = kwargs["nominal_distance"]
+ * 
+ */
+  __pyx_t_1 = __Pyx_PyDict_GetItem(__pyx_v_kwargs, __pyx_n_s_f_types); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 6, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_ds_object(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 6, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_v_f_types = __pyx_t_2;
+  __pyx_t_2.memview = NULL;
+  __pyx_t_2.data = NULL;
+
+  /* "partial_distance.pyx":7
+ * def partial_distance_orange(x1, x2, **kwargs):
+ *     cdef str[:] f_types = kwargs["f_types"]
+ *     cdef int nominal_distance = kwargs["nominal_distance"]             # <<<<<<<<<<<<<<
+ * 
+ *     cdef double squared_dist = 0
+ */
+  __pyx_t_1 = __Pyx_PyDict_GetItem(__pyx_v_kwargs, __pyx_n_s_nominal_distance); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 7, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 7, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_v_nominal_distance = __pyx_t_3;
+
+  /* "partial_distance.pyx":9
+ *     cdef int nominal_distance = kwargs["nominal_distance"]
+ * 
+ *     cdef double squared_dist = 0             # <<<<<<<<<<<<<<
+ *     cdef int n = len(x1), i = 0
+ *     cdef double dist = 0
+ */
+  __pyx_v_squared_dist = 0.0;
+
+  /* "partial_distance.pyx":10
+ * 
+ *     cdef double squared_dist = 0
+ *     cdef int n = len(x1), i = 0             # <<<<<<<<<<<<<<
+ *     cdef double dist = 0
+ * 
+ */
+  __pyx_t_4 = PyObject_Length(__pyx_v_x1); if (unlikely(__pyx_t_4 == ((Py_ssize_t)-1))) __PYX_ERR(0, 10, __pyx_L1_error)
+  __pyx_v_n = __pyx_t_4;
+  __pyx_v_i = 0;
+
+  /* "partial_distance.pyx":11
+ *     cdef double squared_dist = 0
+ *     cdef int n = len(x1), i = 0
+ *     cdef double dist = 0             # <<<<<<<<<<<<<<
+ * 
+ *     for i in range(n):
+ */
+  __pyx_v_dist = 0.0;
+
+  /* "partial_distance.pyx":13
+ *     cdef double dist = 0
+ * 
+ *     for i in range(n):             # <<<<<<<<<<<<<<
+ *         is_numerical = f_types[i] == "numeric"
+ * 
+ */
+  __pyx_t_3 = __pyx_v_n;
+  __pyx_t_5 = __pyx_t_3;
+  for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
+    __pyx_v_i = __pyx_t_6;
+
+    /* "partial_distance.pyx":14
+ * 
+ *     for i in range(n):
+ *         is_numerical = f_types[i] == "numeric"             # <<<<<<<<<<<<<<
+ * 
+ *         if is_numerical:
+ */
+    __pyx_t_7 = __pyx_v_i;
+    __pyx_t_1 = (PyObject *) *((PyObject * *) ( /* dim=0 */ (__pyx_v_f_types.data + __pyx_t_7 * __pyx_v_f_types.strides[0]) ));
+    __Pyx_INCREF((PyObject*)__pyx_t_1);
+    __pyx_t_8 = (__Pyx_PyString_Equals(__pyx_t_1, __pyx_n_s_numeric, Py_EQ)); if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 14, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 14, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_XDECREF_SET(__pyx_v_is_numerical, __pyx_t_1);
+    __pyx_t_1 = 0;
+
+    /* "partial_distance.pyx":16
+ *         is_numerical = f_types[i] == "numeric"
+ * 
+ *         if is_numerical:             # <<<<<<<<<<<<<<
+ *             # both missing
+ *             if isnan(x1[i]) and isnan(x2[i]):
+ */
+    __pyx_t_8 = __Pyx_PyObject_IsTrue(__pyx_v_is_numerical); if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 16, __pyx_L1_error)
+    if (__pyx_t_8) {
+
+      /* "partial_distance.pyx":18
+ *         if is_numerical:
+ *             # both missing
+ *             if isnan(x1[i]) and isnan(x2[i]):             # <<<<<<<<<<<<<<
+ *                 squared_dist += 1
+ * 
+ */
+      __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_x1, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 18, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_1);
+      __pyx_t_9 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_9 == (long double)-1) && PyErr_Occurred())) __PYX_ERR(0, 18, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      __pyx_t_10 = (isnan(__pyx_t_9) != 0);
+      if (__pyx_t_10) {
+      } else {
+        __pyx_t_8 = __pyx_t_10;
+        goto __pyx_L7_bool_binop_done;
+      }
+      __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_x2, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 18, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_1);
+      __pyx_t_9 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_9 == (long double)-1) && PyErr_Occurred())) __PYX_ERR(0, 18, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      __pyx_t_10 = (isnan(__pyx_t_9) != 0);
+      __pyx_t_8 = __pyx_t_10;
+      __pyx_L7_bool_binop_done:;
+      if (__pyx_t_8) {
+
+        /* "partial_distance.pyx":19
+ *             # both missing
+ *             if isnan(x1[i]) and isnan(x2[i]):
+ *                 squared_dist += 1             # <<<<<<<<<<<<<<
+ * 
+ *             # 1 missing (squared of known + half std)
+ */
+        __pyx_v_squared_dist = (__pyx_v_squared_dist + 1.0);
+
+        /* "partial_distance.pyx":18
+ *         if is_numerical:
+ *             # both missing
+ *             if isnan(x1[i]) and isnan(x2[i]):             # <<<<<<<<<<<<<<
+ *                 squared_dist += 1
+ * 
+ */
+      }
+
+      /* "partial_distance.pyx":22
+ * 
+ *             # 1 missing (squared of known + half std)
+ *             if isnan(x1[i]):             # <<<<<<<<<<<<<<
+ *                 dist = x2[i]**2
+ *                 squared_dist += (dist + 0.5)
+ */
+      __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_x1, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 22, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_1);
+      __pyx_t_9 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_9 == (long double)-1) && PyErr_Occurred())) __PYX_ERR(0, 22, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      __pyx_t_8 = (isnan(__pyx_t_9) != 0);
+      if (__pyx_t_8) {
+
+        /* "partial_distance.pyx":23
+ *             # 1 missing (squared of known + half std)
+ *             if isnan(x1[i]):
+ *                 dist = x2[i]**2             # <<<<<<<<<<<<<<
+ *                 squared_dist += (dist + 0.5)
+ *             if isnan(x2[i]):
+ */
+        __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_x2, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 23, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        __pyx_t_11 = PyNumber_Power(__pyx_t_1, __pyx_int_2, Py_None); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 23, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_11);
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __pyx_t_12 = __pyx_PyFloat_AsDouble(__pyx_t_11); if (unlikely((__pyx_t_12 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 23, __pyx_L1_error)
+        __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
+        __pyx_v_dist = __pyx_t_12;
+
+        /* "partial_distance.pyx":24
+ *             if isnan(x1[i]):
+ *                 dist = x2[i]**2
+ *                 squared_dist += (dist + 0.5)             # <<<<<<<<<<<<<<
+ *             if isnan(x2[i]):
+ *                 dist = x1[i]**2
+ */
+        __pyx_v_squared_dist = (__pyx_v_squared_dist + (__pyx_v_dist + 0.5));
+
+        /* "partial_distance.pyx":22
+ * 
+ *             # 1 missing (squared of known + half std)
+ *             if isnan(x1[i]):             # <<<<<<<<<<<<<<
+ *                 dist = x2[i]**2
+ *                 squared_dist += (dist + 0.5)
+ */
+      }
+
+      /* "partial_distance.pyx":25
+ *                 dist = x2[i]**2
+ *                 squared_dist += (dist + 0.5)
+ *             if isnan(x2[i]):             # <<<<<<<<<<<<<<
+ *                 dist = x1[i]**2
+ *                 squared_dist += (dist + 0.5)
+ */
+      __pyx_t_11 = __Pyx_GetItemInt(__pyx_v_x2, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 25, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_11);
+      __pyx_t_9 = __pyx_PyFloat_AsDouble(__pyx_t_11); if (unlikely((__pyx_t_9 == (long double)-1) && PyErr_Occurred())) __PYX_ERR(0, 25, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
+      __pyx_t_8 = (isnan(__pyx_t_9) != 0);
+      if (__pyx_t_8) {
+
+        /* "partial_distance.pyx":26
+ *                 squared_dist += (dist + 0.5)
+ *             if isnan(x2[i]):
+ *                 dist = x1[i]**2             # <<<<<<<<<<<<<<
+ *                 squared_dist += (dist + 0.5)
+ * 
+ */
+        __pyx_t_11 = __Pyx_GetItemInt(__pyx_v_x1, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 26, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_11);
+        __pyx_t_1 = PyNumber_Power(__pyx_t_11, __pyx_int_2, Py_None); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 26, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
+        __pyx_t_12 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_12 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 26, __pyx_L1_error)
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __pyx_v_dist = __pyx_t_12;
+
+        /* "partial_distance.pyx":27
+ *             if isnan(x2[i]):
+ *                 dist = x1[i]**2
+ *                 squared_dist += (dist + 0.5)             # <<<<<<<<<<<<<<
+ * 
+ *             # euclidean dist if both present
+ */
+        __pyx_v_squared_dist = (__pyx_v_squared_dist + (__pyx_v_dist + 0.5));
+
+        /* "partial_distance.pyx":25
+ *                 dist = x2[i]**2
+ *                 squared_dist += (dist + 0.5)
+ *             if isnan(x2[i]):             # <<<<<<<<<<<<<<
+ *                 dist = x1[i]**2
+ *                 squared_dist += (dist + 0.5)
+ */
+      }
+
+      /* "partial_distance.pyx":30
+ * 
+ *             # euclidean dist if both present
+ *             dist = x1[i] - x2[i]             # <<<<<<<<<<<<<<
+ *             squared_dist += dist**2
+ *         else:
+ */
+      __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_x1, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 30, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_1);
+      __pyx_t_11 = __Pyx_GetItemInt(__pyx_v_x2, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 30, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_11);
+      __pyx_t_13 = PyNumber_Subtract(__pyx_t_1, __pyx_t_11); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 30, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_13);
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
+      __pyx_t_12 = __pyx_PyFloat_AsDouble(__pyx_t_13); if (unlikely((__pyx_t_12 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 30, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+      __pyx_v_dist = __pyx_t_12;
+
+      /* "partial_distance.pyx":31
+ *             # euclidean dist if both present
+ *             dist = x1[i] - x2[i]
+ *             squared_dist += dist**2             # <<<<<<<<<<<<<<
+ *         else:
+ *             # both missing
+ */
+      __pyx_v_squared_dist = (__pyx_v_squared_dist + pow(__pyx_v_dist, 2.0));
+
+      /* "partial_distance.pyx":16
+ *         is_numerical = f_types[i] == "numeric"
+ * 
+ *         if is_numerical:             # <<<<<<<<<<<<<<
+ *             # both missing
+ *             if isnan(x1[i]) and isnan(x2[i]):
+ */
+      goto __pyx_L5;
+    }
+
+    /* "partial_distance.pyx":34
+ *         else:
+ *             # both missing
+ *             if (x1[i] == "?") and (x2[i] == "?"):             # <<<<<<<<<<<<<<
+ *                 squared_dist += nominal_distance
+ * 
+ */
+    /*else*/ {
+      __pyx_t_13 = __Pyx_GetItemInt(__pyx_v_x1, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 34, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_13);
+      __pyx_t_10 = (__Pyx_PyString_Equals(__pyx_t_13, __pyx_kp_s_, Py_EQ)); if (unlikely(__pyx_t_10 < 0)) __PYX_ERR(0, 34, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+      if (__pyx_t_10) {
+      } else {
+        __pyx_t_8 = __pyx_t_10;
+        goto __pyx_L12_bool_binop_done;
+      }
+      __pyx_t_13 = __Pyx_GetItemInt(__pyx_v_x2, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 34, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_13);
+      __pyx_t_10 = (__Pyx_PyString_Equals(__pyx_t_13, __pyx_kp_s_, Py_EQ)); if (unlikely(__pyx_t_10 < 0)) __PYX_ERR(0, 34, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+      __pyx_t_8 = __pyx_t_10;
+      __pyx_L12_bool_binop_done:;
+      if (__pyx_t_8) {
+
+        /* "partial_distance.pyx":35
+ *             # both missing
+ *             if (x1[i] == "?") and (x2[i] == "?"):
+ *                 squared_dist += nominal_distance             # <<<<<<<<<<<<<<
+ * 
+ *             # 1 missing (1 - prob of present value)
+ */
+        __pyx_v_squared_dist = (__pyx_v_squared_dist + __pyx_v_nominal_distance);
+
+        /* "partial_distance.pyx":34
+ *         else:
+ *             # both missing
+ *             if (x1[i] == "?") and (x2[i] == "?"):             # <<<<<<<<<<<<<<
+ *                 squared_dist += nominal_distance
+ * 
+ */
+      }
+
+      /* "partial_distance.pyx":38
+ * 
+ *             # 1 missing (1 - prob of present value)
+ *             prob = 0.5             # <<<<<<<<<<<<<<
+ *             if x1[i] == "?":
+ *                 squared_dist += (1 - prob)
+ */
+      __pyx_v_prob = 0.5;
+
+      /* "partial_distance.pyx":39
+ *             # 1 missing (1 - prob of present value)
+ *             prob = 0.5
+ *             if x1[i] == "?":             # <<<<<<<<<<<<<<
+ *                 squared_dist += (1 - prob)
+ *             if x2[i] == "?":
+ */
+      __pyx_t_13 = __Pyx_GetItemInt(__pyx_v_x1, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 39, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_13);
+      __pyx_t_8 = (__Pyx_PyString_Equals(__pyx_t_13, __pyx_kp_s_, Py_EQ)); if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 39, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+      if (__pyx_t_8) {
+
+        /* "partial_distance.pyx":40
+ *             prob = 0.5
+ *             if x1[i] == "?":
+ *                 squared_dist += (1 - prob)             # <<<<<<<<<<<<<<
+ *             if x2[i] == "?":
+ *                 squared_dist += (1 - prob)
+ */
+        __pyx_v_squared_dist = (__pyx_v_squared_dist + (1.0 - __pyx_v_prob));
+
+        /* "partial_distance.pyx":39
+ *             # 1 missing (1 - prob of present value)
+ *             prob = 0.5
+ *             if x1[i] == "?":             # <<<<<<<<<<<<<<
+ *                 squared_dist += (1 - prob)
+ *             if x2[i] == "?":
+ */
+      }
+
+      /* "partial_distance.pyx":41
+ *             if x1[i] == "?":
+ *                 squared_dist += (1 - prob)
+ *             if x2[i] == "?":             # <<<<<<<<<<<<<<
+ *                 squared_dist += (1 - prob)
+ * 
+ */
+      __pyx_t_13 = __Pyx_GetItemInt(__pyx_v_x2, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 41, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_13);
+      __pyx_t_8 = (__Pyx_PyString_Equals(__pyx_t_13, __pyx_kp_s_, Py_EQ)); if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 41, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+      if (__pyx_t_8) {
+
+        /* "partial_distance.pyx":42
+ *                 squared_dist += (1 - prob)
+ *             if x2[i] == "?":
+ *                 squared_dist += (1 - prob)             # <<<<<<<<<<<<<<
+ * 
+ *             # add distance if they do not match
+ */
+        __pyx_v_squared_dist = (__pyx_v_squared_dist + (1.0 - __pyx_v_prob));
+
+        /* "partial_distance.pyx":41
+ *             if x1[i] == "?":
+ *                 squared_dist += (1 - prob)
+ *             if x2[i] == "?":             # <<<<<<<<<<<<<<
+ *                 squared_dist += (1 - prob)
+ * 
+ */
+      }
+
+      /* "partial_distance.pyx":45
+ * 
+ *             # add distance if they do not match
+ *             if not x1[i] == x2[i]:             # <<<<<<<<<<<<<<
+ *                 squared_dist += nominal_distance
+ *     return sqrt(squared_dist)
+ */
+      __pyx_t_13 = __Pyx_GetItemInt(__pyx_v_x1, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 45, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_13);
+      __pyx_t_11 = __Pyx_GetItemInt(__pyx_v_x2, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 45, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_11);
+      __pyx_t_1 = PyObject_RichCompare(__pyx_t_13, __pyx_t_11, Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 45, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+      __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
+      __pyx_t_8 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 45, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      __pyx_t_10 = ((!__pyx_t_8) != 0);
+      if (__pyx_t_10) {
+
+        /* "partial_distance.pyx":46
+ *             # add distance if they do not match
+ *             if not x1[i] == x2[i]:
+ *                 squared_dist += nominal_distance             # <<<<<<<<<<<<<<
+ *     return sqrt(squared_dist)
+ * 
+ */
+        __pyx_v_squared_dist = (__pyx_v_squared_dist + __pyx_v_nominal_distance);
+
+        /* "partial_distance.pyx":45
+ * 
+ *             # add distance if they do not match
+ *             if not x1[i] == x2[i]:             # <<<<<<<<<<<<<<
+ *                 squared_dist += nominal_distance
+ *     return sqrt(squared_dist)
+ */
+      }
+    }
+    __pyx_L5:;
+  }
+
+  /* "partial_distance.pyx":47
+ *             if not x1[i] == x2[i]:
+ *                 squared_dist += nominal_distance
+ *     return sqrt(squared_dist)             # <<<<<<<<<<<<<<
+ * 
+ * def partial_distance(x1, x2, **kwargs):
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = PyFloat_FromDouble(sqrt(__pyx_v_squared_dist)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 47, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "partial_distance.pyx":5
+ * from libc.math cimport isnan, sqrt
+ * 
+ * def partial_distance_orange(x1, x2, **kwargs):             # <<<<<<<<<<<<<<
+ *     cdef str[:] f_types = kwargs["f_types"]
+ *     cdef int nominal_distance = kwargs["nominal_distance"]
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_2, 1);
+  __Pyx_XDECREF(__pyx_t_11);
+  __Pyx_XDECREF(__pyx_t_13);
+  __Pyx_AddTraceback("partial_distance.partial_distance_orange", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __PYX_XDEC_MEMVIEW(&__pyx_v_f_types, 1);
+  __Pyx_XDECREF(__pyx_v_is_numerical);
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "partial_distance.pyx":49
+ *     return sqrt(squared_dist)
  * 
  * def partial_distance(x1, x2, **kwargs):             # <<<<<<<<<<<<<<
  *     cdef str[:] f_types = kwargs["f_types"]
@@ -1953,9 +2528,9 @@ static PyObject *__pyx_codeobj__31;
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_16partial_distance_1partial_distance(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_16partial_distance_1partial_distance = {"partial_distance", (PyCFunction)__pyx_pw_16partial_distance_1partial_distance, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_16partial_distance_1partial_distance(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_16partial_distance_3partial_distance(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_16partial_distance_3partial_distance = {"partial_distance", (PyCFunction)__pyx_pw_16partial_distance_3partial_distance, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_16partial_distance_3partial_distance(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_x1 = 0;
   PyObject *__pyx_v_x2 = 0;
   PyObject *__pyx_v_kwargs = 0;
@@ -1987,11 +2562,11 @@ static PyObject *__pyx_pw_16partial_distance_1partial_distance(PyObject *__pyx_s
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_x2)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("partial_distance", 1, 2, 2, 1); __PYX_ERR(0, 5, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("partial_distance", 1, 2, 2, 1); __PYX_ERR(0, 49, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, __pyx_v_kwargs, values, pos_args, "partial_distance") < 0)) __PYX_ERR(0, 5, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, __pyx_v_kwargs, values, pos_args, "partial_distance") < 0)) __PYX_ERR(0, 49, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -2004,14 +2579,14 @@ static PyObject *__pyx_pw_16partial_distance_1partial_distance(PyObject *__pyx_s
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("partial_distance", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 5, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("partial_distance", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 49, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_DECREF(__pyx_v_kwargs); __pyx_v_kwargs = 0;
   __Pyx_AddTraceback("partial_distance.partial_distance", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_16partial_distance_partial_distance(__pyx_self, __pyx_v_x1, __pyx_v_x2, __pyx_v_kwargs);
+  __pyx_r = __pyx_pf_16partial_distance_2partial_distance(__pyx_self, __pyx_v_x1, __pyx_v_x2, __pyx_v_kwargs);
 
   /* function exit code */
   __Pyx_XDECREF(__pyx_v_kwargs);
@@ -2019,7 +2594,7 @@ static PyObject *__pyx_pw_16partial_distance_1partial_distance(PyObject *__pyx_s
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_16partial_distance_partial_distance(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_x1, PyObject *__pyx_v_x2, PyObject *__pyx_v_kwargs) {
+static PyObject *__pyx_pf_16partial_distance_2partial_distance(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_x1, PyObject *__pyx_v_x2, PyObject *__pyx_v_kwargs) {
   __Pyx_memviewslice __pyx_v_f_types = { 0, 0, { 0 }, { 0 }, { 0 } };
   int __pyx_v_nominal_distance;
   double __pyx_v_squared_dist;
@@ -2046,35 +2621,35 @@ static PyObject *__pyx_pf_16partial_distance_partial_distance(CYTHON_UNUSED PyOb
   int __pyx_t_14;
   __Pyx_RefNannySetupContext("partial_distance", 0);
 
-  /* "partial_distance.pyx":6
+  /* "partial_distance.pyx":50
  * 
  * def partial_distance(x1, x2, **kwargs):
  *     cdef str[:] f_types = kwargs["f_types"]             # <<<<<<<<<<<<<<
  *     cdef int nominal_distance = kwargs["nominal_distance"]
  * 
  */
-  __pyx_t_1 = __Pyx_PyDict_GetItem(__pyx_v_kwargs, __pyx_n_s_f_types); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 6, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_GetItem(__pyx_v_kwargs, __pyx_n_s_f_types); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 50, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_ds_object(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 6, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_ds_object(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 50, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_f_types = __pyx_t_2;
   __pyx_t_2.memview = NULL;
   __pyx_t_2.data = NULL;
 
-  /* "partial_distance.pyx":7
+  /* "partial_distance.pyx":51
  * def partial_distance(x1, x2, **kwargs):
  *     cdef str[:] f_types = kwargs["f_types"]
  *     cdef int nominal_distance = kwargs["nominal_distance"]             # <<<<<<<<<<<<<<
  * 
  *     cdef double squared_dist = 0
  */
-  __pyx_t_1 = __Pyx_PyDict_GetItem(__pyx_v_kwargs, __pyx_n_s_nominal_distance); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 7, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_GetItem(__pyx_v_kwargs, __pyx_n_s_nominal_distance); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 51, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 7, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 51, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_nominal_distance = __pyx_t_3;
 
-  /* "partial_distance.pyx":9
+  /* "partial_distance.pyx":53
  *     cdef int nominal_distance = kwargs["nominal_distance"]
  * 
  *     cdef double squared_dist = 0             # <<<<<<<<<<<<<<
@@ -2083,7 +2658,7 @@ static PyObject *__pyx_pf_16partial_distance_partial_distance(CYTHON_UNUSED PyOb
  */
   __pyx_v_squared_dist = 0.0;
 
-  /* "partial_distance.pyx":10
+  /* "partial_distance.pyx":54
  * 
  *     cdef double squared_dist = 0
  *     cdef int n_complete = 0             # <<<<<<<<<<<<<<
@@ -2092,18 +2667,18 @@ static PyObject *__pyx_pf_16partial_distance_partial_distance(CYTHON_UNUSED PyOb
  */
   __pyx_v_n_complete = 0;
 
-  /* "partial_distance.pyx":11
+  /* "partial_distance.pyx":55
  *     cdef double squared_dist = 0
  *     cdef int n_complete = 0
  *     cdef int n = len(x1), i = 0             # <<<<<<<<<<<<<<
  *     cdef double dist = 0
  * 
  */
-  __pyx_t_4 = PyObject_Length(__pyx_v_x1); if (unlikely(__pyx_t_4 == ((Py_ssize_t)-1))) __PYX_ERR(0, 11, __pyx_L1_error)
+  __pyx_t_4 = PyObject_Length(__pyx_v_x1); if (unlikely(__pyx_t_4 == ((Py_ssize_t)-1))) __PYX_ERR(0, 55, __pyx_L1_error)
   __pyx_v_n = __pyx_t_4;
   __pyx_v_i = 0;
 
-  /* "partial_distance.pyx":12
+  /* "partial_distance.pyx":56
  *     cdef int n_complete = 0
  *     cdef int n = len(x1), i = 0
  *     cdef double dist = 0             # <<<<<<<<<<<<<<
@@ -2112,7 +2687,7 @@ static PyObject *__pyx_pf_16partial_distance_partial_distance(CYTHON_UNUSED PyOb
  */
   __pyx_v_dist = 0.0;
 
-  /* "partial_distance.pyx":14
+  /* "partial_distance.pyx":58
  *     cdef double dist = 0
  * 
  *     for i in range(n):             # <<<<<<<<<<<<<<
@@ -2124,7 +2699,7 @@ static PyObject *__pyx_pf_16partial_distance_partial_distance(CYTHON_UNUSED PyOb
   for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
     __pyx_v_i = __pyx_t_6;
 
-    /* "partial_distance.pyx":15
+    /* "partial_distance.pyx":59
  * 
  *     for i in range(n):
  *         is_numerical = f_types[i] == "numeric"             # <<<<<<<<<<<<<<
@@ -2134,33 +2709,33 @@ static PyObject *__pyx_pf_16partial_distance_partial_distance(CYTHON_UNUSED PyOb
     __pyx_t_7 = __pyx_v_i;
     __pyx_t_1 = (PyObject *) *((PyObject * *) ( /* dim=0 */ (__pyx_v_f_types.data + __pyx_t_7 * __pyx_v_f_types.strides[0]) ));
     __Pyx_INCREF((PyObject*)__pyx_t_1);
-    __pyx_t_8 = (__Pyx_PyString_Equals(__pyx_t_1, __pyx_n_s_numeric, Py_EQ)); if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 15, __pyx_L1_error)
+    __pyx_t_8 = (__Pyx_PyString_Equals(__pyx_t_1, __pyx_n_s_numeric, Py_EQ)); if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 59, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 15, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 59, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_XDECREF_SET(__pyx_v_is_numerical, __pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "partial_distance.pyx":19
+    /* "partial_distance.pyx":62
+ * 
  *         # Only sum up distances between complete pairs
- *         # TODO: Speed up factor two when removing isnan
  *         if is_numerical:             # <<<<<<<<<<<<<<
  *             if not isnan(x1[i]) and not isnan(x2[i]):
  *                 n_complete += 1
  */
-    __pyx_t_8 = __Pyx_PyObject_IsTrue(__pyx_v_is_numerical); if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 19, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyObject_IsTrue(__pyx_v_is_numerical); if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 62, __pyx_L1_error)
     if (__pyx_t_8) {
 
-      /* "partial_distance.pyx":20
- *         # TODO: Speed up factor two when removing isnan
+      /* "partial_distance.pyx":63
+ *         # Only sum up distances between complete pairs
  *         if is_numerical:
  *             if not isnan(x1[i]) and not isnan(x2[i]):             # <<<<<<<<<<<<<<
  *                 n_complete += 1
  *                 dist = x1[i] - x2[i]
  */
-      __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_x1, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 20, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_x1, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 63, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      __pyx_t_9 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_9 == (long double)-1) && PyErr_Occurred())) __PYX_ERR(0, 20, __pyx_L1_error)
+      __pyx_t_9 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_9 == (long double)-1) && PyErr_Occurred())) __PYX_ERR(0, 63, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       __pyx_t_10 = ((!(isnan(__pyx_t_9) != 0)) != 0);
       if (__pyx_t_10) {
@@ -2168,16 +2743,16 @@ static PyObject *__pyx_pf_16partial_distance_partial_distance(CYTHON_UNUSED PyOb
         __pyx_t_8 = __pyx_t_10;
         goto __pyx_L7_bool_binop_done;
       }
-      __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_x2, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 20, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_x2, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 63, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      __pyx_t_9 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_9 == (long double)-1) && PyErr_Occurred())) __PYX_ERR(0, 20, __pyx_L1_error)
+      __pyx_t_9 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_9 == (long double)-1) && PyErr_Occurred())) __PYX_ERR(0, 63, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       __pyx_t_10 = ((!(isnan(__pyx_t_9) != 0)) != 0);
       __pyx_t_8 = __pyx_t_10;
       __pyx_L7_bool_binop_done:;
       if (__pyx_t_8) {
 
-        /* "partial_distance.pyx":21
+        /* "partial_distance.pyx":64
  *         if is_numerical:
  *             if not isnan(x1[i]) and not isnan(x2[i]):
  *                 n_complete += 1             # <<<<<<<<<<<<<<
@@ -2186,26 +2761,26 @@ static PyObject *__pyx_pf_16partial_distance_partial_distance(CYTHON_UNUSED PyOb
  */
         __pyx_v_n_complete = (__pyx_v_n_complete + 1);
 
-        /* "partial_distance.pyx":22
+        /* "partial_distance.pyx":65
  *             if not isnan(x1[i]) and not isnan(x2[i]):
  *                 n_complete += 1
  *                 dist = x1[i] - x2[i]             # <<<<<<<<<<<<<<
  *                 squared_dist += dist**2
  *         else:
  */
-        __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_x1, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 22, __pyx_L1_error)
+        __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_x1, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 65, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
-        __pyx_t_11 = __Pyx_GetItemInt(__pyx_v_x2, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 22, __pyx_L1_error)
+        __pyx_t_11 = __Pyx_GetItemInt(__pyx_v_x2, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 65, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_11);
-        __pyx_t_12 = PyNumber_Subtract(__pyx_t_1, __pyx_t_11); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 22, __pyx_L1_error)
+        __pyx_t_12 = PyNumber_Subtract(__pyx_t_1, __pyx_t_11); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 65, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_12);
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-        __pyx_t_13 = __pyx_PyFloat_AsDouble(__pyx_t_12); if (unlikely((__pyx_t_13 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 22, __pyx_L1_error)
+        __pyx_t_13 = __pyx_PyFloat_AsDouble(__pyx_t_12); if (unlikely((__pyx_t_13 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 65, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
         __pyx_v_dist = __pyx_t_13;
 
-        /* "partial_distance.pyx":23
+        /* "partial_distance.pyx":66
  *                 n_complete += 1
  *                 dist = x1[i] - x2[i]
  *                 squared_dist += dist**2             # <<<<<<<<<<<<<<
@@ -2214,8 +2789,8 @@ static PyObject *__pyx_pf_16partial_distance_partial_distance(CYTHON_UNUSED PyOb
  */
         __pyx_v_squared_dist = (__pyx_v_squared_dist + pow(__pyx_v_dist, 2.0));
 
-        /* "partial_distance.pyx":20
- *         # TODO: Speed up factor two when removing isnan
+        /* "partial_distance.pyx":63
+ *         # Only sum up distances between complete pairs
  *         if is_numerical:
  *             if not isnan(x1[i]) and not isnan(x2[i]):             # <<<<<<<<<<<<<<
  *                 n_complete += 1
@@ -2223,9 +2798,9 @@ static PyObject *__pyx_pf_16partial_distance_partial_distance(CYTHON_UNUSED PyOb
  */
       }
 
-      /* "partial_distance.pyx":19
+      /* "partial_distance.pyx":62
+ * 
  *         # Only sum up distances between complete pairs
- *         # TODO: Speed up factor two when removing isnan
  *         if is_numerical:             # <<<<<<<<<<<<<<
  *             if not isnan(x1[i]) and not isnan(x2[i]):
  *                 n_complete += 1
@@ -2233,7 +2808,7 @@ static PyObject *__pyx_pf_16partial_distance_partial_distance(CYTHON_UNUSED PyOb
       goto __pyx_L5;
     }
 
-    /* "partial_distance.pyx":25
+    /* "partial_distance.pyx":68
  *                 squared_dist += dist**2
  *         else:
  *             if (not x1[i] == "?") and (not x2[i] == "?"):             # <<<<<<<<<<<<<<
@@ -2241,9 +2816,9 @@ static PyObject *__pyx_pf_16partial_distance_partial_distance(CYTHON_UNUSED PyOb
  *                 if not x1[i] == x2[i]:
  */
     /*else*/ {
-      __pyx_t_12 = __Pyx_GetItemInt(__pyx_v_x1, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 25, __pyx_L1_error)
+      __pyx_t_12 = __Pyx_GetItemInt(__pyx_v_x1, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 68, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_12);
-      __pyx_t_10 = (__Pyx_PyString_Equals(__pyx_t_12, __pyx_kp_s_, Py_EQ)); if (unlikely(__pyx_t_10 < 0)) __PYX_ERR(0, 25, __pyx_L1_error)
+      __pyx_t_10 = (__Pyx_PyString_Equals(__pyx_t_12, __pyx_kp_s_, Py_EQ)); if (unlikely(__pyx_t_10 < 0)) __PYX_ERR(0, 68, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
       __pyx_t_14 = ((!__pyx_t_10) != 0);
       if (__pyx_t_14) {
@@ -2251,16 +2826,16 @@ static PyObject *__pyx_pf_16partial_distance_partial_distance(CYTHON_UNUSED PyOb
         __pyx_t_8 = __pyx_t_14;
         goto __pyx_L10_bool_binop_done;
       }
-      __pyx_t_12 = __Pyx_GetItemInt(__pyx_v_x2, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 25, __pyx_L1_error)
+      __pyx_t_12 = __Pyx_GetItemInt(__pyx_v_x2, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 68, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_12);
-      __pyx_t_14 = (__Pyx_PyString_Equals(__pyx_t_12, __pyx_kp_s_, Py_EQ)); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 25, __pyx_L1_error)
+      __pyx_t_14 = (__Pyx_PyString_Equals(__pyx_t_12, __pyx_kp_s_, Py_EQ)); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 68, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
       __pyx_t_10 = ((!__pyx_t_14) != 0);
       __pyx_t_8 = __pyx_t_10;
       __pyx_L10_bool_binop_done:;
       if (__pyx_t_8) {
 
-        /* "partial_distance.pyx":26
+        /* "partial_distance.pyx":69
  *         else:
  *             if (not x1[i] == "?") and (not x2[i] == "?"):
  *                 n_complete += 1             # <<<<<<<<<<<<<<
@@ -2269,44 +2844,43 @@ static PyObject *__pyx_pf_16partial_distance_partial_distance(CYTHON_UNUSED PyOb
  */
         __pyx_v_n_complete = (__pyx_v_n_complete + 1);
 
-        /* "partial_distance.pyx":27
+        /* "partial_distance.pyx":70
  *             if (not x1[i] == "?") and (not x2[i] == "?"):
  *                 n_complete += 1
  *                 if not x1[i] == x2[i]:             # <<<<<<<<<<<<<<
  *                     squared_dist += nominal_distance
- * 
+ *     return sqrt(squared_dist / n_complete) if n_complete > 0 else np.inf
  */
-        __pyx_t_12 = __Pyx_GetItemInt(__pyx_v_x1, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 27, __pyx_L1_error)
+        __pyx_t_12 = __Pyx_GetItemInt(__pyx_v_x1, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 70, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_12);
-        __pyx_t_11 = __Pyx_GetItemInt(__pyx_v_x2, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 27, __pyx_L1_error)
+        __pyx_t_11 = __Pyx_GetItemInt(__pyx_v_x2, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 70, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_11);
-        __pyx_t_1 = PyObject_RichCompare(__pyx_t_12, __pyx_t_11, Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 27, __pyx_L1_error)
+        __pyx_t_1 = PyObject_RichCompare(__pyx_t_12, __pyx_t_11, Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 70, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
         __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-        __pyx_t_8 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 27, __pyx_L1_error)
+        __pyx_t_8 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 70, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         __pyx_t_10 = ((!__pyx_t_8) != 0);
         if (__pyx_t_10) {
 
-          /* "partial_distance.pyx":28
+          /* "partial_distance.pyx":71
  *                 n_complete += 1
  *                 if not x1[i] == x2[i]:
  *                     squared_dist += nominal_distance             # <<<<<<<<<<<<<<
- * 
  *     return sqrt(squared_dist / n_complete) if n_complete > 0 else np.inf
  */
           __pyx_v_squared_dist = (__pyx_v_squared_dist + __pyx_v_nominal_distance);
 
-          /* "partial_distance.pyx":27
+          /* "partial_distance.pyx":70
  *             if (not x1[i] == "?") and (not x2[i] == "?"):
  *                 n_complete += 1
  *                 if not x1[i] == x2[i]:             # <<<<<<<<<<<<<<
  *                     squared_dist += nominal_distance
- * 
+ *     return sqrt(squared_dist / n_complete) if n_complete > 0 else np.inf
  */
         }
 
-        /* "partial_distance.pyx":25
+        /* "partial_distance.pyx":68
  *                 squared_dist += dist**2
  *         else:
  *             if (not x1[i] == "?") and (not x2[i] == "?"):             # <<<<<<<<<<<<<<
@@ -2318,25 +2892,25 @@ static PyObject *__pyx_pf_16partial_distance_partial_distance(CYTHON_UNUSED PyOb
     __pyx_L5:;
   }
 
-  /* "partial_distance.pyx":30
+  /* "partial_distance.pyx":72
+ *                 if not x1[i] == x2[i]:
  *                     squared_dist += nominal_distance
- * 
  *     return sqrt(squared_dist / n_complete) if n_complete > 0 else np.inf             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
   if (((__pyx_v_n_complete > 0) != 0)) {
     if (unlikely(__pyx_v_n_complete == 0)) {
       PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-      __PYX_ERR(0, 30, __pyx_L1_error)
+      __PYX_ERR(0, 72, __pyx_L1_error)
     }
-    __pyx_t_11 = PyFloat_FromDouble(sqrt((__pyx_v_squared_dist / __pyx_v_n_complete))); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 30, __pyx_L1_error)
+    __pyx_t_11 = PyFloat_FromDouble(sqrt((__pyx_v_squared_dist / __pyx_v_n_complete))); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 72, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_11);
     __pyx_t_1 = __pyx_t_11;
     __pyx_t_11 = 0;
   } else {
-    __pyx_t_11 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 30, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 72, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_11);
-    __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_t_11, __pyx_n_s_inf); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 30, __pyx_L1_error)
+    __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_t_11, __pyx_n_s_inf); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 72, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_12);
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
     __pyx_t_1 = __pyx_t_12;
@@ -2346,8 +2920,8 @@ static PyObject *__pyx_pf_16partial_distance_partial_distance(CYTHON_UNUSED PyOb
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "partial_distance.pyx":5
- * from libc.math cimport isnan, sqrt
+  /* "partial_distance.pyx":49
+ *     return sqrt(squared_dist)
  * 
  * def partial_distance(x1, x2, **kwargs):             # <<<<<<<<<<<<<<
  *     cdef str[:] f_types = kwargs["f_types"]
@@ -16064,7 +16638,9 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_obj, __pyx_k_obj, sizeof(__pyx_k_obj), 0, 0, 1, 1},
   {&__pyx_n_s_pack, __pyx_k_pack, sizeof(__pyx_k_pack), 0, 0, 1, 1},
   {&__pyx_n_s_partial_distance, __pyx_k_partial_distance, sizeof(__pyx_k_partial_distance), 0, 0, 1, 1},
+  {&__pyx_n_s_partial_distance_orange, __pyx_k_partial_distance_orange, sizeof(__pyx_k_partial_distance_orange), 0, 0, 1, 1},
   {&__pyx_n_s_pickle, __pyx_k_pickle, sizeof(__pyx_k_pickle), 0, 0, 1, 1},
+  {&__pyx_n_s_prob, __pyx_k_prob, sizeof(__pyx_k_prob), 0, 0, 1, 1},
   {&__pyx_kp_s_project_shared_partial_distance, __pyx_k_project_shared_partial_distance, sizeof(__pyx_k_project_shared_partial_distance), 0, 0, 1, 0},
   {&__pyx_n_s_pyx_PickleError, __pyx_k_pyx_PickleError, sizeof(__pyx_k_pyx_PickleError), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_checksum, __pyx_k_pyx_checksum, sizeof(__pyx_k_pyx_checksum), 0, 0, 1, 1},
@@ -16101,7 +16677,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 14, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 13, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(1, 132, __pyx_L1_error)
   __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(1, 147, __pyx_L1_error)
   __pyx_builtin_enumerate = __Pyx_GetBuiltinName(__pyx_n_s_enumerate); if (!__pyx_builtin_enumerate) __PYX_ERR(1, 150, __pyx_L1_error)
@@ -16346,14 +16922,26 @@ static int __Pyx_InitCachedConstants(void) {
   /* "partial_distance.pyx":5
  * from libc.math cimport isnan, sqrt
  * 
+ * def partial_distance_orange(x1, x2, **kwargs):             # <<<<<<<<<<<<<<
+ *     cdef str[:] f_types = kwargs["f_types"]
+ *     cdef int nominal_distance = kwargs["nominal_distance"]
+ */
+  __pyx_tuple__23 = PyTuple_Pack(11, __pyx_n_s_x1, __pyx_n_s_x2, __pyx_n_s_kwargs, __pyx_n_s_f_types, __pyx_n_s_nominal_distance, __pyx_n_s_squared_dist, __pyx_n_s_n, __pyx_n_s_i, __pyx_n_s_dist, __pyx_n_s_is_numerical, __pyx_n_s_prob); if (unlikely(!__pyx_tuple__23)) __PYX_ERR(0, 5, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__23);
+  __Pyx_GIVEREF(__pyx_tuple__23);
+  __pyx_codeobj__24 = (PyObject*)__Pyx_PyCode_New(2, 0, 11, 0, CO_OPTIMIZED|CO_NEWLOCALS|CO_VARKEYWORDS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__23, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_project_shared_partial_distance, __pyx_n_s_partial_distance_orange, 5, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__24)) __PYX_ERR(0, 5, __pyx_L1_error)
+
+  /* "partial_distance.pyx":49
+ *     return sqrt(squared_dist)
+ * 
  * def partial_distance(x1, x2, **kwargs):             # <<<<<<<<<<<<<<
  *     cdef str[:] f_types = kwargs["f_types"]
  *     cdef int nominal_distance = kwargs["nominal_distance"]
  */
-  __pyx_tuple__23 = PyTuple_Pack(11, __pyx_n_s_x1, __pyx_n_s_x2, __pyx_n_s_kwargs, __pyx_n_s_f_types, __pyx_n_s_nominal_distance, __pyx_n_s_squared_dist, __pyx_n_s_n_complete, __pyx_n_s_n, __pyx_n_s_i, __pyx_n_s_dist, __pyx_n_s_is_numerical); if (unlikely(!__pyx_tuple__23)) __PYX_ERR(0, 5, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__23);
-  __Pyx_GIVEREF(__pyx_tuple__23);
-  __pyx_codeobj__24 = (PyObject*)__Pyx_PyCode_New(2, 0, 11, 0, CO_OPTIMIZED|CO_NEWLOCALS|CO_VARKEYWORDS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__23, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_project_shared_partial_distance, __pyx_n_s_partial_distance, 5, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__24)) __PYX_ERR(0, 5, __pyx_L1_error)
+  __pyx_tuple__25 = PyTuple_Pack(11, __pyx_n_s_x1, __pyx_n_s_x2, __pyx_n_s_kwargs, __pyx_n_s_f_types, __pyx_n_s_nominal_distance, __pyx_n_s_squared_dist, __pyx_n_s_n_complete, __pyx_n_s_n, __pyx_n_s_i, __pyx_n_s_dist, __pyx_n_s_is_numerical); if (unlikely(!__pyx_tuple__25)) __PYX_ERR(0, 49, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__25);
+  __Pyx_GIVEREF(__pyx_tuple__25);
+  __pyx_codeobj__26 = (PyObject*)__Pyx_PyCode_New(2, 0, 11, 0, CO_OPTIMIZED|CO_NEWLOCALS|CO_VARKEYWORDS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__25, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_project_shared_partial_distance, __pyx_n_s_partial_distance, 49, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__26)) __PYX_ERR(0, 49, __pyx_L1_error)
 
   /* "View.MemoryView":285
  *         return self.name
@@ -16362,9 +16950,9 @@ static int __Pyx_InitCachedConstants(void) {
  * cdef strided = Enum("<strided and direct>") # default
  * cdef indirect = Enum("<strided and indirect>")
  */
-  __pyx_tuple__25 = PyTuple_Pack(1, __pyx_kp_s_strided_and_direct_or_indirect); if (unlikely(!__pyx_tuple__25)) __PYX_ERR(1, 285, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__25);
-  __Pyx_GIVEREF(__pyx_tuple__25);
+  __pyx_tuple__27 = PyTuple_Pack(1, __pyx_kp_s_strided_and_direct_or_indirect); if (unlikely(!__pyx_tuple__27)) __PYX_ERR(1, 285, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__27);
+  __Pyx_GIVEREF(__pyx_tuple__27);
 
   /* "View.MemoryView":286
  * 
@@ -16373,9 +16961,9 @@ static int __Pyx_InitCachedConstants(void) {
  * cdef indirect = Enum("<strided and indirect>")
  * 
  */
-  __pyx_tuple__26 = PyTuple_Pack(1, __pyx_kp_s_strided_and_direct); if (unlikely(!__pyx_tuple__26)) __PYX_ERR(1, 286, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__26);
-  __Pyx_GIVEREF(__pyx_tuple__26);
+  __pyx_tuple__28 = PyTuple_Pack(1, __pyx_kp_s_strided_and_direct); if (unlikely(!__pyx_tuple__28)) __PYX_ERR(1, 286, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__28);
+  __Pyx_GIVEREF(__pyx_tuple__28);
 
   /* "View.MemoryView":287
  * cdef generic = Enum("<strided and direct or indirect>")
@@ -16384,9 +16972,9 @@ static int __Pyx_InitCachedConstants(void) {
  * 
  * 
  */
-  __pyx_tuple__27 = PyTuple_Pack(1, __pyx_kp_s_strided_and_indirect); if (unlikely(!__pyx_tuple__27)) __PYX_ERR(1, 287, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__27);
-  __Pyx_GIVEREF(__pyx_tuple__27);
+  __pyx_tuple__29 = PyTuple_Pack(1, __pyx_kp_s_strided_and_indirect); if (unlikely(!__pyx_tuple__29)) __PYX_ERR(1, 287, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__29);
+  __Pyx_GIVEREF(__pyx_tuple__29);
 
   /* "View.MemoryView":290
  * 
@@ -16395,9 +16983,9 @@ static int __Pyx_InitCachedConstants(void) {
  * cdef indirect_contiguous = Enum("<contiguous and indirect>")
  * 
  */
-  __pyx_tuple__28 = PyTuple_Pack(1, __pyx_kp_s_contiguous_and_direct); if (unlikely(!__pyx_tuple__28)) __PYX_ERR(1, 290, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__28);
-  __Pyx_GIVEREF(__pyx_tuple__28);
+  __pyx_tuple__30 = PyTuple_Pack(1, __pyx_kp_s_contiguous_and_direct); if (unlikely(!__pyx_tuple__30)) __PYX_ERR(1, 290, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__30);
+  __Pyx_GIVEREF(__pyx_tuple__30);
 
   /* "View.MemoryView":291
  * 
@@ -16406,19 +16994,19 @@ static int __Pyx_InitCachedConstants(void) {
  * 
  * 
  */
-  __pyx_tuple__29 = PyTuple_Pack(1, __pyx_kp_s_contiguous_and_indirect); if (unlikely(!__pyx_tuple__29)) __PYX_ERR(1, 291, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__29);
-  __Pyx_GIVEREF(__pyx_tuple__29);
+  __pyx_tuple__31 = PyTuple_Pack(1, __pyx_kp_s_contiguous_and_indirect); if (unlikely(!__pyx_tuple__31)) __PYX_ERR(1, 291, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__31);
+  __Pyx_GIVEREF(__pyx_tuple__31);
 
   /* "(tree fragment)":1
  * def __pyx_unpickle_Enum(__pyx_type, long __pyx_checksum, __pyx_state):             # <<<<<<<<<<<<<<
  *     if __pyx_checksum != 0xb068931:
  *         from pickle import PickleError as __pyx_PickleError
  */
-  __pyx_tuple__30 = PyTuple_Pack(5, __pyx_n_s_pyx_type, __pyx_n_s_pyx_checksum, __pyx_n_s_pyx_state, __pyx_n_s_pyx_PickleError, __pyx_n_s_pyx_result); if (unlikely(!__pyx_tuple__30)) __PYX_ERR(1, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__30);
-  __Pyx_GIVEREF(__pyx_tuple__30);
-  __pyx_codeobj__31 = (PyObject*)__Pyx_PyCode_New(3, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__30, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_pyx_unpickle_Enum, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__31)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_tuple__32 = PyTuple_Pack(5, __pyx_n_s_pyx_type, __pyx_n_s_pyx_checksum, __pyx_n_s_pyx_state, __pyx_n_s_pyx_PickleError, __pyx_n_s_pyx_result); if (unlikely(!__pyx_tuple__32)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__32);
+  __Pyx_GIVEREF(__pyx_tuple__32);
+  __pyx_codeobj__33 = (PyObject*)__Pyx_PyCode_New(3, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__32, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_pyx_unpickle_Enum, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__33)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -16430,6 +17018,7 @@ static int __Pyx_InitGlobals(void) {
   if (__Pyx_InitStrings(__pyx_string_tab) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
   __pyx_int_0 = PyInt_FromLong(0); if (unlikely(!__pyx_int_0)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_int_1 = PyInt_FromLong(1); if (unlikely(!__pyx_int_1)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __pyx_int_2 = PyInt_FromLong(2); if (unlikely(!__pyx_int_2)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_int_184977713 = PyInt_FromLong(184977713L); if (unlikely(!__pyx_int_184977713)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_int_neg_1 = PyInt_FromLong(-1); if (unlikely(!__pyx_int_neg_1)) __PYX_ERR(0, 1, __pyx_L1_error)
   return 0;
@@ -16740,13 +17329,25 @@ if (!__Pyx_RefNanny) {
   /* "partial_distance.pyx":5
  * from libc.math cimport isnan, sqrt
  * 
+ * def partial_distance_orange(x1, x2, **kwargs):             # <<<<<<<<<<<<<<
+ *     cdef str[:] f_types = kwargs["f_types"]
+ *     cdef int nominal_distance = kwargs["nominal_distance"]
+ */
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_16partial_distance_1partial_distance_orange, NULL, __pyx_n_s_partial_distance); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 5, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_partial_distance_orange, __pyx_t_1) < 0) __PYX_ERR(0, 5, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "partial_distance.pyx":49
+ *     return sqrt(squared_dist)
+ * 
  * def partial_distance(x1, x2, **kwargs):             # <<<<<<<<<<<<<<
  *     cdef str[:] f_types = kwargs["f_types"]
  *     cdef int nominal_distance = kwargs["nominal_distance"]
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_16partial_distance_1partial_distance, NULL, __pyx_n_s_partial_distance); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 5, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_16partial_distance_3partial_distance, NULL, __pyx_n_s_partial_distance); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 49, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_partial_distance, __pyx_t_1) < 0) __PYX_ERR(0, 5, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_partial_distance, __pyx_t_1) < 0) __PYX_ERR(0, 49, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "partial_distance.pyx":1
@@ -16779,7 +17380,7 @@ if (!__Pyx_RefNanny) {
  * cdef strided = Enum("<strided and direct>") # default
  * cdef indirect = Enum("<strided and indirect>")
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__25, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 285, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__27, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 285, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_XGOTREF(generic);
   __Pyx_DECREF_SET(generic, __pyx_t_1);
@@ -16793,7 +17394,7 @@ if (!__Pyx_RefNanny) {
  * cdef indirect = Enum("<strided and indirect>")
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__26, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 286, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__28, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 286, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_XGOTREF(strided);
   __Pyx_DECREF_SET(strided, __pyx_t_1);
@@ -16807,7 +17408,7 @@ if (!__Pyx_RefNanny) {
  * 
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__27, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 287, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__29, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 287, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_XGOTREF(indirect);
   __Pyx_DECREF_SET(indirect, __pyx_t_1);
@@ -16821,7 +17422,7 @@ if (!__Pyx_RefNanny) {
  * cdef indirect_contiguous = Enum("<contiguous and indirect>")
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__28, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 290, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__30, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 290, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_XGOTREF(contiguous);
   __Pyx_DECREF_SET(contiguous, __pyx_t_1);
@@ -16835,7 +17436,7 @@ if (!__Pyx_RefNanny) {
  * 
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__29, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 291, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__31, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 291, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_XGOTREF(indirect_contiguous);
   __Pyx_DECREF_SET(indirect_contiguous, __pyx_t_1);
@@ -17376,35 +17977,8 @@ static CYTHON_INLINE PyObject *__Pyx_GetItemInt_Fast(PyObject *o, Py_ssize_t i, 
     return __Pyx_GetItemInt_Generic(o, PyInt_FromSsize_t(i));
 }
 
-/* GetModuleGlobalName */
-static CYTHON_INLINE PyObject *__Pyx_GetModuleGlobalName(PyObject *name) {
-    PyObject *result;
-#if !CYTHON_AVOID_BORROWED_REFS
-#if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030500A1
-    result = _PyDict_GetItem_KnownHash(__pyx_d, name, ((PyASCIIObject *) name)->hash);
-    if (likely(result)) {
-        Py_INCREF(result);
-    } else if (unlikely(PyErr_Occurred())) {
-        result = NULL;
-    } else {
-#else
-    result = PyDict_GetItem(__pyx_d, name);
-    if (likely(result)) {
-        Py_INCREF(result);
-    } else {
-#endif
-#else
-    result = PyObject_GetItem(__pyx_d, name);
-    if (!result) {
-        PyErr_Clear();
-#endif
-        result = __Pyx_GetBuiltinName(name);
-    }
-    return result;
-}
-
 /* MemviewSliceInit */
-    static int
+static int
 __Pyx_init_memviewslice(struct __pyx_memoryview_obj *memview,
                         int ndim,
                         __Pyx_memviewslice *memviewslice,
@@ -17539,6 +18113,33 @@ static CYTHON_INLINE void __Pyx_XDEC_MEMVIEW(__Pyx_memviewslice *memslice,
     } else {
         memslice->memview = NULL;
     }
+}
+
+/* GetModuleGlobalName */
+static CYTHON_INLINE PyObject *__Pyx_GetModuleGlobalName(PyObject *name) {
+    PyObject *result;
+#if !CYTHON_AVOID_BORROWED_REFS
+#if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030500A1
+    result = _PyDict_GetItem_KnownHash(__pyx_d, name, ((PyASCIIObject *) name)->hash);
+    if (likely(result)) {
+        Py_INCREF(result);
+    } else if (unlikely(PyErr_Occurred())) {
+        result = NULL;
+    } else {
+#else
+    result = PyDict_GetItem(__pyx_d, name);
+    if (likely(result)) {
+        Py_INCREF(result);
+    } else {
+#endif
+#else
+    result = PyObject_GetItem(__pyx_d, name);
+    if (!result) {
+        PyErr_Clear();
+#endif
+        result = __Pyx_GetBuiltinName(name);
+    }
+    return result;
 }
 
 /* ArgTypeTest */

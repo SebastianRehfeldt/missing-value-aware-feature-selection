@@ -17,8 +17,8 @@ name = "musk"  # standard config
 name = "iris"
 name = "heart-c"  # 800 subspaces, alpha = 0,2, 100 iterations, (1,3)
 name = "isolet"
-name = "ionosphere"  # 800 subspaces, alpha=0.02, 250 iterations ,(1,3)
 name = "semeion"
+name = "ionosphere"  # 800 subspaces, alpha=0.02, 250 iterations ,(1,3)
 data = data_loader.load_data(name, "arff")
 print(data.shape, flush=True)
 
