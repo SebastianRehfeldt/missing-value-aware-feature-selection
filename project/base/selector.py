@@ -134,3 +134,7 @@ class Selector(ABC):
             "shape": self.shape,
             **self.params,
         }
+
+    def set_params(self, **params):
+        self.params.update(params)
+        self.is_fitted = False
