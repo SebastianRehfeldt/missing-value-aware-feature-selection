@@ -1,4 +1,4 @@
-from scipy.spatial.distance import cdist
+from scipy.spatial.distance import cdist, pdist
 from .partial_distance import partial_distance
 
 
@@ -8,7 +8,7 @@ def get_dist_matrix(XA, f_types, XB=None, **kwargs):
         "f_types": f_types.values,
     }
     if XB is None:
-        D = cdist(XA, XA, metric=partial_distance, **dist_params)
+        D = pdist(XA, metric=partial_distance, **dist_params)
     else:
         D = cdist(XB, XA, metric=partial_distance, **dist_params)
     return D

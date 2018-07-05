@@ -4,12 +4,15 @@
 {
     "distutils": {
         "depends": [],
-        "name": "project.rar.contrast",
+        "extra_compile_args": [
+            "/openmp"
+        ],
+        "name": "calculate_contrast",
         "sources": [
             "project/rar/contrast.pyx"
         ]
     },
-    "module_name": "project.rar.contrast"
+    "module_name": "calculate_contrast"
 }
 END: Cython Metadata */
 
@@ -571,8 +574,8 @@ static CYTHON_INLINE float __PYX_NAN() {
   #endif
 #endif
 
-#define __PYX_HAVE__project__rar__contrast
-#define __PYX_HAVE_API__project__rar__contrast
+#define __PYX_HAVE__calculate_contrast
+#define __PYX_HAVE_API__calculate_contrast
 /* Early includes */
 #include <string.h>
 #include <stdio.h>
@@ -2041,7 +2044,7 @@ static PyTypeObject *__pyx_ptype_5numpy_ndarray = 0;
 static PyTypeObject *__pyx_ptype_5numpy_ufunc = 0;
 static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *, char *, char *, int *); /*proto*/
 
-/* Module declarations from 'project.rar.contrast' */
+/* Module declarations from 'calculate_contrast' */
 static PyTypeObject *__pyx_array_type = 0;
 static PyTypeObject *__pyx_MemviewEnum_type = 0;
 static PyTypeObject *__pyx_memoryview_type = 0;
@@ -2089,11 +2092,11 @@ static void __pyx_memoryview__slice_assign_scalar(char *, Py_ssize_t *, Py_ssize
 static PyObject *__pyx_unpickle_Enum__set_state(struct __pyx_MemviewEnum_obj *, PyObject *); /*proto*/
 static __Pyx_TypeInfo __Pyx_TypeInfo_double = { "double", NULL, sizeof(double), { 0 }, 0, 'R', 0, 0 };
 static __Pyx_TypeInfo __Pyx_TypeInfo_nn___pyx_t_5numpy_float_t = { "float_t", NULL, sizeof(__pyx_t_5numpy_float_t), { 0 }, 0, 'R', 0, 0 };
-#define __Pyx_MODULE_NAME "project.rar.contrast"
-extern int __pyx_module_is_main_project__rar__contrast;
-int __pyx_module_is_main_project__rar__contrast = 0;
+#define __Pyx_MODULE_NAME "calculate_contrast"
+extern int __pyx_module_is_main_calculate_contrast;
+int __pyx_module_is_main_calculate_contrast = 0;
 
-/* Implementation of 'project.rar.contrast' */
+/* Implementation of 'calculate_contrast' */
 static PyObject *__pyx_builtin_range;
 static PyObject *__pyx_builtin_enumerate;
 static PyObject *__pyx_builtin_ValueError;
@@ -2202,11 +2205,11 @@ static const char __pyx_k_dtype_is_object[] = "dtype_is_object";
 static const char __pyx_k_pyx_PickleError[] = "__pyx_PickleError";
 static const char __pyx_k_setstate_cython[] = "__setstate_cython__";
 static const char __pyx_k_pyx_unpickle_Enum[] = "__pyx_unpickle_Enum";
+static const char __pyx_k_calculate_contrast[] = "calculate_contrast";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
 static const char __pyx_k_strided_and_direct[] = "<strided and direct>";
 static const char __pyx_k_calculate_contrasts[] = "calculate_contrasts";
 static const char __pyx_k_calculate_probs_kld[] = "_calculate_probs_kld";
-static const char __pyx_k_project_rar_contrast[] = "project.rar.contrast";
 static const char __pyx_k_strided_and_indirect[] = "<strided and indirect>";
 static const char __pyx_k_contiguous_and_direct[] = "<contiguous and direct>";
 static const char __pyx_k_MemoryView_of_r_object[] = "<MemoryView of %r object>";
@@ -2276,6 +2279,7 @@ static PyObject *__pyx_n_s_base;
 static PyObject *__pyx_n_s_c;
 static PyObject *__pyx_n_u_c;
 static PyObject *__pyx_n_s_cache;
+static PyObject *__pyx_n_s_calculate_contrast;
 static PyObject *__pyx_n_s_calculate_contrasts;
 static PyObject *__pyx_n_s_calculate_contrasts_kld;
 static PyObject *__pyx_n_s_calculate_contrasts_ks;
@@ -2331,7 +2335,6 @@ static PyObject *__pyx_n_s_pickle;
 static PyObject *__pyx_n_s_prev;
 static PyObject *__pyx_n_s_probs;
 static PyObject *__pyx_n_s_probs_m;
-static PyObject *__pyx_n_s_project_rar_contrast;
 static PyObject *__pyx_kp_s_project_rar_contrast_pyx;
 static PyObject *__pyx_n_s_pyx_PickleError;
 static PyObject *__pyx_n_s_pyx_checksum;
@@ -2380,10 +2383,10 @@ static PyObject *__pyx_n_s_weight_sum;
 static PyObject *__pyx_n_s_y;
 static PyObject *__pyx_n_s_y_sorted;
 static PyObject *__pyx_n_s_zeros;
-static PyObject *__pyx_pf_7project_3rar_8contrast_calculate_contrasts(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_cache); /* proto */
-static PyObject *__pyx_pf_7project_3rar_8contrast_2_calculate_contrasts_ks(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_cache); /* proto */
-static PyObject *__pyx_pf_7project_3rar_8contrast_4_calculate_contrasts_kld(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_cache); /* proto */
-static PyObject *__pyx_pf_7project_3rar_8contrast_6_calculate_probs_kld(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_y, PyObject *__pyx_v_slice_, PyObject *__pyx_v_values_m); /* proto */
+static PyObject *__pyx_pf_18calculate_contrast_calculate_contrasts(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_cache); /* proto */
+static PyObject *__pyx_pf_18calculate_contrast_2_calculate_contrasts_ks(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_cache); /* proto */
+static PyObject *__pyx_pf_18calculate_contrast_4_calculate_contrasts_kld(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_cache); /* proto */
+static PyObject *__pyx_pf_18calculate_contrast_6_calculate_probs_kld(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_y, PyObject *__pyx_v_slice_, PyObject *__pyx_v_values_m); /* proto */
 static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
 static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info); /* proto */
 static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __pyx_array_obj *__pyx_v_self, PyObject *__pyx_v_shape, Py_ssize_t __pyx_v_itemsize, PyObject *__pyx_v_format, PyObject *__pyx_v_mode, int __pyx_v_allocate_buffer); /* proto */
@@ -2494,20 +2497,20 @@ static PyObject *__pyx_codeobj__46;
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_7project_3rar_8contrast_1calculate_contrasts(PyObject *__pyx_self, PyObject *__pyx_v_cache); /*proto*/
-static PyMethodDef __pyx_mdef_7project_3rar_8contrast_1calculate_contrasts = {"calculate_contrasts", (PyCFunction)__pyx_pw_7project_3rar_8contrast_1calculate_contrasts, METH_O, 0};
-static PyObject *__pyx_pw_7project_3rar_8contrast_1calculate_contrasts(PyObject *__pyx_self, PyObject *__pyx_v_cache) {
+static PyObject *__pyx_pw_18calculate_contrast_1calculate_contrasts(PyObject *__pyx_self, PyObject *__pyx_v_cache); /*proto*/
+static PyMethodDef __pyx_mdef_18calculate_contrast_1calculate_contrasts = {"calculate_contrasts", (PyCFunction)__pyx_pw_18calculate_contrast_1calculate_contrasts, METH_O, 0};
+static PyObject *__pyx_pw_18calculate_contrast_1calculate_contrasts(PyObject *__pyx_self, PyObject *__pyx_v_cache) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("calculate_contrasts (wrapper)", 0);
-  __pyx_r = __pyx_pf_7project_3rar_8contrast_calculate_contrasts(__pyx_self, ((PyObject *)__pyx_v_cache));
+  __pyx_r = __pyx_pf_18calculate_contrast_calculate_contrasts(__pyx_self, ((PyObject *)__pyx_v_cache));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_7project_3rar_8contrast_calculate_contrasts(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_cache) {
+static PyObject *__pyx_pf_18calculate_contrast_calculate_contrasts(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_cache) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -2625,7 +2628,7 @@ static PyObject *__pyx_pf_7project_3rar_8contrast_calculate_contrasts(CYTHON_UNU
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("project.rar.contrast.calculate_contrasts", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("calculate_contrast.calculate_contrasts", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -2642,20 +2645,20 @@ static PyObject *__pyx_pf_7project_3rar_8contrast_calculate_contrasts(CYTHON_UNU
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_7project_3rar_8contrast_3_calculate_contrasts_ks(PyObject *__pyx_self, PyObject *__pyx_v_cache); /*proto*/
-static PyMethodDef __pyx_mdef_7project_3rar_8contrast_3_calculate_contrasts_ks = {"_calculate_contrasts_ks", (PyCFunction)__pyx_pw_7project_3rar_8contrast_3_calculate_contrasts_ks, METH_O, 0};
-static PyObject *__pyx_pw_7project_3rar_8contrast_3_calculate_contrasts_ks(PyObject *__pyx_self, PyObject *__pyx_v_cache) {
+static PyObject *__pyx_pw_18calculate_contrast_3_calculate_contrasts_ks(PyObject *__pyx_self, PyObject *__pyx_v_cache); /*proto*/
+static PyMethodDef __pyx_mdef_18calculate_contrast_3_calculate_contrasts_ks = {"_calculate_contrasts_ks", (PyCFunction)__pyx_pw_18calculate_contrast_3_calculate_contrasts_ks, METH_O, 0};
+static PyObject *__pyx_pw_18calculate_contrast_3_calculate_contrasts_ks(PyObject *__pyx_self, PyObject *__pyx_v_cache) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("_calculate_contrasts_ks (wrapper)", 0);
-  __pyx_r = __pyx_pf_7project_3rar_8contrast_2_calculate_contrasts_ks(__pyx_self, ((PyObject *)__pyx_v_cache));
+  __pyx_r = __pyx_pf_18calculate_contrast_2_calculate_contrasts_ks(__pyx_self, ((PyObject *)__pyx_v_cache));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_7project_3rar_8contrast_2_calculate_contrasts_ks(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_cache) {
+static PyObject *__pyx_pf_18calculate_contrast_2_calculate_contrasts_ks(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_cache) {
   int __pyx_v_n;
   int __pyx_v_i;
   __Pyx_memviewslice __pyx_v_y_sorted = { 0, 0, { 0 }, { 0 }, { 0 } };
@@ -3151,7 +3154,7 @@ __pyx_t_13 = __pyx_v_i;
   __Pyx_XDECREF(__pyx_t_7);
   __PYX_XDEC_MEMVIEW(&__pyx_t_8, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_t_12, 1);
-  __Pyx_AddTraceback("project.rar.contrast._calculate_contrasts_ks", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("calculate_contrast._calculate_contrasts_ks", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&__pyx_v_y_sorted, 1);
@@ -3167,7 +3170,7 @@ __pyx_t_13 = __pyx_v_i;
  *     return contrasts
  * 
  * cdef public double _calculate_max_dist(double[:] m, np.float_t[:] slice_, double n_c) nogil:             # <<<<<<<<<<<<<<
- *     if n_c == 0 or len(m) == 0:
+ *     if n_c == 0:
  *         return 0
  */
 
@@ -3181,37 +3184,27 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
   double __pyx_v_distance;
   double __pyx_r;
   int __pyx_t_1;
-  int __pyx_t_2;
-  size_t __pyx_t_3;
+  size_t __pyx_t_2;
+  long __pyx_t_3;
   long __pyx_t_4;
-  long __pyx_t_5;
-  int __pyx_t_6;
+  int __pyx_t_5;
+  Py_ssize_t __pyx_t_6;
   Py_ssize_t __pyx_t_7;
   Py_ssize_t __pyx_t_8;
-  Py_ssize_t __pyx_t_9;
 
   /* "project/rar/contrast.pyx":31
  * 
  * cdef public double _calculate_max_dist(double[:] m, np.float_t[:] slice_, double n_c) nogil:
- *     if n_c == 0 or len(m) == 0:             # <<<<<<<<<<<<<<
+ *     if n_c == 0:             # <<<<<<<<<<<<<<
  *         return 0
  * 
  */
-  __pyx_t_2 = ((__pyx_v_n_c == 0.0) != 0);
-  if (!__pyx_t_2) {
-  } else {
-    __pyx_t_1 = __pyx_t_2;
-    goto __pyx_L4_bool_binop_done;
-  }
-  __pyx_t_3 = __Pyx_MemoryView_Len(__pyx_v_m); 
-  __pyx_t_2 = ((__pyx_t_3 == 0) != 0);
-  __pyx_t_1 = __pyx_t_2;
-  __pyx_L4_bool_binop_done:;
+  __pyx_t_1 = ((__pyx_v_n_c == 0.0) != 0);
   if (__pyx_t_1) {
 
     /* "project/rar/contrast.pyx":32
  * cdef public double _calculate_max_dist(double[:] m, np.float_t[:] slice_, double n_c) nogil:
- *     if n_c == 0 or len(m) == 0:
+ *     if n_c == 0:
  *         return 0             # <<<<<<<<<<<<<<
  * 
  *     cdef int i = 0, n_m = len(m)
@@ -3222,7 +3215,7 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
     /* "project/rar/contrast.pyx":31
  * 
  * cdef public double _calculate_max_dist(double[:] m, np.float_t[:] slice_, double n_c) nogil:
- *     if n_c == 0 or len(m) == 0:             # <<<<<<<<<<<<<<
+ *     if n_c == 0:             # <<<<<<<<<<<<<<
  *         return 0
  * 
  */
@@ -3236,8 +3229,8 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
  * 
  */
   __pyx_v_i = 0;
-  __pyx_t_3 = __Pyx_MemoryView_Len(__pyx_v_m); 
-  __pyx_v_n_m = __pyx_t_3;
+  __pyx_t_2 = __Pyx_MemoryView_Len(__pyx_v_m); 
+  __pyx_v_n_m = __pyx_t_2;
 
   /* "project/rar/contrast.pyx":35
  * 
@@ -3285,10 +3278,10 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
  *         counter_m += m_step
  *         counter_c += slice_[i]
  */
-  __pyx_t_4 = (__pyx_v_n_m - 1);
-  __pyx_t_5 = __pyx_t_4;
-  for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
-    __pyx_v_i = __pyx_t_6;
+  __pyx_t_3 = (__pyx_v_n_m - 1);
+  __pyx_t_4 = __pyx_t_3;
+  for (__pyx_t_5 = 0; __pyx_t_5 < __pyx_t_4; __pyx_t_5+=1) {
+    __pyx_v_i = __pyx_t_5;
 
     /* "project/rar/contrast.pyx":40
  *     cdef double max_dist = 0, distance = 0
@@ -3306,8 +3299,8 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
  * 
  *         # calculate distance if value to the right is new value
  */
-    __pyx_t_7 = __pyx_v_i;
-    __pyx_v_counter_c = (__pyx_v_counter_c + (*((__pyx_t_5numpy_float_t *) ( /* dim=0 */ (__pyx_v_slice_.data + __pyx_t_7 * __pyx_v_slice_.strides[0]) ))));
+    __pyx_t_6 = __pyx_v_i;
+    __pyx_v_counter_c = (__pyx_v_counter_c + (*((__pyx_t_5numpy_float_t *) ( /* dim=0 */ (__pyx_v_slice_.data + __pyx_t_6 * __pyx_v_slice_.strides[0]) ))));
 
     /* "project/rar/contrast.pyx":44
  * 
@@ -3316,9 +3309,9 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
  *             distance = counter_m - (counter_c / n_c)
  *             if (distance < 0):
  */
-    __pyx_t_8 = __pyx_v_i;
-    __pyx_t_9 = (__pyx_v_i + 1);
-    __pyx_t_1 = (((*((double *) ( /* dim=0 */ (__pyx_v_m.data + __pyx_t_8 * __pyx_v_m.strides[0]) ))) != (*((double *) ( /* dim=0 */ (__pyx_v_m.data + __pyx_t_9 * __pyx_v_m.strides[0]) )))) != 0);
+    __pyx_t_7 = __pyx_v_i;
+    __pyx_t_8 = (__pyx_v_i + 1);
+    __pyx_t_1 = (((*((double *) ( /* dim=0 */ (__pyx_v_m.data + __pyx_t_7 * __pyx_v_m.strides[0]) ))) != (*((double *) ( /* dim=0 */ (__pyx_v_m.data + __pyx_t_8 * __pyx_v_m.strides[0]) )))) != 0);
     if (__pyx_t_1) {
 
       /* "project/rar/contrast.pyx":45
@@ -3420,13 +3413,13 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
  *     return contrasts
  * 
  * cdef public double _calculate_max_dist(double[:] m, np.float_t[:] slice_, double n_c) nogil:             # <<<<<<<<<<<<<<
- *     if n_c == 0 or len(m) == 0:
+ *     if n_c == 0:
  *         return 0
  */
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_WriteUnraisable("project.rar.contrast._calculate_max_dist", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 1);
+  __Pyx_WriteUnraisable("calculate_contrast._calculate_max_dist", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 1);
   __pyx_r = 0;
   __pyx_L0:;
   return __pyx_r;
@@ -3441,20 +3434,20 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_7project_3rar_8contrast_5_calculate_contrasts_kld(PyObject *__pyx_self, PyObject *__pyx_v_cache); /*proto*/
-static PyMethodDef __pyx_mdef_7project_3rar_8contrast_5_calculate_contrasts_kld = {"_calculate_contrasts_kld", (PyCFunction)__pyx_pw_7project_3rar_8contrast_5_calculate_contrasts_kld, METH_O, 0};
-static PyObject *__pyx_pw_7project_3rar_8contrast_5_calculate_contrasts_kld(PyObject *__pyx_self, PyObject *__pyx_v_cache) {
+static PyObject *__pyx_pw_18calculate_contrast_5_calculate_contrasts_kld(PyObject *__pyx_self, PyObject *__pyx_v_cache); /*proto*/
+static PyMethodDef __pyx_mdef_18calculate_contrast_5_calculate_contrasts_kld = {"_calculate_contrasts_kld", (PyCFunction)__pyx_pw_18calculate_contrast_5_calculate_contrasts_kld, METH_O, 0};
+static PyObject *__pyx_pw_18calculate_contrast_5_calculate_contrasts_kld(PyObject *__pyx_self, PyObject *__pyx_v_cache) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("_calculate_contrasts_kld (wrapper)", 0);
-  __pyx_r = __pyx_pf_7project_3rar_8contrast_4_calculate_contrasts_kld(__pyx_self, ((PyObject *)__pyx_v_cache));
+  __pyx_r = __pyx_pf_18calculate_contrast_4_calculate_contrasts_kld(__pyx_self, ((PyObject *)__pyx_v_cache));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_7project_3rar_8contrast_4_calculate_contrasts_kld(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_cache) {
+static PyObject *__pyx_pf_18calculate_contrast_4_calculate_contrasts_kld(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_cache) {
   PyObject *__pyx_v_values_m = NULL;
   PyObject *__pyx_v_probs_m = NULL;
   PyObject *__pyx_v_sorted_y = NULL;
@@ -3834,7 +3827,7 @@ static PyObject *__pyx_pf_7project_3rar_8contrast_4_calculate_contrasts_kld(CYTH
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_9);
-  __Pyx_AddTraceback("project.rar.contrast._calculate_contrasts_kld", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("calculate_contrast._calculate_contrasts_kld", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_values_m);
@@ -3858,9 +3851,9 @@ static PyObject *__pyx_pf_7project_3rar_8contrast_4_calculate_contrasts_kld(CYTH
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_7project_3rar_8contrast_7_calculate_probs_kld(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_7project_3rar_8contrast_7_calculate_probs_kld = {"_calculate_probs_kld", (PyCFunction)__pyx_pw_7project_3rar_8contrast_7_calculate_probs_kld, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_7project_3rar_8contrast_7_calculate_probs_kld(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_18calculate_contrast_7_calculate_probs_kld(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_18calculate_contrast_7_calculate_probs_kld = {"_calculate_probs_kld", (PyCFunction)__pyx_pw_18calculate_contrast_7_calculate_probs_kld, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_18calculate_contrast_7_calculate_probs_kld(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_y = 0;
   PyObject *__pyx_v_slice_ = 0;
   PyObject *__pyx_v_values_m = 0;
@@ -3919,18 +3912,18 @@ static PyObject *__pyx_pw_7project_3rar_8contrast_7_calculate_probs_kld(PyObject
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("_calculate_probs_kld", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 64, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("project.rar.contrast._calculate_probs_kld", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("calculate_contrast._calculate_probs_kld", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_7project_3rar_8contrast_6_calculate_probs_kld(__pyx_self, __pyx_v_y, __pyx_v_slice_, __pyx_v_values_m);
+  __pyx_r = __pyx_pf_18calculate_contrast_6_calculate_probs_kld(__pyx_self, __pyx_v_y, __pyx_v_slice_, __pyx_v_values_m);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_7project_3rar_8contrast_6_calculate_probs_kld(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_y, PyObject *__pyx_v_slice_, PyObject *__pyx_v_values_m) {
+static PyObject *__pyx_pf_18calculate_contrast_6_calculate_probs_kld(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_y, PyObject *__pyx_v_slice_, PyObject *__pyx_v_values_m) {
   Py_ssize_t __pyx_v_m;
   PyObject *__pyx_v_indices = NULL;
   PyObject *__pyx_v_weight_sum = NULL;
@@ -4239,7 +4232,7 @@ static PyObject *__pyx_pf_7project_3rar_8contrast_6_calculate_probs_kld(CYTHON_U
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("project.rar.contrast._calculate_probs_kld", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("calculate_contrast._calculate_probs_kld", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_indices);
@@ -19751,7 +19744,7 @@ static PyBufferProcs __pyx_tp_as_buffer_array = {
 
 static PyTypeObject __pyx_type___pyx_array = {
   PyVarObject_HEAD_INIT(0, 0)
-  "project.rar.contrast.array", /*tp_name*/
+  "calculate_contrast.array", /*tp_name*/
   sizeof(struct __pyx_array_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_array, /*tp_dealloc*/
@@ -19859,7 +19852,7 @@ static PyMethodDef __pyx_methods_Enum[] = {
 
 static PyTypeObject __pyx_type___pyx_MemviewEnum = {
   PyVarObject_HEAD_INIT(0, 0)
-  "project.rar.contrast.Enum", /*tp_name*/
+  "calculate_contrast.Enum", /*tp_name*/
   sizeof(struct __pyx_MemviewEnum_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_Enum, /*tp_dealloc*/
@@ -20109,7 +20102,7 @@ static PyBufferProcs __pyx_tp_as_buffer_memoryview = {
 
 static PyTypeObject __pyx_type___pyx_memoryview = {
   PyVarObject_HEAD_INIT(0, 0)
-  "project.rar.contrast.memoryview", /*tp_name*/
+  "calculate_contrast.memoryview", /*tp_name*/
   sizeof(struct __pyx_memoryview_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_memoryview, /*tp_dealloc*/
@@ -20236,7 +20229,7 @@ static struct PyGetSetDef __pyx_getsets__memoryviewslice[] = {
 
 static PyTypeObject __pyx_type___pyx_memoryviewslice = {
   PyVarObject_HEAD_INIT(0, 0)
-  "project.rar.contrast._memoryviewslice", /*tp_name*/
+  "calculate_contrast._memoryviewslice", /*tp_name*/
   sizeof(struct __pyx_memoryviewslice_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc__memoryviewslice, /*tp_dealloc*/
@@ -20307,17 +20300,17 @@ static PyMethodDef __pyx_methods[] = {
 #if PY_MAJOR_VERSION >= 3
 #if CYTHON_PEP489_MULTI_PHASE_INIT
 static PyObject* __pyx_pymod_create(PyObject *spec, PyModuleDef *def); /*proto*/
-static int __pyx_pymod_exec_contrast(PyObject* module); /*proto*/
+static int __pyx_pymod_exec_calculate_contrast(PyObject* module); /*proto*/
 static PyModuleDef_Slot __pyx_moduledef_slots[] = {
   {Py_mod_create, (void*)__pyx_pymod_create},
-  {Py_mod_exec, (void*)__pyx_pymod_exec_contrast},
+  {Py_mod_exec, (void*)__pyx_pymod_exec_calculate_contrast},
   {0, NULL}
 };
 #endif
 
 static struct PyModuleDef __pyx_moduledef = {
     PyModuleDef_HEAD_INIT,
-    "contrast",
+    "calculate_contrast",
     0, /* m_doc */
   #if CYTHON_PEP489_MULTI_PHASE_INIT
     0, /* m_size */
@@ -20372,6 +20365,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_c, __pyx_k_c, sizeof(__pyx_k_c), 0, 0, 1, 1},
   {&__pyx_n_u_c, __pyx_k_c, sizeof(__pyx_k_c), 0, 1, 0, 1},
   {&__pyx_n_s_cache, __pyx_k_cache, sizeof(__pyx_k_cache), 0, 0, 1, 1},
+  {&__pyx_n_s_calculate_contrast, __pyx_k_calculate_contrast, sizeof(__pyx_k_calculate_contrast), 0, 0, 1, 1},
   {&__pyx_n_s_calculate_contrasts, __pyx_k_calculate_contrasts, sizeof(__pyx_k_calculate_contrasts), 0, 0, 1, 1},
   {&__pyx_n_s_calculate_contrasts_kld, __pyx_k_calculate_contrasts_kld, sizeof(__pyx_k_calculate_contrasts_kld), 0, 0, 1, 1},
   {&__pyx_n_s_calculate_contrasts_ks, __pyx_k_calculate_contrasts_ks, sizeof(__pyx_k_calculate_contrasts_ks), 0, 0, 1, 1},
@@ -20427,7 +20421,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_prev, __pyx_k_prev, sizeof(__pyx_k_prev), 0, 0, 1, 1},
   {&__pyx_n_s_probs, __pyx_k_probs, sizeof(__pyx_k_probs), 0, 0, 1, 1},
   {&__pyx_n_s_probs_m, __pyx_k_probs_m, sizeof(__pyx_k_probs_m), 0, 0, 1, 1},
-  {&__pyx_n_s_project_rar_contrast, __pyx_k_project_rar_contrast, sizeof(__pyx_k_project_rar_contrast), 0, 0, 1, 1},
   {&__pyx_kp_s_project_rar_contrast_pyx, __pyx_k_project_rar_contrast_pyx, sizeof(__pyx_k_project_rar_contrast_pyx), 0, 0, 1, 0},
   {&__pyx_n_s_pyx_PickleError, __pyx_k_pyx_PickleError, sizeof(__pyx_k_pyx_PickleError), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_checksum, __pyx_k_pyx_checksum, sizeof(__pyx_k_pyx_checksum), 0, 0, 1, 1},
@@ -21125,11 +21118,11 @@ static int __Pyx_modinit_function_import_code(void) {
 
 
 #if PY_MAJOR_VERSION < 3
-__Pyx_PyMODINIT_FUNC initcontrast(void) CYTHON_SMALL_CODE; /*proto*/
-__Pyx_PyMODINIT_FUNC initcontrast(void)
+__Pyx_PyMODINIT_FUNC initcalculate_contrast(void) CYTHON_SMALL_CODE; /*proto*/
+__Pyx_PyMODINIT_FUNC initcalculate_contrast(void)
 #else
-__Pyx_PyMODINIT_FUNC PyInit_contrast(void) CYTHON_SMALL_CODE; /*proto*/
-__Pyx_PyMODINIT_FUNC PyInit_contrast(void)
+__Pyx_PyMODINIT_FUNC PyInit_calculate_contrast(void) CYTHON_SMALL_CODE; /*proto*/
+__Pyx_PyMODINIT_FUNC PyInit_calculate_contrast(void)
 #if CYTHON_PEP489_MULTI_PHASE_INIT
 {
   return PyModuleDef_Init(&__pyx_moduledef);
@@ -21169,7 +21162,7 @@ bad:
 }
 
 
-static int __pyx_pymod_exec_contrast(PyObject *__pyx_pyinit_module) CYTHON_SMALL_CODE 
+static int __pyx_pymod_exec_calculate_contrast(PyObject *__pyx_pyinit_module) CYTHON_SMALL_CODE 
 #endif
 #endif
 {
@@ -21191,7 +21184,7 @@ if (!__Pyx_RefNanny) {
       Py_FatalError("failed to import 'refnanny' module");
 }
 #endif
-  __Pyx_RefNannySetupContext("__Pyx_PyMODINIT_FUNC PyInit_contrast(void)", 0);
+  __Pyx_RefNannySetupContext("__Pyx_PyMODINIT_FUNC PyInit_calculate_contrast(void)", 0);
   if (__Pyx_check_binary_version() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_empty_tuple = PyTuple_New(0); if (unlikely(!__pyx_empty_tuple)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_empty_bytes = PyBytes_FromStringAndSize("", 0); if (unlikely(!__pyx_empty_bytes)) __PYX_ERR(0, 1, __pyx_L1_error)
@@ -21227,7 +21220,7 @@ if (!__Pyx_RefNanny) {
   Py_INCREF(__pyx_m);
   #else
   #if PY_MAJOR_VERSION < 3
-  __pyx_m = Py_InitModule4("contrast", __pyx_methods, 0, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
+  __pyx_m = Py_InitModule4("calculate_contrast", __pyx_methods, 0, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
   #else
   __pyx_m = PyModule_Create(&__pyx_moduledef);
   #endif
@@ -21246,14 +21239,14 @@ if (!__Pyx_RefNanny) {
   #if PY_MAJOR_VERSION < 3 && (__PYX_DEFAULT_STRING_ENCODING_IS_ASCII || __PYX_DEFAULT_STRING_ENCODING_IS_DEFAULT)
   if (__Pyx_init_sys_getdefaultencoding_params() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
-  if (__pyx_module_is_main_project__rar__contrast) {
+  if (__pyx_module_is_main_calculate_contrast) {
     if (PyObject_SetAttrString(__pyx_m, "__name__", __pyx_n_s_main) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   }
   #if PY_MAJOR_VERSION >= 3
   {
     PyObject *modules = PyImport_GetModuleDict(); if (unlikely(!modules)) __PYX_ERR(0, 1, __pyx_L1_error)
-    if (!PyDict_GetItemString(modules, "project.rar.contrast")) {
-      if (unlikely(PyDict_SetItemString(modules, "project.rar.contrast", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
+    if (!PyDict_GetItemString(modules, "calculate_contrast")) {
+      if (unlikely(PyDict_SetItemString(modules, "calculate_contrast", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
     }
   }
   #endif
@@ -21314,7 +21307,7 @@ if (!__Pyx_RefNanny) {
  *     return {
  *         "numeric": _calculate_contrasts_ks,
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_7project_3rar_8contrast_1calculate_contrasts, NULL, __pyx_n_s_project_rar_contrast); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 7, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_18calculate_contrast_1calculate_contrasts, NULL, __pyx_n_s_calculate_contrast); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 7, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_calculate_contrasts, __pyx_t_2) < 0) __PYX_ERR(0, 7, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -21326,7 +21319,7 @@ if (!__Pyx_RefNanny) {
  *     cdef int n = len(cache["slices"])
  *     cdef int i = 0
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_7project_3rar_8contrast_3_calculate_contrasts_ks, NULL, __pyx_n_s_project_rar_contrast); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 14, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_18calculate_contrast_3_calculate_contrasts_ks, NULL, __pyx_n_s_calculate_contrast); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 14, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_calculate_contrasts_ks, __pyx_t_2) < 0) __PYX_ERR(0, 14, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -21338,7 +21331,7 @@ if (!__Pyx_RefNanny) {
  *     values_m, probs_m = cache["values"], cache["probs"]
  *     sorted_y, slices = cache["sorted"], cache["slices"]
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_7project_3rar_8contrast_5_calculate_contrasts_kld, NULL, __pyx_n_s_project_rar_contrast); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 52, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_18calculate_contrast_5_calculate_contrasts_kld, NULL, __pyx_n_s_calculate_contrast); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 52, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_calculate_contrasts_kld, __pyx_t_2) < 0) __PYX_ERR(0, 52, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -21350,7 +21343,7 @@ if (!__Pyx_RefNanny) {
  *     m = len(values_m)
  * 
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_7project_3rar_8contrast_7_calculate_probs_kld, NULL, __pyx_n_s_project_rar_contrast); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 64, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_18calculate_contrast_7_calculate_probs_kld, NULL, __pyx_n_s_calculate_contrast); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 64, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_calculate_probs_kld, __pyx_t_2) < 0) __PYX_ERR(0, 64, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -21526,11 +21519,11 @@ if (!__Pyx_RefNanny) {
   __Pyx_XDECREF(__pyx_t_2);
   if (__pyx_m) {
     if (__pyx_d) {
-      __Pyx_AddTraceback("init project.rar.contrast", 0, __pyx_lineno, __pyx_filename);
+      __Pyx_AddTraceback("init calculate_contrast", 0, __pyx_lineno, __pyx_filename);
     }
     Py_DECREF(__pyx_m); __pyx_m = 0;
   } else if (!PyErr_Occurred()) {
-    PyErr_SetString(PyExc_ImportError, "init project.rar.contrast");
+    PyErr_SetString(PyExc_ImportError, "init calculate_contrast");
   }
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
