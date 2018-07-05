@@ -19,10 +19,8 @@ def _get_mi_cc(X, y, f_types, l_type, k, dist):
     Arguments:
         
     """
-    nx = np.ones(X.shape[0]) * k
-    ny = np.ones(X.shape[0]) * k
-    nx[:] = np.nan
-    ny[:] = np.nan
+    nx = np.ones(X.shape[0]) * -1
+    ny = np.ones(X.shape[0]) * -1
 
     D_x = get_dist_matrix(X, f_types, nominal_distance=dist)
     D_x.sort()
@@ -43,8 +41,8 @@ def _get_mi_cc(X, y, f_types, l_type, k, dist):
             nx[row] = (dist_x <= radius).sum() - 1
             ny[row] = (dist_y <= radius).sum() - 1
 
-    nx = nx[~np.isnan(nx)]
-    ny = ny[~np.isnan(ny)]
+    nx = nx[nx >= 0]
+    ny = ny[nx >= 0]
 
     mi = digamma(len(nx)) + digamma(k) - (1 / k) - \
         digamma(np.mean(nx)) - digamma(np.mean(ny))
@@ -60,10 +58,8 @@ def _get_mi_cd(X, y, f_types, k, dist):
     Arguments:
         
     """
-    n = np.ones(X.shape[0]) * k
-    m = np.ones(X.shape[0]) * k
-    n[:] = np.nan
-    m[:] = np.nan
+    n = np.ones(X.shape[0]) * -1
+    m = np.ones(X.shape[0]) * -1
 
     D = get_dist_matrix(X, f_types, nominal_distance=dist)
 
@@ -82,9 +78,8 @@ def _get_mi_cd(X, y, f_types, k, dist):
             m[row] = (dist_full <= radius).sum() - 1
             n[row] = len(dist_cond)
 
-    m = m[~np.isnan(m)]
-    n = n[~np.isnan(n)]
-
+    m = m[m >= 0]
+    n = n[n >= 0]
     mi = digamma(len(m)) - np.mean(digamma(n)) + \
         digamma(k) - np.mean(digamma(m))
     return max(mi, 0)

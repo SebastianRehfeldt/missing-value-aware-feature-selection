@@ -27,14 +27,6 @@ data = introduce_missing_values(data, missing_rate=mr)
 data = scale_data(data)
 
 # %%
-from time import clock
-from project.shared.dist_matrix import get_dist_matrix
-
-start = clock()
-dist_matrix = get_dist_matrix(data.X, data.f_types)
-print(clock() - start)
-
-# %%
 from project.rar.rar import RaR
 
 start = time()
