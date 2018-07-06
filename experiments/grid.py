@@ -44,7 +44,7 @@ pipe = Pipeline([('reduce_dim', rar), ('classify', knn)])
 param_grid = [
     {
         'reduce_dim': [RaR(data.f_types, data.l_type, data.shape)],
-        'reduce_dim__k': [2, 5],
+        'reduce_dim__k': [2],
         'reduce_dim__contrast_iterations': [100, 250],
         'reduce_dim__alpha': [0.1, 0.02],
         'reduce_dim__n_iterations': [400, 800],
@@ -53,11 +53,18 @@ param_grid = [
 
 scorer = make_scorer(f1_score, average="micro")
 grid = GridSearchCV(
-    pipe, cv=3, n_jobs=1, param_grid=param_grid, scoring=scorer)
+    pipe, cv=3, n_jobs=4, param_grid=param_grid, scoring=scorer)
 grid.fit(data.X, data.y)
 
 # %%
-
 results = pd.DataFrame(grid.cv_results_).sort_values(
     by="mean_test_score", ascending=False)
-results
+results.to_csv("./experiments/grid/results.csv")
+
+ranking = grid.best_estimator_.steps[0][1].get_ranking()
+ranking = dict(ranking)
+ranking = pd.DataFrame(
+    data={"score": list(ranking.values())},
+    index=ranking.keys(),
+)
+ranking.to_csv("./experiments/grid/ranking.csv")
