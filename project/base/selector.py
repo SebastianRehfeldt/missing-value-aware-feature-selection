@@ -2,9 +2,10 @@
     Base class for transformers which can be used for dim_reduction in pipeline
 """
 import sys
+import numpy as np
 from abc import ABC, abstractmethod
 from project.utils import Data
-from project.utils import assert_data, assert_df, assert_series, assert_l_type
+from project.utils import assert_df, assert_series, assert_l_type
 from project.rar.hics import HICS
 
 
@@ -75,6 +76,14 @@ class Selector(ABC):
 
         if self.params["eval_method"] == "rar":
             self.nans = self.data.X.isnull()
+
+            if self.params["create_category"]:
+                mask = (self.data.X == "?")
+                self.data.X = self.data.X.where(~mask, other="MISSING")
+            else:
+                nominal_nans = (self.data.X == "?")
+                self.nans = np.logical_or(self.nans, nominal_nans)
+
             self.hics = HICS(self.data, self.nans, **self.params)
 
         self._fit()

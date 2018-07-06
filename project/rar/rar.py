@@ -29,6 +29,7 @@ class RaR(Subspacing):
         weight = kwargs.get("weight", 1)
         eval_method = kwargs.get("eval_method", "rar")
         approach = kwargs.get("approach", "deletion")
+        create_category = kwargs.get("create_category", False)
         min_slices = kwargs.get("min_slices", 5)
         min_samples = kwargs.get("min_samples", 3)
         min_patterns = kwargs.get("min_patterns", 10)
@@ -50,6 +51,7 @@ class RaR(Subspacing):
             "weight": weight,
             "eval_method": eval_method,
             "approach": approach,
+            "create_category": create_category,
             "min_slices": min_slices,
             "min_samples": min_samples,
             "min_patterns": min_patterns,

@@ -81,10 +81,9 @@ def get_categorical_slices(X, **options):
     index_dict = {val: np.where(X == val)[0] for val in values}
     values_to_select = list(values)
 
-    if options["approach"] in ["partial", "fuzzy"]:
-        contains_nans = "?" in values_to_select
-        if contains_nans:
-            values_to_select.remove("?")
+    contains_nans = "?" in values_to_select
+    if contains_nans:
+        values_to_select.remove("?")
 
     dtype = np.float16 if options["approach"] == "fuzzy" else bool
     slices = np.zeros((n_iterations, X.shape[0]), dtype=dtype)
