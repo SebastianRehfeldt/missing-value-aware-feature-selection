@@ -2,6 +2,7 @@
     Wrapper class for fancy impute to match sklearn requirements
 """
 import pandas as pd
+
 from fancyimpute import KNN, MICE, MatrixFactorization, SimpleFill, SoftImpute
 from project.utils import assert_data
 
@@ -75,11 +76,21 @@ class Imputer():
             X {df} -- Feature matrix which should be filled
         """
         cols = self.f_types.loc[self.f_types == "numeric"].index
+        X_copy = X.copy()
         if X[cols].isnull().values.any():
-            X_copy = X.copy()
             X_copy[cols] = self._get_imputer().complete(X_copy[cols])
-            return X_copy
-        return X
+
+        for col in X_copy:
+            if self.f_types[col] == "nominal":
+                elements = X_copy[col].value_counts()
+                mode = elements.index[0]
+                if mode == "?":
+                    mode = elements.index[1]
+
+                indices = X_copy[col] == "?"
+                X_copy[col][indices] = mode
+
+        return X_copy
 
     def complete(self, data):
         """
