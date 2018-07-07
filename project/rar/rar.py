@@ -32,7 +32,6 @@ class RaR(Subspacing):
         create_category = kwargs.get("create_category", False)
         min_slices = kwargs.get("min_slices", 5)
         min_samples = kwargs.get("min_samples", 3)
-        min_patterns = kwargs.get("min_patterns", 10)
         max_subspaces = kwargs.get("max_subspaces", 1000)
         sample_slices = kwargs.get("sample_slices", True)
         subspace_size = kwargs.get("subspace_size", self._get_size())
@@ -54,7 +53,6 @@ class RaR(Subspacing):
             "create_category": create_category,
             "min_slices": min_slices,
             "min_samples": min_samples,
-            "min_patterns": min_patterns,
             "max_subspaces": max_subspaces,
             "sample_slices": sample_slices,
             "subspace_size": subspace_size,
