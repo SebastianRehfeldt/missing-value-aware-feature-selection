@@ -21,6 +21,7 @@ def combine_slices(slices):
     return np.multiply.reduce(slices, 0, dtype=slices[0].dtype)
 
 
+# TODO: min_samples should differ between approaches
 def prune_slices(slices, min_samples=3):
     sums = np.sum(slices, axis=1, dtype=float)
     indices = sums > min_samples
@@ -32,7 +33,7 @@ def prune_slices(slices, min_samples=3):
 def get_numerical_slices(X, **options):
     n_iterations, n_select = options["n_iterations"], options["n_select"]
 
-    if options["approach"] in ["partial", "fuzzy"]:
+    if options["approach"] in ["partial", "fuzzy", "deletion"]:
         indices, nans = options["indices"], options["nans"]
     else:
         indices = np.argsort(X)
@@ -40,7 +41,7 @@ def get_numerical_slices(X, **options):
     # TODO: account for missing values (also increase max_start if range very small)
     max_start = X.shape[0] - n_select
     max_value = max(X)
-    if options["approach"] in ["partial", "fuzzy"]:
+    if options["approach"] in ["partial", "fuzzy", "deletion"]:
         # TODO: speed up?
         non_nan_count = indices.shape[0] - nans.sum()
         max_start = non_nan_count - n_select
@@ -72,7 +73,7 @@ def get_numerical_slices(X, **options):
 def get_categorical_slices(X, **options):
     n_iterations, n_select = options["n_iterations"], options["n_select"]
 
-    if options["approach"] in ["partial", "fuzzy"]:
+    if options["approach"] in ["partial", "fuzzy", "deletion"]:
         values, counts = options["values"], options["counts"]
     else:
         values, counts = np.unique(X, return_counts=True)

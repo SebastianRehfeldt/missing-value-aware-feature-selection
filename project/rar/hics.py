@@ -11,10 +11,10 @@ class HICS():
         self.params = params
         self._init_alphas()
         self._init_n_selects()
+        self._cache_label()
 
-        if self.params["approach"] in ["partial", "fuzzy"]:
+        if self.params["approach"] in ["partial", "fuzzy", "deletion"]:
             self._init_slices()
-            self._cache_label()
 
     def _init_alphas(self):
         alpha = self.params["alpha"]
@@ -75,14 +75,12 @@ class HICS():
 
     def evaluate_subspace(self, subspace, targets=[]):
         # GET SLICES
-        if self.params["approach"] in ["partial", "fuzzy"]:
-            y, indices, T = self.data.y, None, None
+        T = None
+        if self.params["approach"] in ["partial", "fuzzy", "deletion"]:
             slices, lengths = self.get_cached_slices(subspace)
         else:
             types = self.data.f_types[subspace]
-            X, y, indices, T = self._prepare_data(subspace, targets, types)
-            if X.shape[0] < self.params["min_patterns"]:
-                return 0, [], True
+            X, T = self._apply_imputation(subspace, targets, types)
             slices, lengths = self.get_slices(X, types)
 
         # RETURN IF TOO FEW SLICES
@@ -90,34 +88,27 @@ class HICS():
             return 0, [], True
 
         # COMPUTE RELEVANCE AND REDUNDANCIES
-        rels = self.get_relevance(y, slices, lengths)
-        reds = self.get_redundancies(slices, lengths, targets, indices, T)
+        rels = self.get_relevance(slices, lengths)
+        reds = self.get_redundancies(slices, lengths, targets, T)
         return rels, reds, False
 
-    def get_relevance(self, y, slices, lengths):
-        indices = None
-        if self.params["approach"] in ["partial", "fuzzy"]:
-            indices = self.label_indices
-
+    def get_relevance(self, slices, lengths):
+        y = self.data.y
         l_type = self.data.l_type
+        indices = self.label_indices
         cache = self._create_cache(y, l_type, slices, lengths, indices)
         relevances = calculate_contrasts(cache)
         return 1 - np.exp(-1 * np.mean(relevances))
 
-    def get_redundancies(self, slices, lengths, targets, indices=None, T=None):
+    def get_redundancies(self, slices, lengths, targets, T=None):
         redundancies = []
         for target in targets:
             t_type = self.data.f_types[target]
 
-            # remove samples which have nans in target of redundancy calculation
+            # remove samples with nans in target for redundancy calculation
             if self.params["approach"] in ["deletion", "partial", "fuzzy"]:
-                if self.params["approach"] == "deletion":
-                    t_nans = self.nans[target][indices]
-                    t = self.data.X[target][indices][~t_nans]
-                else:
-                    self.params["approach"] in ["partial", "fuzzy"]
-                    t_nans = self.nans[target]
-                    t = self.data.X[target][~t_nans]
+                t_nans = self.nans[target]
+                t = self.data.X[target][~t_nans]
 
                 min_samples = self.params["min_samples"]
                 t_slices = slices[:, ~t_nans]
@@ -136,20 +127,6 @@ class HICS():
                 redundancies.append(np.mean(red_s))
         return redundancies
 
-    def _prepare_data(self, subspace, targets, types):
-        if self.params["approach"] == "deletion":
-            X, y, indices, T = self._apply_deletion(subspace)
-
-        if self.params["approach"] == "imputation":
-            X, y, indices, T = self._apply_imputation(subspace, targets, types)
-        return X, y, indices, T
-
-    def _apply_deletion(self, subspace):
-        nan_indices = np.sum(self.nans[subspace].values, axis=1) == 0
-        new_X = self.data.X[subspace][nan_indices]
-        new_y = self.data.y[nan_indices]
-        return new_X, new_y, nan_indices, None
-
     def _apply_imputation(self, subspace, targets, types):
         from project.utils.imputer import Imputer
 
@@ -162,7 +139,7 @@ class HICS():
         X_complete = imputer._complete(self.data.X[cols])
         T = X_complete[targets]
         X = X_complete[subspace]
-        return X, self.data.y, None, T
+        return X, T
 
     def get_slices(self, X, types, **opts):
         options = {
@@ -201,9 +178,7 @@ class HICS():
         }
 
         if y_type == "nominal":
-            y_name = self.data.y.name
-            if self.params["approach"] in ["partial", "fuzzy"
-                                           ] and y_name == y.name:
+            if self.data.y.name == y.name:
                 values, counts = self.label_values, self.label_counts
             else:
                 values, counts = np.unique(sorted_y, return_counts=True)
