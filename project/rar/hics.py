@@ -210,6 +210,6 @@ class HICS():
 
             cache.update({
                 "values": values,
-                "probs": counts / len(sorted_y),
+                "counts": counts,
             })
         return cache

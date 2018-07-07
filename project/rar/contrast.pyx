@@ -2,7 +2,6 @@
 from cython.parallel import parallel, prange
 cimport numpy as np
 import numpy as np
-from time import time
 
 def calculate_contrasts(cache):
     return {
@@ -50,27 +49,44 @@ cdef public double _calculate_max_dist(double[:] m, np.float_t[:] slice_, double
     return max_dist
 
 def _calculate_contrasts_kld(cache):
-    values_m, probs_m = cache["values"], cache["probs"]
-    sorted_y, slices = cache["sorted"], cache["slices"]
+    probs = cache["counts"]  / len(cache["sorted"])
+    cdef int[:] counts = cache["counts"].astype(int)
 
-    cdfs = np.zeros((len(slices), len(values_m)))
-    for i, s in enumerate(slices):
-        cdfs[i, :] = _calculate_probs_kld(sorted_y, s, values_m)
+    # TODO: normalize slice sums to 1 which makes max dist calc faster
+    cdef np.float_t[:,:] slices = cache["slices"].astype(np.float)
+    cdef double[:] lengths = cache["lengths"]
 
-    cdfs += 1e-8
-    return np.sum(cdfs * np.log2(cdfs / probs_m), axis=1)
+    cdef int i= 0, n = len(cache["slices"])
+    cdef double[:,:] cdfs = np.zeros((len(slices), len(probs)))
+
+    with nogil, parallel(num_threads=1):
+        for i in prange(n, schedule='static'):
+            cdfs[i, :] = _calculate_probs_kld(counts, slices[i,:], lengths[i])
+
+    return np.sum(cdfs * np.log2(cdfs / probs), axis=1)
 
 
-def _calculate_probs_kld(y, slice_, values_m):
-    m = len(values_m)
+cdef public double[:] _calculate_probs_kld(int[:] marginal_counts, np.float_t[:]slice_, double weight_sum) nogil:
+    cdef int n_values = len(marginal_counts), i = 0
+    cdef int n_samples = len(slice_)
+
+    cdef double[:] conditional_counts
+    with gil:
+        conditional_counts = np.zeros(n_values)
+
+    cdef int value_i = 0
+    cdef int current_counts = 0
+    for sample_i in range(n_samples):
+        if current_counts == marginal_counts[value_i]:
+            value_i += 1
+            current_counts = 0
+
+        conditional_counts[value_i] += slice_[sample_i]
+        current_counts += 1
+
+    for i in range(n_values):
+        conditional_counts[i] /= weight_sum
+        conditional_counts[i] += 0.0000001
+
+    return conditional_counts
     
-    indices = np.searchsorted(y, values_m, side="right")
-    weight_sum = np.sum(slice_)
-
-    counts = np.zeros(m)
-    prev = 0
-    for i in range(m):
-        counts[i] = np.sum(slice_[prev:indices[i]])
-        prev = indices[i]
-    
-    return counts / weight_sum
