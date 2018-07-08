@@ -11,10 +11,12 @@ class HICS():
         self.params = params
         self._init_alphas()
         self._init_n_selects()
+        self._init_slice_options()
         self._cache_label()
 
         if self.params["approach"] in ["partial", "fuzzy", "deletion"]:
-            self._init_slices()
+            self._init_slice_cache()
+            self._fill_slice_cache()
 
     def _init_alphas(self):
         alpha = self.params["alpha"]
@@ -29,9 +31,16 @@ class HICS():
             for i in range(1, self.params["subspace_size"][1] + 1)
         }
 
-    def _init_slices(self):
-        # TODO: find memory leak when cache is filled
-        # TODO: split up function
+    def _init_slice_options(self):
+        self.slice_options = {
+            "n_iterations": self.params["contrast_iterations"],
+            "should_sample": self.params["sample_slices"],
+            "min_samples": self.params["min_samples"],
+            "approach": self.params["approach"],
+            "weight": self.params["weight"],
+        }
+
+    def _init_slice_cache(self):
         dtype = np.float16 if self.params["approach"] == "fuzzy" else bool
         size = (self.data.shape[0], self.params["contrast_iterations"])
         self.slices = {
@@ -42,29 +51,46 @@ class HICS():
             for col in self.data.X
         }
 
+    def _fill_slice_cache(self):
         for col in self.data.X:
             X = self.data.X[col].to_frame()
             types = pd.Series(self.data.f_types[col], [col])
 
-            sorted_indices = np.argsort(self.data.X[col].values)
             if types[col] == "nominal":
                 values, counts = np.unique(X, return_counts=True)
+            else:
+                sorted_indices = np.argsort(self.data.X[col].values)
 
             for i in range(1, self.params["subspace_size"][1] + 1):
-                opts = {
-                    "n_select": self.n_select_d[i],
-                    "min_samples": 0,
-                    "indices": sorted_indices,
-                    "nans": self.nans[col],
-                    "weight": self.params["weight"]
-                }
                 if types[col] == "nominal":
-                    opts.update({
+                    cache = {
                         "values": values,
                         "counts": counts,
-                    })
+                    }
+                else:
+                    cache = {
+                        "nans": self.nans[col],
+                        "indices": sorted_indices,
+                    }
+                self.slices[col][i] = self.get_slices(X, types, cache, 0)
 
-                self.slices[col][i] = self.get_slices(X, types, **opts)[0]
+    def get_slices(self, X, types, cache=None, min_samples=0):
+        options = self.slice_options.copy()
+        options["n_select"] = self.n_select_d[X.shape[1]]
+        if min_samples is not None:
+            options["min_samples"] = 0
+        return get_slices(X, types, cache, **options)
+
+    def get_cached_slices(self, subspace):
+        dim = len(subspace)
+        slices = [self.slices[subspace[i]][dim] for i in range(dim)]
+        slices = combine_slices(slices).copy()
+
+        if self.params["approach"] == "partial":
+            max_nans = int(np.floor(dim / 2))
+            nan_sums = self.nans[subspace].sum(1)
+            slices[:, nan_sums > max_nans] = False
+        return prune_slices(slices, self.params["min_samples"])
 
     def _cache_label(self):
         self.label_indices = np.argsort(self.data.y.values)
@@ -140,28 +166,6 @@ class HICS():
         T = X_complete[targets]
         X = X_complete[subspace]
         return X, T
-
-    def get_slices(self, X, types, **opts):
-        options = {
-            "n_select": int(self.alphas_d[X.shape[1]] * X.shape[0]),
-            "n_iterations": self.params["contrast_iterations"],
-            "approach": self.params["approach"],
-            "should_sample": self.params["sample_slices"],
-            "min_samples": 3,
-        }
-        options.update(opts)
-        return get_slices(X, types, **options)
-
-    def get_cached_slices(self, subspace):
-        dim = len(subspace)
-        slices = [self.slices[subspace[i]][dim] for i in range(dim)]
-        slices = combine_slices(slices).copy()
-
-        if self.params["approach"] == "partial":
-            max_nans = int(np.floor(dim / 2))
-            nan_sums = self.nans[subspace].sum(1)
-            slices[:, nan_sums > max_nans] = False
-        return prune_slices(slices, self.params["min_samples"])
 
     def _create_cache(self, y, y_type, slices, lengths, cached_indices=None):
         if cached_indices is None:
