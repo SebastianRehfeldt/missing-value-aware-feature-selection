@@ -35,7 +35,7 @@ rar = RaR(
     data.l_type,
     data.shape,
     n_jobs=1,
-    approach="partial",
+    approach="deletion",
     n_targets=1,
     n_subspaces=800,
     subspace_size=(1, 3),
