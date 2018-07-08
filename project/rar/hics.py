@@ -102,12 +102,12 @@ class HICS():
     def evaluate_subspace(self, subspace, targets=[]):
         # GET SLICES
         T = None
-        if self.params["approach"] in ["partial", "fuzzy", "deletion"]:
-            slices, lengths = self.get_cached_slices(subspace)
-        else:
+        if self.params["approach"] == "imputation":
             types = self.data.f_types[subspace]
             X, T = self._apply_imputation(subspace, targets, types)
             slices, lengths = self.get_slices(X, types)
+        else:
+            slices, lengths = self.get_cached_slices(subspace)
 
         # RETURN IF TOO FEW SLICES
         if len(slices) <= self.params["min_slices"]:
@@ -131,19 +131,18 @@ class HICS():
         for target in targets:
             t_type = self.data.f_types[target]
 
-            # remove samples with nans in target for redundancy calculation
-            if self.params["approach"] in ["deletion", "partial", "fuzzy"]:
+            if self.params["approach"] == "imputation":
+                # impute nans in redundancy target
+                t = T[target]
+                t_slices = slices
+            else:
+                # remove samples with nans in target for redundancy calculation
                 t_nans = self.nans[target]
                 t = self.data.X[target][~t_nans]
 
                 min_samples = self.params["min_samples"]
                 t_slices = slices[:, ~t_nans]
                 t_slices, lengths = prune_slices(t_slices, min_samples)
-
-            # impute nans in redundancy target
-            if self.params["approach"] == "imputation":
-                t = T[target]
-                t_slices = slices
 
             if len(t_slices) <= self.params["min_slices"]:
                 redundancies.append(0)
