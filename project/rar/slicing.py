@@ -1,15 +1,18 @@
 import numpy as np
 
 
-def get_slices(X, types, **options):
+def get_slices(X, types, cache, **options):
     # collect slices for each column
     slices = [None] * X.shape[1]
     for i, col in enumerate(X):
         slices[i] = {
             "nominal": get_categorical_slices,
             "numeric": get_numerical_slices
-        }[types[col]](X[col].values, **options)
+        }[types[col]](X[col].values, cache, **options)
+
     slices = combine_slices(slices)
+    if options["min_samples"] == 0:
+        return slices
 
     # remove empty and very small slices
     return prune_slices(slices, options["min_samples"])
@@ -30,26 +33,26 @@ def prune_slices(slices, min_samples=3):
     return slices, sums
 
 
-def get_numerical_slices(X, **options):
+def get_numerical_slices(X, cache, **options):
     n_iterations, n_select = options["n_iterations"], options["n_select"]
 
     if options["approach"] in ["partial", "fuzzy", "deletion"]:
-        indices, nans = options["indices"], options["nans"]
+        indices, nans = cache["indices"], cache["nans"]
     else:
         indices = np.argsort(X)
 
     # TODO: account for missing values (also increase max_start if range very small)
     max_start = X.shape[0] - n_select
-    max_value = max(X)
-    if options["approach"] in ["partial", "fuzzy", "deletion"]:
-        # TODO: speed up?
-        non_nan_count = indices.shape[0] - nans.sum()
+    if options["approach"] == "imputation":
+        max_value = np.max(X)
+    else:
+        non_nan_count = indices.shape[0] - np.sum(nans.values)
         max_start = non_nan_count - n_select
         max_value = X[indices[non_nan_count - 1]]
         if max_start < 1:
-            max_start = max(10, int(non_nan_count / 2))
+            max_start = int(non_nan_count / 2)
 
-    start_positions = np.random.choice(range(0, max_start), n_iterations)
+    start_positions = np.random.randint(0, max_start, n_iterations)
 
     dtype = np.float16 if options["approach"] == "fuzzy" else bool
     slices = np.zeros((n_iterations, X.shape[0]), dtype=dtype)
@@ -70,26 +73,26 @@ def get_numerical_slices(X, **options):
     return slices
 
 
-def get_categorical_slices(X, **options):
+def get_categorical_slices(X, cache, **options):
     n_iterations, n_select = options["n_iterations"], options["n_select"]
 
-    if options["approach"] in ["partial", "fuzzy", "deletion"]:
-        values, counts = options["values"], options["counts"]
-    else:
+    if options["approach"] == "imputation":
         values, counts = np.unique(X, return_counts=True)
+    else:
+        values, counts = cache["values"], cache["counts"]
 
     value_dict = dict(zip(values, counts))
     index_dict = {val: np.where(X == val)[0] for val in values}
-    values_to_select = list(values)
 
-    contains_nans = "?" in values_to_select
+    contains_nans = "?" in value_dict
     if contains_nans:
-        values_to_select.remove("?")
+        index = np.where(values == "?")[0]
+        values = np.delete(values, index)
 
     dtype = np.float16 if options["approach"] == "fuzzy" else bool
     slices = np.zeros((n_iterations, X.shape[0]), dtype=dtype)
     for i in range(n_iterations):
-        values_to_select = np.random.permutation(values_to_select)
+        values = np.random.permutation(values)
         current_sum = 0
         for value in values:
             current_sum += value_dict[value]
@@ -97,7 +100,8 @@ def get_categorical_slices(X, **options):
             if current_sum >= n_select:
                 if options["should_sample"]:
                     n_missing = n_select - (current_sum - value_dict[value])
-                    idx = np.random.choice(index_dict[value], n_missing, False)
+                    perm = np.random.permutation(value_dict[value])[:n_missing]
+                    idx = index_dict[value][perm]
                     slices[i, idx] = True
                 else:
                     slices[i, index_dict[value]] = True
