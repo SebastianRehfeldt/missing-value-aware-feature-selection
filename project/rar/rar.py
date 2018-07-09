@@ -34,14 +34,12 @@ class RaR(Subspacing):
         min_samples = kwargs.get("min_samples", 3)
         max_subspaces = kwargs.get("max_subspaces", 1000)
         sample_slices = kwargs.get("sample_slices", True)
+        cache_enabled = kwargs.get("cache_enabled", self.shape[1] < 50)
         subspace_size = kwargs.get("subspace_size", self._get_size())
         subspace_method = kwargs.get("subspace_method", "adaptive")
         imputation_method = kwargs.get("imputation_method", "knn")
         contrast_iterations = kwargs.get("contrast_iterations", 100)
         redundancy_approach = kwargs.get("redundancy_approach", "arvind")
-
-        if approach == "deletion":
-            redundancy_approach = "tom"
 
         self.params.update({
             "alpha": alpha,
@@ -55,6 +53,7 @@ class RaR(Subspacing):
             "min_samples": min_samples,
             "max_subspaces": max_subspaces,
             "sample_slices": sample_slices,
+            "cache_enabled": cache_enabled,
             "subspace_size": subspace_size,
             "subspace_method": subspace_method,
             "imputation_method": imputation_method,
