@@ -40,6 +40,13 @@ class HICS():
             "weight": self.params["weight"],
         }
 
+    def _cache_label(self):
+        self.label_indices = np.argsort(self.data.y.values)
+        self.label_values, self.label_counts = np.unique(
+            self.data.y.values,
+            return_counts=True,
+        )
+
     def _init_slice_cache(self):
         dtype = np.float16 if self.params["approach"] == "fuzzy" else bool
         size = (self.data.shape[0], self.params["contrast_iterations"])
@@ -58,25 +65,23 @@ class HICS():
 
             if types[col] == "nominal":
                 values, counts = np.unique(X, return_counts=True)
+                cache = {
+                    "values": values,
+                    "counts": counts,
+                }
             else:
-                sorted_indices = np.argsort(self.data.X[col].values)
+                cache = {
+                    "nans": self.nans[col],
+                    "indices": np.argsort(self.data.X[col].values),
+                }
 
             for i in range(1, self.params["subspace_size"][1] + 1):
-                if types[col] == "nominal":
-                    cache = {
-                        "values": values,
-                        "counts": counts,
-                    }
-                else:
-                    cache = {
-                        "nans": self.nans[col],
-                        "indices": sorted_indices,
-                    }
-                self.slices[col][i] = self.get_slices(X, types, cache, 0)
+                n = self.n_select_d[i]
+                self.slices[col][i] = self.get_slices(X, types, cache, 0, n)
 
-    def get_slices(self, X, types, cache=None, min_samples=None):
+    def get_slices(self, X, types, cache=None, min_samples=None, n=None):
         options = self.slice_options.copy()
-        options["n_select"] = self.n_select_d[X.shape[1]]
+        options["n_select"] = n or self.n_select_d[X.shape[1]]
         if min_samples is not None:
             options["min_samples"] = min_samples
         return get_slices(X, types, cache, **options)
@@ -90,20 +95,16 @@ class HICS():
         else:
             X = self.data.X[subspace]
             types = self.data.f_types[subspace]
-            slices = self.get_slices(X, types)[0]
+            slices = self.get_slices(X, types)
+            if self.params["approach"] != "partial":
+                return slices
+            slices = slices[0]
 
         if self.params["approach"] == "partial":
             max_nans = int(np.floor(dim / 2))
             nan_sums = np.sum(self.nans[subspace].values, axis=1)
             slices[:, nan_sums > max_nans] = False
         return prune_slices(slices, self.params["min_samples"])
-
-    def _cache_label(self):
-        self.label_indices = np.argsort(self.data.y.values)
-        self.label_values, self.label_counts = np.unique(
-            self.data.y.values,
-            return_counts=True,
-        )
 
     def evaluate_subspace(self, subspace, targets=[]):
         # GET SLICES
@@ -144,11 +145,15 @@ class HICS():
             else:
                 # remove samples with nans in target for redundancy calculation
                 t_nans = self.nans[target]
-                t = self.data.X[target][~t_nans]
+                if np.sum(t_nans.values) > 0:
+                    t = self.data.X[target][~t_nans]
 
-                min_samples = self.params["min_samples"]
-                t_slices = slices[:, ~t_nans]
-                t_slices, lengths = prune_slices(t_slices, min_samples)
+                    min_samples = self.params["min_samples"]
+                    t_slices = slices[:, ~t_nans]
+                    t_slices, lengths = prune_slices(t_slices, min_samples)
+                else:
+                    t = self.data.X[target]
+                    t_slices = slices
 
             if len(t_slices) <= self.params["min_slices"]:
                 redundancies.append(0)
