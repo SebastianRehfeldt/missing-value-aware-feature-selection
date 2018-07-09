@@ -42,7 +42,8 @@ rar = RaR(
     contrast_iterations=250,
     alpha=0.02,
     redundancy_approach="tom",
-    weight=(1 - mr)**2,
+    cache_enabled=False,
+    weight=min(0.9, (1 - mr)**2),
     sample_slices=True,
 )
 

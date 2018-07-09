@@ -36,17 +36,18 @@ def prune_slices(slices, min_samples=3):
 def get_numerical_slices(X, cache, **options):
     n_iterations, n_select = options["n_iterations"], options["n_select"]
 
-    if options["approach"] in ["partial", "fuzzy", "deletion"]:
-        indices, nans = cache["indices"], cache["nans"]
+    if cache is not None:
+        indices, nans = cache["indices"], cache["nans"].values
     else:
         indices = np.argsort(X)
+        nans = np.isnan(X)
 
     # TODO: account for missing values (also increase max_start if range very small)
     max_start = X.shape[0] - n_select
     if options["approach"] == "imputation":
         max_value = np.max(X)
     else:
-        non_nan_count = indices.shape[0] - np.sum(nans.values)
+        non_nan_count = indices.shape[0] - np.sum(nans)
         max_start = non_nan_count - n_select
         max_value = X[indices[non_nan_count - 1]]
         if max_start < 1:
@@ -76,10 +77,10 @@ def get_numerical_slices(X, cache, **options):
 def get_categorical_slices(X, cache, **options):
     n_iterations, n_select = options["n_iterations"], options["n_select"]
 
-    if options["approach"] == "imputation":
-        values, counts = np.unique(X, return_counts=True)
-    else:
+    if cache is not None:
         values, counts = cache["values"], cache["counts"]
+    else:
+        values, counts = np.unique(X, return_counts=True)
 
     value_dict = dict(zip(values, counts))
     index_dict = {val: np.where(X == val)[0] for val in values}

@@ -14,7 +14,7 @@ class HICS():
         self._init_slice_options()
         self._cache_label()
 
-        if self.params["approach"] in ["partial", "fuzzy", "deletion"]:
+        if not self.params["approach"] == "imputation" and self.params["cache_enabled"]:
             self._init_slice_cache()
             self._fill_slice_cache()
 
@@ -74,21 +74,27 @@ class HICS():
                     }
                 self.slices[col][i] = self.get_slices(X, types, cache, 0)
 
-    def get_slices(self, X, types, cache=None, min_samples=0):
+    def get_slices(self, X, types, cache=None, min_samples=None):
         options = self.slice_options.copy()
         options["n_select"] = self.n_select_d[X.shape[1]]
         if min_samples is not None:
-            options["min_samples"] = 0
+            options["min_samples"] = min_samples
         return get_slices(X, types, cache, **options)
 
     def get_cached_slices(self, subspace):
         dim = len(subspace)
-        slices = [self.slices[subspace[i]][dim] for i in range(dim)]
-        slices = combine_slices(slices).copy()
+
+        if self.params["cache_enabled"]:
+            slices = [self.slices[subspace[i]][dim] for i in range(dim)]
+            slices = combine_slices(slices).copy()
+        else:
+            X = self.data.X[subspace]
+            types = self.data.f_types[subspace]
+            slices = self.get_slices(X, types)[0]
 
         if self.params["approach"] == "partial":
             max_nans = int(np.floor(dim / 2))
-            nan_sums = self.nans[subspace].sum(1)
+            nan_sums = np.sum(self.nans[subspace].values, axis=1)
             slices[:, nan_sums > max_nans] = False
         return prune_slices(slices, self.params["min_samples"])
 

@@ -101,6 +101,7 @@ class Subspacing(Selector):
         knowledgebase = Parallel(
             n_jobs=n_jobs,
             mmap_mode="r",
-            max_nbytes="1G",
+            max_nbytes="5G",
+            backend="threading",
         )(delayed(self._evaluate)(chunk) for chunk in chunks)
         return list(itertools.chain.from_iterable(knowledgebase))
