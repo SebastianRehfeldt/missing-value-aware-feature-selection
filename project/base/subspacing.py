@@ -95,13 +95,17 @@ class Subspacing(Selector):
             subspaces {list} -- List of feature subspaces
         """
         n_jobs = self.params["n_jobs"]
+        if n_jobs == 1:
+            return self._evaluate(subspaces)
+
         chunk_size = int(np.ceil(len(subspaces) / n_jobs))
         chunks = self._get_chunks(subspaces, chunk_size)
 
+        backend = "threading" if self.params["eval_method"] == "rar" else None
         knowledgebase = Parallel(
             n_jobs=n_jobs,
             mmap_mode="r",
             max_nbytes="5G",
-            backend="threading",
+            backend=backend,
         )(delayed(self._evaluate)(chunk) for chunk in chunks)
         return list(itertools.chain.from_iterable(knowledgebase))
