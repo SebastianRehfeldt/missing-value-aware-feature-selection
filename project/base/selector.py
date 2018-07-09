@@ -48,7 +48,9 @@ class Selector(ABC):
             "nominal_distance": kwargs.get("nominal_distance", 1),
             "use_cv": kwargs.get("use_cv", False),
             "eval_method": kwargs.get("eval_method", "mi"),
+            "seed": kwargs.get("random_state"),
         }
+        np.random.seed(self.params["seed"])
 
     def fit(self, X, y):
         """
