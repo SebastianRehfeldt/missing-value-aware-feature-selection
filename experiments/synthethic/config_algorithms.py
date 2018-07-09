@@ -3,15 +3,23 @@ from project.feature_selection import Filter, SFS, RKNN
 
 ALGORITHMS = {
     "RaR + Deletion": {
-        "should_impute": False,
         "class": RaR,
         "config": {
             "approach": "deletion",
-            "use_pearson": False,
             "n_targets": 0,
-            "n_subspaces": 5000,
+            "n_subspaces": 800,
         }
     },
+    "RaR Partial": {
+        "class": RaR,
+        "config": {
+            "approach": "partial",
+            "n_targets": 0,
+            "n_subspaces": 800,
+        }
+    },
+}
+"""
     "RaR + Imputation (Mean)": {
         "should_impute": False,
         "class": RaR,
@@ -75,8 +83,6 @@ ALGORITHMS = {
         "class": RKNN,
         "config": {}
     },
-}
-"""
     "RaR + Imputation": {
         "should_impute": False,
         "class": RaR,

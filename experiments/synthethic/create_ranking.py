@@ -7,7 +7,7 @@ from collections import defaultdict
 from time import clock
 
 from experiments.utils import write_config
-from experiments.CG_MissingRate import CONFIG, DATASET_CONFIG, ALGORITHMS
+from experiments.synthethic import CONFIG, DATASET_CONFIG, ALGORITHMS
 
 from project import EXPERIMENTS_PATH
 from project.utils import introduce_missing_values, scale_data
@@ -16,10 +16,9 @@ from project.utils.metrics import calculate_cg, calculate_ndcg
 from project.utils.imputer import Imputer
 from project.utils.deleter import Deleter
 
-EXPERIMENT_ID = "60"
-EXPERIMENT_NAME = "CG_MissingRate"
-FOLDER = os.path.join(EXPERIMENTS_PATH, EXPERIMENT_NAME,
-                      "EXP_" + EXPERIMENT_ID)
+ID = "0"
+NAME = "synthethic"
+FOLDER = os.path.join(EXPERIMENTS_PATH, NAME, "EXP_" + ID)
 if os.path.isdir(FOLDER):
     raise Exception("Set experiment id to run new experiment")
 else:
@@ -27,35 +26,39 @@ else:
 
 write_config(FOLDER, CONFIG, DATASET_CONFIG, ALGORITHMS)
 
-relevances, durations = [], {}
-results_cg, results_ndcg = {}, {}
+durations, rankings = {}, {}
 
 ### CREATE DATASET WHICH IS USED FOR EVALUATION ###
 for i in range(CONFIG["n_runs"]):
     generator = DataGenerator(**DATASET_CONFIG)
+    generator.set_seed(CONFIG["seeds"][i])
     data_original, relevance_vector = generator.create_dataset()
     data_original = scale_data(data_original)
 
-    sorted_relevances = relevance_vector.sort_values(ascending=False)
-    relevances.append(sorted_relevances)
+    if i == 0:
+        relevances = pd.DataFrame(relevance_vector)
+    else:
+        relevances[i] = relevance_vector
 
     ### GATHER RESULTS FOR SPECIFIC MISSING RATE ###
     for missing_rate in CONFIG["missing_rates"]:
-        results_cg_run = defaultdict(list)
-        results_ndcg_run = defaultdict(list)
         durations_run = defaultdict(list)
+        rankings_run = defaultdict(list)
 
         ### ADD MISSING VALUES TO DATASET (MULTIPLE TIMES) ###
         for j in range(CONFIG["n_insertions"]):
             data_orig = deepcopy(data_original)
             data_orig = introduce_missing_values(
-                data_orig, missing_rate=missing_rate)
+                data_orig,
+                missing_rate,
+                seed=CONFIG["seeds"][j],
+            )
 
             for key, algorithm in ALGORITHMS.items():
                 ### GET RANKING USING SELECTOR ###
                 data = deepcopy(data_orig)
                 start = clock()
-                if algorithm["should_impute"]:
+                if algorithm.get("should_impute", False):
                     imputer = Imputer(data.f_types, algorithm["strategy"])
                     data = imputer.complete(data)
 
@@ -63,57 +66,54 @@ for i in range(CONFIG["n_runs"]):
                     deleter = Deleter()
                     data = deleter.remove(data)
 
-                selector = algorithm["class"](data.f_types, data.l_type,
-                                              data.shape,
-                                              **algorithm["config"])
+                selector = algorithm["class"](
+                    data.f_types,
+                    data.l_type,
+                    data.shape,
+                    **algorithm["config"],
+                )
                 selector.fit(data.X, data.y)
                 ranking = selector.get_ranking()
                 duration = clock() - start
 
-                ### EVALUATE RANKINGS AND STORE RESULTS ###
-                cg = calculate_cg(relevance_vector, ranking)
-                ndcg = calculate_ndcg(relevance_vector, ranking)
-
-                results_cg_run[key].append(cg)
-                results_ndcg_run[key].append(ndcg)
+                rankings_run[key].append(dict(ranking))
                 durations_run[key].append(duration)
 
         # Update combined results
         if i == 0:
-            results_cg[missing_rate] = defaultdict(list)
-            results_ndcg[missing_rate] = defaultdict(list)
             durations[missing_rate] = defaultdict(list)
+            rankings[missing_rate] = defaultdict(list)
 
-        for key, scores in results_cg_run.items():
-            results_cg[missing_rate][key].append(np.mean(scores, axis=0))
-
-        for key, scores in results_ndcg_run.items():
-            results_ndcg[missing_rate][key].append(np.mean(scores))
-
-        for key, times in durations_run.items():
-            durations[missing_rate][key].append(np.mean(times))
+        for key in ALGORITHMS.keys():
+            durations[missing_rate][key].append(durations_run[key])
+            rankings[missing_rate][key].append(rankings_run[key])
 
         print("Finished missing rate {:.1f}".format(missing_rate), flush=True)
     print("Finished run {:d}".format(i + 1), flush=True)
 
-############ RUNTIME AND RELEVANCES ############
-mean_durations = {}
-for key in ALGORITHMS.keys():
-    mean_durations[key] = {}
-    for missing_rate in CONFIG["missing_rates"]:
-        mean_durations[key][missing_rate] = np.mean(
-            durations[missing_rate][key])
-mean_durations = pd.DataFrame(mean_durations)
+# %%
+rankings
 
-ax = mean_durations.plot(kind="bar", title="Mean fitting time", rot=0)
-ax.set(xlabel="Missing Rate", ylabel="Time in seconds")
-fig = ax.get_figure()
-fig.savefig(os.path.join(FOLDER, "runtimes.png"))
+# %%
+# STORE RAW RESULTS
+from experiments.utils import write_json
 
-mean_durations.to_csv(os.path.join(FOLDER, "runtimes.csv"))
-relevances = pd.DataFrame(relevances)
 relevances.to_csv(os.path.join(FOLDER, "relevances.csv"))
+path = os.path.join(FOLDER, "runtimes.json")
+write_json(durations, path)
+path = os.path.join(FOLDER, "rankings.json")
+write_json(rankings, path)
 
+# %%
+# SAVE PLOT FOR MEAN DURATIONS
+from experiments.utils import plot_mean_durations
+
+path = os.path.join(FOLDER, "runtimes.png")
+plot_mean_durations(durations, path)
+
+# %%
+
+# %%
 ############ RESULTS FOR CG ############
 CG_FOLDER = os.path.join(FOLDER, "CG")
 os.makedirs(CG_FOLDER)
