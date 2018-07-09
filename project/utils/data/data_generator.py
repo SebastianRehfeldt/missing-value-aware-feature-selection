@@ -9,11 +9,15 @@ from .data import Data
 
 
 class DataGenerator():
-    def __init__(self, **params):
+    def __init__(self, random_state=None, **params):
+        self.set_seed(random_state)
         self._init_params(**params)
 
         self.X = np.zeros((self.n_samples, self.n_features + self.n_clusters))
         self.data = None
+
+    def set_seed(self, seed):
+        np.random.seed(seed)
 
     def _init_params(self, **params):
         self.n_samples = params.get("n_samples", 1000)

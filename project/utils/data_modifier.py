@@ -6,7 +6,10 @@
 import numpy as np
 
 
-def introduce_missing_values(data, missing_rate=0.25, missing_type="MCAR"):
+def introduce_missing_values(data,
+                             missing_rate=0.25,
+                             missing_type="MCAR",
+                             seed=42):
     """
     Introduce missing values by a specified method
 
@@ -21,12 +24,12 @@ def introduce_missing_values(data, missing_rate=0.25, missing_type="MCAR"):
     n_removals = round(missing_rate * n_total_values)
 
     if missing_type == "MCAR":
-        return _remove_with_mcar(data, n_total_values, n_removals)
+        return _remove_with_mcar(data, n_total_values, n_removals, seed)
     else:
         raise NotImplementedError
 
 
-def _remove_with_mcar(data, n_total_values, n_removals):
+def _remove_with_mcar(data, n_total_values, n_removals, seed):
     """
     Insert missing values completely at random
 
@@ -36,10 +39,10 @@ def _remove_with_mcar(data, n_total_values, n_removals):
         n_removals {int} -- Number of missing values being inserted
     """
     # Create mask where values should be inserted
-    mask_indices = np.random.choice(n_total_values, n_removals, replace=False)
-    mask = np.zeros(n_total_values, dtype=bool)
-    mask[mask_indices] = 1
-    mask = np.reshape(mask, data.shape)
+    np.random.seed(seed)
+    rn = np.random.normal(size=data.shape)
+    min_value = np.sort(rn, kind="mergesort", axis=None)[n_removals]
+    mask = rn < min_value
 
     # Values in df with mask == True will be NaN
     features = data.X.where(mask == False)
