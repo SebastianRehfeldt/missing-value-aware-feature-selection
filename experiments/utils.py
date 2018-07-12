@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 
 from experiments.metrics import calculate_cg, calculate_ndcg
+from experiments.metrics import calculate_sse
 
 
 def write_config(folder, config, dataset_config, algorithms):
@@ -86,3 +87,33 @@ def compute_gain_statistics(rankings, relevances):
     ndcg_means = pd.DataFrame(ndcg_means).T
     ndcg_deviations = pd.DataFrame(ndcg_deviations).T
     return (cg_means, cg_deviations), (ndcg_means, ndcg_deviations)
+
+
+def compute_sses(rankings):
+    first_key = list(rankings.keys())[0]
+    sse_means, sse_deviations = {}, {}
+    for missing_rate in rankings.keys():
+        sse_means[missing_rate] = {}
+        sse_deviations[missing_rate] = {}
+
+        for key in rankings[missing_rate].keys():
+            ranking = rankings[missing_rate][key]
+
+            # The mean and std are calculated over all datasets and insertions
+            # Run means a new dataset and i indicates multiple insertions
+            sses = []
+            for run in range(len(ranking)):
+                for i in range(len(ranking[run])):
+                    gold_scores = rankings[first_key][key][run][i]
+                    gold_scores = pd.Series(gold_scores)
+                    scores = pd.Series(ranking[run][i])
+
+                    SSE = calculate_sse(gold_scores, scores)
+                    sses.append(SSE)
+
+            sse_means[missing_rate][key] = np.mean(sses)
+            sse_deviations[missing_rate][key] = np.std(sses)
+
+    sse_means = pd.DataFrame(sse_means).T
+    sse_deviations = pd.DataFrame(sse_deviations).T
+    return sse_means, sse_deviations

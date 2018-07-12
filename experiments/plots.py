@@ -51,3 +51,23 @@ def plot_cgs(cgs, FOLDER):
         # STATS
         cg_means.to_csv(os.path.join(CG_FOLDER, "cg_means{:s}.csv").format(mr))
         cg_stds.to_csv(os.path.join(CG_FOLDER, "cg_stds{:s}.csv").format(mr))
+
+
+def plot_sses(sses, FOLDER):
+    SSE_FOLDER = os.path.join(FOLDER, "SSE")
+    os.makedirs(SSE_FOLDER, exist_ok=True)
+
+    # MEAN SSE
+    ax = sses[0].plot(kind="line", title="SSE over Missing Rate")
+    ax.set(xlabel="Missing Rate", ylabel="SSE (Mean)")
+    fig = ax.get_figure()
+    fig.savefig(os.path.join(SSE_FOLDER, "sse_means.png"))
+
+    # STD SSE
+    ax = sses[1].plot(kind="line", title="SSE over Missing Rate")
+    ax.set(xlabel="Missing Rate", ylabel="SSE (Std)")
+    fig = ax.get_figure()
+    fig.savefig(os.path.join(SSE_FOLDER, "sse_deviations.png"))
+
+    sses[0].to_csv(os.path.join(SSE_FOLDER, "sse_means.csv"))
+    sses[1].to_csv(os.path.join(SSE_FOLDER, "sse_deviations.csv"))
