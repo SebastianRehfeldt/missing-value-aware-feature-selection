@@ -3,12 +3,11 @@ import pandas as pd
 
 
 def calc_cg(gold_ranking, ranking):
-    CG = np.zeros(len(ranking))
-    i, current_cg = 0, 0
-    for feature in ranking:
+    CG = np.zeros(len(gold_ranking))
+    current_cg = 0
+    for i, feature in enumerate(ranking):
         current_cg += gold_ranking[feature]
         CG[i] = current_cg
-        i += 1
     return CG
 
 
