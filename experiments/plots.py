@@ -42,7 +42,7 @@ def plot_scores(folder_, scores, name):
     ax = scores[0].plot(kind="line", title=title)
     ax.set(xlabel="Missing Rate", ylabel="{:s} (Mean)".format(name))
     fig = ax.get_figure()
-    fig.savefig(os.path.join(FOLDER, "{:s}_means.png").format(name))
+    fig.savefig(os.path.join(FOLDER, "{:s}_means.png".format(name)))
 
     ax = scores[1].plot(kind="line", title=title)
     ax.set(xlabel="Missing Rate", ylabel="{:s} (Std)".format(name))

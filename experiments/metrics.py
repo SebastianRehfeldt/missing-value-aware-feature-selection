@@ -67,7 +67,8 @@ def compute_statistics(rankings, relevances):
 
                 for i in range(len(ranking[run])):
                     # CG and NDCG
-                    scores = ranking[run][i].keys()
+                    t = 1e-4
+                    scores = [k for k, v in ranking[run][i].items() if v > t]
                     CG = calc_cg(gold_scores, scores)
                     cgs.append(CG)
                     NDCG = calc_ndcg(gold_scores, scores)
