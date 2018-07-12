@@ -62,9 +62,14 @@ def compute_statistics(rankings, relevances):
             # Run means a new dataset and i indicates multiple insertions
             cgs, ndcgs, sses = [], [], []
             for run in range(len(ranking)):
-                gold_scores = relevances[str(run)]
-
                 for i in range(len(ranking[run])):
+                    # use ranking on complete data as gold ranking for uci
+                    if relevances is not None:
+                        gold_scores = relevances[str(run)]
+                    else:
+                        r = pd.Series(rankings[first_key][key][run][i])
+                        gold_scores = r / r.sum()
+
                     # CG and NDCG
                     t = 1e-4
                     scores = [k for k, v in ranking[run][i].items() if v > t]

@@ -24,8 +24,6 @@ from experiments.utils import write_results, read_results
 write_results(FOLDER, relevances, durations, rankings)
 relevances, durations, rankings = read_results(FOLDER)
 
-# %%
-"""
 # CALC ADDITIONAL STATISTICS (MEAN_DURCATIONS; CG; NDCG; SSE; MSE)
 from experiments.utils import get_mean_durations
 from experiments.metrics import compute_statistics
@@ -41,4 +39,3 @@ plot_scores(FOLDER, ndcgs, "NDCG")
 plot_scores(FOLDER, sses, "SSE")
 plot_scores(FOLDER, mses, "MSE")
 plot_cgs(FOLDER, cgs)
-"""
