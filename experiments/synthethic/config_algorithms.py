@@ -18,6 +18,14 @@ ALGORITHMS = {
             "n_subspaces": 800,
         }
     },
+    "RaR Fuzzy": {
+        "class": RaR,
+        "config": {
+            "approach": "fuzzy",
+            "n_targets": 0,
+            "n_subspaces": 800,
+        }
+    },
 }
 """
     "RaR + Imputation (Mean)": {

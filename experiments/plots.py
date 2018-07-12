@@ -71,3 +71,23 @@ def plot_sses(sses, FOLDER):
 
     sses[0].to_csv(os.path.join(SSE_FOLDER, "sse_means.csv"))
     sses[1].to_csv(os.path.join(SSE_FOLDER, "sse_deviations.csv"))
+
+
+def plot_mses(mses, FOLDER):
+    MSE_FOLDER = os.path.join(FOLDER, "MSE")
+    os.makedirs(MSE_FOLDER, exist_ok=True)
+
+    # MEAN MSE
+    ax = mses[0].plot(kind="line", title="MSE over Missing Rate")
+    ax.set(xlabel="Missing Rate", ylabel="MSE (Mean)")
+    fig = ax.get_figure()
+    fig.savefig(os.path.join(MSE_FOLDER, "mse_means.png"))
+
+    # STD MSE
+    ax = mses[1].plot(kind="line", title="MSE over Missing Rate")
+    ax.set(xlabel="Missing Rate", ylabel="MSE (Std)")
+    fig = ax.get_figure()
+    fig.savefig(os.path.join(MSE_FOLDER, "mse_deviations.png"))
+
+    mses[0].to_csv(os.path.join(MSE_FOLDER, "mse_means.csv"))
+    mses[1].to_csv(os.path.join(MSE_FOLDER, "mse_deviations.csv"))

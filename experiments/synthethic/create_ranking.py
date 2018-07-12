@@ -98,6 +98,7 @@ write_json(durations, path)
 path = os.path.join(FOLDER, "rankings.json")
 write_json(rankings, path)
 
+# %%
 # READ RAW RESULTS
 from experiments.utils import read_json
 
@@ -108,19 +109,21 @@ relevances = pd.DataFrame.from_csv(path)
 path = os.path.join(FOLDER, "runtimes.json")
 durations = read_json(path)
 
+# %%
 # CALC ADDITIONAL STATISTICS (MEAN_DURCATIONS; CG; NDCG; SSE)
 from experiments.utils import get_mean_durations
 from experiments.utils import compute_gain_statistics, compute_sses
 
 mean_durations = get_mean_durations(durations)
 cgs, ndcgs = compute_gain_statistics(rankings, relevances)
-sses = compute_sses(rankings)
+sses, mses = compute_sses(rankings)
 
 ############ PLOT RESULTS FOR NDCG ############
 from experiments.plots import plot_mean_durations
-from experiments.plots import plot_ndcgs, plot_cgs, plot_sses
+from experiments.plots import plot_ndcgs, plot_cgs, plot_sses, plot_mses
 
 plot_mean_durations(mean_durations, FOLDER)
 plot_ndcgs(ndcgs, FOLDER)
 plot_cgs(cgs, FOLDER)
 plot_sses(sses, FOLDER)
+plot_mses(mses, FOLDER)

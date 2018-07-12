@@ -92,6 +92,7 @@ def compute_gain_statistics(rankings, relevances):
 def compute_sses(rankings):
     first_key = list(rankings.keys())[0]
     sse_means, sse_deviations = {}, {}
+
     for missing_rate in rankings.keys():
         sse_means[missing_rate] = {}
         sse_deviations[missing_rate] = {}
@@ -116,4 +117,6 @@ def compute_sses(rankings):
 
     sse_means = pd.DataFrame(sse_means).T
     sse_deviations = pd.DataFrame(sse_deviations).T
-    return sse_means, sse_deviations
+
+    mse_means = sse_means / len(rankings[missing_rate][key])
+    return (sse_means, sse_deviations), (mse_means, sse_deviations)
