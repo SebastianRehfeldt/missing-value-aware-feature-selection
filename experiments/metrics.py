@@ -4,7 +4,7 @@ import numpy as np
 def calculate_cg(gold_ranking, ranking):
     CG = np.zeros(len(ranking))
     i, current_cg = 0, 0
-    for feature, _ in ranking:
+    for feature in ranking:
         current_cg += gold_ranking[feature]
         CG[i] = current_cg
         i += 1
@@ -13,7 +13,7 @@ def calculate_cg(gold_ranking, ranking):
 
 def calculate_dcg(gold_ranking, ranking):
     i, DCG = 2, 0
-    for feature, _ in ranking:
+    for feature in ranking:
         DCG += gold_ranking[feature] / np.log2(i)
         i += 1
     return DCG
