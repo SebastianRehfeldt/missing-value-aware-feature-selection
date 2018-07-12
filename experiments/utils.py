@@ -2,6 +2,7 @@ import os
 import json
 import numpy as np
 import pandas as pd
+from project.utils import DataLoader
 
 
 def write_config(folder, config, dataset_config, algorithms):
@@ -13,8 +14,14 @@ def write_config(folder, config, dataset_config, algorithms):
         file.write(json.dumps(dataset_config, indent=4))
         file.write("\n\nCONFIG ALGORITHMS")
 
-        for key, algorithm in algorithms.items():
+        if config["is_real_data"]:
+            data_loader = DataLoader(ignored_attributes=["molecule_name"])
+            data = data_loader.load_data(dataset_config["name"], "arff")
+            shape = data.shape
+        else:
             shape = (dataset_config["n_samples"], dataset_config["n_features"])
+
+        for key, algorithm in algorithms.items():
             data = [[], "", shape]
             selector = algorithm["class"](*data, **algorithm["config"])
             params = selector.get_params()
@@ -37,7 +44,8 @@ def read_json(path):
 
 
 def write_results(FOLDER, relevances, durations, rankings):
-    relevances.to_csv(os.path.join(FOLDER, "relevances.csv"))
+    if relevances is not None:
+        relevances.to_csv(os.path.join(FOLDER, "relevances.csv"))
     path = os.path.join(FOLDER, "runtimes.json")
     write_json(durations, path)
     path = os.path.join(FOLDER, "rankings.json")
@@ -46,7 +54,7 @@ def write_results(FOLDER, relevances, durations, rankings):
 
 def read_results(FOLDER):
     path = os.path.join(FOLDER, "relevances.csv")
-    relevances = pd.DataFrame.from_csv(path)
+    relevances = pd.DataFrame.from_csv(path) if os.path.exists(path) else None
     path = os.path.join(FOLDER, "runtimes.json")
     durations = read_json(path)
     path = os.path.join(FOLDER, "rankings.json")

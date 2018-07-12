@@ -3,6 +3,7 @@ from time import clock
 from copy import deepcopy
 from collections import defaultdict
 
+from project.utils import DataLoader
 from project.utils.data import DataGenerator
 from project.utils import introduce_missing_values, scale_data
 from project.utils.imputer import Imputer
@@ -13,29 +14,37 @@ def get_rankings(CONFIG, DATASET_CONFIG, ALGORITHMS):
     durations, rankings = {}, {}
     for i in range(CONFIG["n_runs"]):
         ### CREATE DATASET WHICH IS USED FOR EVALUATION ###
-        generator = DataGenerator(**DATASET_CONFIG)
-        generator.set_seed(CONFIG["seeds"][i])
-        data_original, relevance_vector = generator.create_dataset()
+        if CONFIG["is_real_data"]:
+
+            name = DATASET_CONFIG["name"]
+            data_loader = DataLoader(ignored_attributes=["molecule_name"])
+            data_original = data_loader.load_data(name, "arff")
+            relevances = None
+        else:
+            params = DATASET_CONFIG.copy()
+            if CONFIG["update_config"]:
+                params.update(CONFIG["updates"][i])
+            generator = DataGenerator(**params)
+            generator.set_seed(CONFIG["seeds"][i])
+            data_original, relevance_vector = generator.create_dataset()
+
+            if i == 0:
+                relevances = pd.DataFrame(relevance_vector)
+            else:
+                relevances[i] = relevance_vector
+
         data_original = scale_data(data_original)
 
-        if i == 0:
-            relevances = pd.DataFrame(relevance_vector)
-        else:
-            relevances[i] = relevance_vector
-
         ### GATHER RESULTS FOR SPECIFIC MISSING RATE ###
-        for missing_rate in CONFIG["missing_rates"]:
+        for mr in CONFIG["missing_rates"]:
             durations_run = defaultdict(list)
             rankings_run = defaultdict(list)
 
             ### ADD MISSING VALUES TO DATASET (MULTIPLE TIMES) ###
             for j in range(CONFIG["n_insertions"]):
                 data_orig = deepcopy(data_original)
-                data_orig = introduce_missing_values(
-                    data_orig,
-                    missing_rate,
-                    seed=CONFIG["seeds"][j],
-                )
+                seed = CONFIG["seeds"][j]
+                data_orig = introduce_missing_values(data_orig, mr, seed=seed)
 
                 for key, algorithm in ALGORITHMS.items():
                     ### GET RANKING USING SELECTOR ###
@@ -64,15 +73,13 @@ def get_rankings(CONFIG, DATASET_CONFIG, ALGORITHMS):
 
             # Update combined results
             if i == 0:
-                durations[missing_rate] = defaultdict(list)
-                rankings[missing_rate] = defaultdict(list)
+                durations[mr] = defaultdict(list)
+                rankings[mr] = defaultdict(list)
 
             for key in ALGORITHMS.keys():
-                durations[missing_rate][key].append(durations_run[key])
-                rankings[missing_rate][key].append(rankings_run[key])
+                durations[mr][key].append(durations_run[key])
+                rankings[mr][key].append(rankings_run[key])
 
-            print(
-                "Finished missing rate {:.1f}".format(missing_rate),
-                flush=True)
+            print("Finished missing rate {:.1f}".format(mr), flush=True)
         print("Finished run {:d}".format(i + 1), flush=True)
     return rankings, durations, relevances
