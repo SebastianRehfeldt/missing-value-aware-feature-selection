@@ -14,7 +14,7 @@ from project.utils import introduce_missing_values, scale_data
 from project.utils.imputer import Imputer
 from project.utils.deleter import Deleter
 
-ID = "0"
+ID = "1"
 NAME = "synthethic"
 FOLDER = os.path.join(EXPERIMENTS_PATH, NAME, "EXP_" + ID)
 if os.path.isdir(FOLDER):
@@ -89,41 +89,24 @@ for i in range(CONFIG["n_runs"]):
         print("Finished missing rate {:.1f}".format(missing_rate), flush=True)
     print("Finished run {:d}".format(i + 1), flush=True)
 
-# STORE RAW RESULTS
-from experiments.utils import write_json
+# STORE AND READ RAW RESULTS
+from experiments.utils import write_results, read_results
 
-relevances.to_csv(os.path.join(FOLDER, "relevances.csv"))
-path = os.path.join(FOLDER, "runtimes.json")
-write_json(durations, path)
-path = os.path.join(FOLDER, "rankings.json")
-write_json(rankings, path)
+write_results(FOLDER, relevances, durations, rankings)
+relevances, durations, rankings = read_results(FOLDER)
 
-# %%
-# READ RAW RESULTS
-from experiments.utils import read_json
-
-path = os.path.join(FOLDER, "rankings.json")
-rankings = read_json(path)
-path = os.path.join(FOLDER, "relevances.csv")
-relevances = pd.DataFrame.from_csv(path)
-path = os.path.join(FOLDER, "runtimes.json")
-durations = read_json(path)
-
-# %%
-# CALC ADDITIONAL STATISTICS (MEAN_DURCATIONS; CG; NDCG; SSE)
+# CALC ADDITIONAL STATISTICS (MEAN_DURCATIONS; CG; NDCG; SSE; MSE)
 from experiments.utils import get_mean_durations
-from experiments.utils import compute_gain_statistics, compute_sses
+from experiments.metrics import compute_statistics
 
 mean_durations = get_mean_durations(durations)
-cgs, ndcgs = compute_gain_statistics(rankings, relevances)
-sses, mses = compute_sses(rankings)
+cgs, ndcgs, sses, mses = compute_statistics(rankings, relevances)
 
 ############ PLOT RESULTS FOR NDCG ############
-from experiments.plots import plot_mean_durations
-from experiments.plots import plot_ndcgs, plot_cgs, plot_sses, plot_mses
+from experiments.plots import plot_mean_durations, plot_cgs, plot_scores
 
-plot_mean_durations(mean_durations, FOLDER)
-plot_ndcgs(ndcgs, FOLDER)
-plot_cgs(cgs, FOLDER)
-plot_sses(sses, FOLDER)
-plot_mses(mses, FOLDER)
+plot_mean_durations(FOLDER, mean_durations)
+plot_scores(FOLDER, ndcgs, "NDCG")
+plot_scores(FOLDER, sses, "SSE")
+plot_scores(FOLDER, mses, "MSE")
+plot_cgs(FOLDER, cgs)

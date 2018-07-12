@@ -3,9 +3,6 @@ import json
 import numpy as np
 import pandas as pd
 
-from experiments.metrics import calculate_cg, calculate_ndcg
-from experiments.metrics import calculate_sse
-
 
 def write_config(folder, config, dataset_config, algorithms):
     filename = os.path.join(folder, "config.txt")
@@ -39,6 +36,24 @@ def read_json(path):
     return data
 
 
+def write_results(FOLDER, relevances, durations, rankings):
+    relevances.to_csv(os.path.join(FOLDER, "relevances.csv"))
+    path = os.path.join(FOLDER, "runtimes.json")
+    write_json(durations, path)
+    path = os.path.join(FOLDER, "rankings.json")
+    write_json(rankings, path)
+
+
+def read_results(FOLDER):
+    path = os.path.join(FOLDER, "relevances.csv")
+    relevances = pd.DataFrame.from_csv(path)
+    path = os.path.join(FOLDER, "runtimes.json")
+    durations = read_json(path)
+    path = os.path.join(FOLDER, "rankings.json")
+    rankings = read_json(path)
+    return relevances, durations, rankings
+
+
 def get_mean_durations(durations):
     mean_durations = {}
     for missing_rate in durations.keys():
@@ -50,73 +65,3 @@ def get_mean_durations(durations):
             mean_durations[missing_rate][key] = mean_time
 
     return pd.DataFrame(mean_durations).T
-
-
-def compute_gain_statistics(rankings, relevances):
-    cg_means, cg_deviations = {}, {}
-    ndcg_means, ndcg_deviations = {}, {}
-    for missing_rate in rankings.keys():
-        cg_means[missing_rate] = {}
-        cg_deviations[missing_rate] = {}
-        ndcg_means[missing_rate] = {}
-        ndcg_deviations[missing_rate] = {}
-
-        for key in rankings[missing_rate].keys():
-            ranking = rankings[missing_rate][key]
-
-            # The mean and std are calculated over all datasets and insertions
-            # Run means a new dataset and i indicates multiple insertions
-            cgs, ndcgs = [], []
-            for run in range(len(ranking)):
-                gold_scores = relevances[str(run)]
-
-                for i in range(len(ranking[run])):
-                    scores = ranking[run][i].keys()
-                    CG = calculate_cg(gold_scores, scores)
-                    cgs.append(CG)
-
-                    NDCG = calculate_ndcg(gold_scores, scores)
-                    ndcgs.append(NDCG)
-
-            cg_means[missing_rate][key] = np.mean(cgs, axis=0)
-            cg_deviations[missing_rate][key] = np.std(cgs, axis=0)
-
-            ndcg_means[missing_rate][key] = np.mean(ndcgs)
-            ndcg_deviations[missing_rate][key] = np.std(ndcgs)
-
-    ndcg_means = pd.DataFrame(ndcg_means).T
-    ndcg_deviations = pd.DataFrame(ndcg_deviations).T
-    return (cg_means, cg_deviations), (ndcg_means, ndcg_deviations)
-
-
-def compute_sses(rankings):
-    first_key = list(rankings.keys())[0]
-    sse_means, sse_deviations = {}, {}
-
-    for missing_rate in rankings.keys():
-        sse_means[missing_rate] = {}
-        sse_deviations[missing_rate] = {}
-
-        for key in rankings[missing_rate].keys():
-            ranking = rankings[missing_rate][key]
-
-            # The mean and std are calculated over all datasets and insertions
-            # Run means a new dataset and i indicates multiple insertions
-            sses = []
-            for run in range(len(ranking)):
-                for i in range(len(ranking[run])):
-                    gold_scores = rankings[first_key][key][run][i]
-                    gold_scores = pd.Series(gold_scores)
-                    scores = pd.Series(ranking[run][i])
-
-                    SSE = calculate_sse(gold_scores, scores)
-                    sses.append(SSE)
-
-            sse_means[missing_rate][key] = np.mean(sses)
-            sse_deviations[missing_rate][key] = np.std(sses)
-
-    sse_means = pd.DataFrame(sse_means).T
-    sse_deviations = pd.DataFrame(sse_deviations).T
-
-    mse_means = sse_means / len(rankings[missing_rate][key])
-    return (sse_means, sse_deviations), (mse_means, sse_deviations)

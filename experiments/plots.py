@@ -2,7 +2,7 @@ import os
 import pandas as pd
 
 
-def plot_mean_durations(durations, FOLDER):
+def plot_mean_durations(FOLDER, durations):
     path = os.path.join(FOLDER, "runtimes.png")
     ax = durations.plot(kind="bar", title="Mean fitting time", rot=0)
     ax.set(xlabel="Missing Rate", ylabel="Time in seconds")
@@ -10,27 +10,7 @@ def plot_mean_durations(durations, FOLDER):
     fig.savefig(path)
 
 
-def plot_ndcgs(ndcgs, FOLDER):
-    NDCG_FOLDER = os.path.join(FOLDER, "NDCG")
-    os.makedirs(NDCG_FOLDER, exist_ok=True)
-
-    # MEAN NDCG
-    ax = ndcgs[0].plot(kind="line", title="NDCG over Missing Rate")
-    ax.set(xlabel="Missing Rate", ylabel="NDCG (Mean)")
-    fig = ax.get_figure()
-    fig.savefig(os.path.join(NDCG_FOLDER, "ndcg_means.png"))
-
-    # STD NDCG
-    ax = ndcgs[1].plot(kind="line", title="NDCG over Missing Rate")
-    ax.set(xlabel="Missing Rate", ylabel="NDCG (Std)")
-    fig = ax.get_figure()
-    fig.savefig(os.path.join(NDCG_FOLDER, "ndcg_deviations.png"))
-
-    ndcgs[0].to_csv(os.path.join(NDCG_FOLDER, "ndcg_means.csv"))
-    ndcgs[1].to_csv(os.path.join(NDCG_FOLDER, "ndcg_deviations.csv"))
-
-
-def plot_cgs(cgs, FOLDER):
+def plot_cgs(FOLDER, cgs):
     CG_FOLDER = os.path.join(FOLDER, "CG")
     os.makedirs(CG_FOLDER, exist_ok=True)
 
@@ -38,13 +18,13 @@ def plot_cgs(cgs, FOLDER):
         cg_means = pd.DataFrame(cgs[0][mr])
         cg_stds = pd.DataFrame(cgs[1][mr])
 
-        ax = cg_means.plot(kind="line", title="Cumulative Gain over features")
-        ax.set(xlabel="# Features", ylabel="Cumulative Gain (Mean)")
+        ax = cg_means.plot(kind="line", title="CG over features")
+        ax.set(xlabel="# Features", ylabel="CG (Mean)")
         fig = ax.get_figure()
         fig.savefig(os.path.join(CG_FOLDER, "cg_means{:s}.png").format(mr))
 
-        ax = cg_stds.plot(kind="line", title="Cumulative Gain over features")
-        ax.set(xlabel="# Features", ylabel="Cumulative Gain (Std)")
+        ax = cg_stds.plot(kind="line", title="CG over features")
+        ax.set(xlabel="# Features", ylabel="CG (Std)")
         fig = ax.get_figure()
         fig.savefig(os.path.join(CG_FOLDER, "cg_stds{:s}.png").format(mr))
 
@@ -53,41 +33,21 @@ def plot_cgs(cgs, FOLDER):
         cg_stds.to_csv(os.path.join(CG_FOLDER, "cg_stds{:s}.csv").format(mr))
 
 
-def plot_sses(sses, FOLDER):
-    SSE_FOLDER = os.path.join(FOLDER, "SSE")
-    os.makedirs(SSE_FOLDER, exist_ok=True)
+def plot_scores(folder_, scores, name):
+    FOLDER = os.path.join(folder_, name)
+    os.makedirs(FOLDER, exist_ok=True)
 
-    # MEAN SSE
-    ax = sses[0].plot(kind="line", title="SSE over Missing Rate")
-    ax.set(xlabel="Missing Rate", ylabel="SSE (Mean)")
+    title = "{:s} over Missing Rate".format(name)
+
+    ax = scores[0].plot(kind="line", title=title)
+    ax.set(xlabel="Missing Rate", ylabel="{:s} (Mean)".format(name))
     fig = ax.get_figure()
-    fig.savefig(os.path.join(SSE_FOLDER, "sse_means.png"))
+    fig.savefig(os.path.join(FOLDER, "{:s}_means.png").format(name))
 
-    # STD SSE
-    ax = sses[1].plot(kind="line", title="SSE over Missing Rate")
-    ax.set(xlabel="Missing Rate", ylabel="SSE (Std)")
+    ax = scores[1].plot(kind="line", title=title)
+    ax.set(xlabel="Missing Rate", ylabel="{:s} (Std)".format(name))
     fig = ax.get_figure()
-    fig.savefig(os.path.join(SSE_FOLDER, "sse_deviations.png"))
+    fig.savefig(os.path.join(FOLDER, "{:s}_deviations.png".format(name)))
 
-    sses[0].to_csv(os.path.join(SSE_FOLDER, "sse_means.csv"))
-    sses[1].to_csv(os.path.join(SSE_FOLDER, "sse_deviations.csv"))
-
-
-def plot_mses(mses, FOLDER):
-    MSE_FOLDER = os.path.join(FOLDER, "MSE")
-    os.makedirs(MSE_FOLDER, exist_ok=True)
-
-    # MEAN MSE
-    ax = mses[0].plot(kind="line", title="MSE over Missing Rate")
-    ax.set(xlabel="Missing Rate", ylabel="MSE (Mean)")
-    fig = ax.get_figure()
-    fig.savefig(os.path.join(MSE_FOLDER, "mse_means.png"))
-
-    # STD MSE
-    ax = mses[1].plot(kind="line", title="MSE over Missing Rate")
-    ax.set(xlabel="Missing Rate", ylabel="MSE (Std)")
-    fig = ax.get_figure()
-    fig.savefig(os.path.join(MSE_FOLDER, "mse_deviations.png"))
-
-    mses[0].to_csv(os.path.join(MSE_FOLDER, "mse_means.csv"))
-    mses[1].to_csv(os.path.join(MSE_FOLDER, "mse_deviations.csv"))
+    scores[0].to_csv(os.path.join(FOLDER, "{:s}_means.csv".format(name)))
+    scores[1].to_csv(os.path.join(FOLDER, "{:s}_deviations.csv".format(name)))

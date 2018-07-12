@@ -64,7 +64,6 @@ new_data = data.replace(True, X=X_new, shape=X_new.shape, f_types=types)
 
 print(new_data.X.shape)
 
-import numpy as np
 from project.classifier import KNN
 from sklearn.cross_validation import cross_val_score, StratifiedKFold
 from sklearn.metrics import f1_score, make_scorer
@@ -79,5 +78,5 @@ cv = StratifiedKFold(new_data.y, n_folds=5, shuffle=True)
 scorer = make_scorer(f1_score, average="micro")
 
 scores = cross_val_score(
-    clf, new_data.X, new_data.y, cv=cv, scoring=scorer, n_jobs=3)
+    knn, new_data.X, new_data.y, cv=cv, scoring=scorer, n_jobs=3)
 print(np.mean(scores), scores)
