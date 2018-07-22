@@ -121,9 +121,9 @@ class HICS():
             return 0, [], True
 
         # COMPUTE RELEVANCE AND REDUNDANCIES
-        rels = self.get_relevance(slices, lengths)
+        rels, deviations = self.get_relevance(slices, lengths)
         reds = self.get_redundancies(slices, lengths, targets, T)
-        return rels, reds, False
+        return rels, reds, False, deviations
 
     def get_relevance(self, slices, lengths):
         y = self.data.y
@@ -131,7 +131,7 @@ class HICS():
         indices = self.label_indices
         cache = self._create_cache(y, l_type, slices, lengths, indices)
         relevances = calculate_contrasts(cache)
-        return 1 - np.exp(-1 * np.mean(relevances))
+        return (1 - np.exp(-1 * np.mean(relevances)), np.std(relevances))
 
     def get_redundancies(self, slices, lengths, targets, T=None):
         redundancies = []

@@ -90,7 +90,7 @@ def compute_statistics(rankings, relevances):
                         gold_scores = r / r.sum()
 
                     # CG and NDCG
-                    t = 1e-8
+                    t = 1e-4
                     scores = [k for k, v in ranking[run][i].items() if v > t]
                     CG = calc_cg(gold_scores, scores)
                     cgs.append(CG)

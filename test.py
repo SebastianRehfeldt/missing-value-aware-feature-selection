@@ -22,35 +22,87 @@ name = "ionosphere"  # 800 subspaces, alpha=0.02, 250 iterations ,(1,3)
 data = data_loader.load_data(name, "arff")
 print(data.shape, flush=True)
 
-mr = 0.5
+mr = 0
 data = introduce_missing_values(data, missing_rate=mr)
 data = scale_data(data)
 
+gold_ranking = [
+    ('a05', 0.43040407748046167), ('a06', 0.41160532164225955),
+    ('a29', 0.3919975515222594), ('a33', 0.39007589467758935),
+    ('a03', 0.38533617145294263), ('a08',
+                                   0.37898307236412015), ('a21',
+                                                          0.37265243615230303),
+    ('a14', 0.3659502837628848), ('a34',
+                                  0.36153979486970356), ('a31',
+                                                         0.35639223764674177),
+    ('a07', 0.3563310760238173), ('a16',
+                                  0.3494314037169902), ('a13',
+                                                        0.3459749559004396),
+    ('a27', 0.34407479403668073), ('a24',
+                                   0.34082422076282215), ('a10',
+                                                          0.3325634521842949),
+    ('a23', 0.32934318358727), ('a15',
+                                0.3265554952863316), ('a18',
+                                                      0.32593687128161913),
+    ('a28', 0.32064778848053194), ('a09',
+                                   0.315575654727455), ('a22',
+                                                        0.31395077481300265),
+    ('a04', 0.31277623774633556), ('a25',
+                                   0.3119327566593308), ('a26',
+                                                         0.3077594407394208),
+    ('a17', 0.29558848944261495), ('a32',
+                                   0.2938056057492842), ('a11',
+                                                         0.28444532373011816),
+    ('a12', 0.28333549693846855), ('a30',
+                                   0.2826382540608627), ('a20',
+                                                         0.2616264813941282),
+    ('a19', 0.25366966449009665), ('a01',
+                                   0.2513849409434004), ('a02',
+                                                         0.10778976963332028)
+]
+
+zlst = list(zip(*gold_ranking))
+gold_ranking = pd.Series(zlst[1], index=zlst[0])
+
 # %%
 from project.rar.rar import RaR
+from experiments.metrics import calc_ndcg
 
-start = time()
-rar = RaR(
-    data.f_types,
-    data.l_type,
-    data.shape,
-    n_jobs=1,
-    approach="fuzzy",
-    n_targets=1,
-    n_subspaces=800,
-    subspace_size=(1, 3),
-    contrast_iterations=250,
-    alpha=0.02,
-    redundancy_approach="tom",
-    weight=min(0.9, (1 - mr)**2),
-    random_state=42,
-    cache_enabled=True,
-    sample_slices=True,
-)
+ndcgs = np.zeros(10)
+for i in range(10):
+    start = time()
+    rar = RaR(
+        data.f_types,
+        data.l_type,
+        data.shape,
+        n_jobs=1,
+        approach="partial",
+        n_targets=0,
+        n_subspaces=800,
+        subspace_size=(1, 3),
+        contrast_iterations=250,
+        alpha=0.02,
+        redundancy_approach="tom",
+        weight=0.1,  #min(0.9, (1 - mr)**2),
+        #random_state=42,
+        cache_enabled=True,
+        sample_slices=True,
+        min_samples=3,
+    )
 
-rar.fit(data.X, data.y)
-pprint(rar.get_ranking())
-print(time() - start)
+    rar.fit(data.X, data.y)
+    # pprint(rar.get_ranking())
+    # print(time() - start)
+    ranking = [k for k, v in rar.get_ranking() if v > 1e-4]
+    ndcgs[i] = calc_ndcg(gold_ranking, ranking)
+
+ndcgs
+print(np.mean(ndcgs), np.std(ndcgs))
+
+
+# %%
+np.apply_along_axis(np.random.shuffle, 0, rar.hics.slices["a06"][1])
+rar.hics.evaluate_subspace(["a06"], [])
 
 # %%
 k = 5
