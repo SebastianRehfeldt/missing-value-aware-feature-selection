@@ -2,30 +2,41 @@ import numpy as np
 import pandas as pd
 
 
-def calc_cg(gold_ranking, ranking):
+def calc_cg(gold_ranking, ranking, use_position=True):
     CG = np.zeros(len(gold_ranking))
     current_cg = 0
     for i, feature in enumerate(ranking):
-        current_cg += gold_ranking[feature]
+        score = gold_ranking[feature]
+        current_cg += score
         CG[i] = current_cg
+    CG[CG == 0] = current_cg
     return CG
 
 
-def calc_dcg(gold_ranking, ranking):
+def calc_dcg(gold_ranking, ranking, use_position=True):
     i, DCG = 2, 0
+    sorted_values = gold_ranking.sort_values(ascending=False)
     for feature in ranking:
-        DCG += gold_ranking[feature] / np.log2(i)
+        if use_position:
+            score = 1 / (sorted_values.index.get_loc(feature) + 2)
+        else:
+            score = gold_ranking[feature]
+
+        DCG += score / np.log2(i)
         i += 1
     return DCG
 
 
-def calc_ndcg(gold_ranking, ranking):
+def calc_ndcg(gold_ranking, ranking, use_position=True):
     DCG = calc_dcg(gold_ranking, ranking)
 
     # calculate ideal discounted cumulative gain for normalization
     i, IDCG = 2, 0
     optimal_ranking = gold_ranking.sort_values(ascending=False)
     for score in optimal_ranking:
+        if use_position:
+            score = 1 / i
+
         IDCG += score / np.log2(i)
         i += 1
 
@@ -71,7 +82,7 @@ def compute_statistics(rankings, relevances):
                         gold_scores = r / r.sum()
 
                     # CG and NDCG
-                    t = 1e-4
+                    t = 1e-8
                     scores = [k for k, v in ranking[run][i].items() if v > t]
                     CG = calc_cg(gold_scores, scores)
                     cgs.append(CG)
@@ -101,3 +112,25 @@ def compute_statistics(rankings, relevances):
     mse_means = sse_means / len(rankings[missing_rate][key])
     return (cg_means, cg_deviations), (ndcg_means, ndcg_deviations), (
         sse_means, sse_deviations), (mse_means, sse_deviations)
+
+
+def calc_avg_statistics(rankings):
+    mrs = list(rankings.keys())
+    keys = list(rankings[mrs[0]].keys())
+    data = np.ones((len(mrs), len(keys)))
+    ndcgs = pd.DataFrame(data=data, columns=keys, index=mrs)
+    gold_rankings = []
+
+    for mr in rankings.keys():
+        print("==========")
+        for key in rankings[mr]:
+            df = pd.DataFrame(rankings[mr][key][0])
+            mean_scores = df.mean(0).sort_values(ascending=False)
+            if mr == '0.0':
+                gold_rankings.append(mean_scores)
+            else:
+                ranking = list(mean_scores.index)
+                print(ranking)
+                gold_ranking = pd.concat(gold_rankings, axis=1).mean(1)
+                ndcgs[key][mr] = calc_ndcg(gold_ranking, ranking)
+    return ndcgs, gold_ranking.sort_values(ascending=False)

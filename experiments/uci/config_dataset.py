@@ -1,1 +1,1 @@
-DATASET_CONFIG = {"name": "iris"}
+DATASET_CONFIG = {"name": "ionosphere"}
