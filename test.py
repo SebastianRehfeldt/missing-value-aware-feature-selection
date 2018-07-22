@@ -22,7 +22,7 @@ name = "ionosphere"  # 800 subspaces, alpha=0.02, 250 iterations ,(1,3)
 data = data_loader.load_data(name, "arff")
 print(data.shape, flush=True)
 
-mr = 0
+mr = 0.1
 data = introduce_missing_values(data, missing_rate=mr)
 data = scale_data(data)
 
@@ -68,15 +68,15 @@ gold_ranking = pd.Series(zlst[1], index=zlst[0])
 from project.rar.rar import RaR
 from experiments.metrics import calc_ndcg
 
-ndcgs = np.zeros(10)
-for i in range(10):
+ndcgs = np.zeros(5)
+for i in range(5):
     start = time()
     rar = RaR(
         data.f_types,
         data.l_type,
         data.shape,
         n_jobs=1,
-        approach="partial",
+        approach="fuzzy",
         n_targets=0,
         n_subspaces=800,
         subspace_size=(1, 3),
@@ -91,18 +91,15 @@ for i in range(10):
     )
 
     rar.fit(data.X, data.y)
-    # pprint(rar.get_ranking())
+    pprint(rar.get_ranking())
     # print(time() - start)
     ranking = [k for k, v in rar.get_ranking() if v > 1e-4]
     ndcgs[i] = calc_ndcg(gold_ranking, ranking)
 
-ndcgs
 print(np.mean(ndcgs), np.std(ndcgs))
 
-
 # %%
-np.apply_along_axis(np.random.shuffle, 0, rar.hics.slices["a06"][1])
-rar.hics.evaluate_subspace(["a06"], [])
+np.histogram(rar.hics.deviations)
 
 # %%
 k = 5
