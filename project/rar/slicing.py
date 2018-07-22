@@ -67,6 +67,8 @@ def get_numerical_slices(X, cache, **options):
             end_value = min(X[indices[end_position]], max_value)
             slices[i] = np.logical_and(X >= start_value, X <= end_value)
 
+    if options["approach"] == "deletion":
+        slices[:, nans] = False
     if options["approach"] == "partial":
         slices[:, nans] = True
     if options["approach"] == "fuzzy":
@@ -110,6 +112,8 @@ def get_categorical_slices(X, cache, **options):
 
             slices[i, index_dict[value]] = True
 
+    if options["approach"] == "deletion" and contains_nans:
+        slices[:, index_dict["?"]] = False
     if options["approach"] == "partial" and contains_nans:
         slices[:, index_dict["?"]] = True
     if options["approach"] == "fuzzy" and contains_nans:

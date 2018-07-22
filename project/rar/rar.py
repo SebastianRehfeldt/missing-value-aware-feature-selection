@@ -30,8 +30,8 @@ class RaR(Subspacing):
         eval_method = kwargs.get("eval_method", "rar")
         approach = kwargs.get("approach", "deletion")
         create_category = kwargs.get("create_category", False)
-        min_slices = kwargs.get("min_slices", 5)
-        min_samples = kwargs.get("min_samples", 3)
+        min_slices = kwargs.get("min_slices", 10)
+        min_samples = kwargs.get("min_samples", 5)
         max_subspaces = kwargs.get("max_subspaces", 1000)
         sample_slices = kwargs.get("sample_slices", True)
         cache_enabled = kwargs.get("cache_enabled", self.shape[1] < 50)
@@ -40,6 +40,9 @@ class RaR(Subspacing):
         imputation_method = kwargs.get("imputation_method", "knn")
         contrast_iterations = kwargs.get("contrast_iterations", 100)
         redundancy_approach = kwargs.get("redundancy_approach", "arvind")
+
+        if approach == "fuzzy":
+            min_samples = 0
 
         self.params.update({
             "alpha": alpha,
@@ -117,13 +120,15 @@ class RaR(Subspacing):
             n_targets = min(len(open_features), self.params["n_targets"])
             targets = np.random.choice(open_features, n_targets, False)
 
-        rel, red_s, is_empty = self.hics.evaluate_subspace(subspace, targets)
+        results = self.hics.evaluate_subspace(subspace, targets)
+        rel, red_s, is_empty, deviations = results
 
         if is_empty:
-            rel, red_s, targets = 0, [], []
+            rel, red_s, targets = 0, [], [], 0
 
         return {
             "relevance": rel,
+            "deviations": deviations,
             "redundancies": red_s,
             "targets": targets,
         }
