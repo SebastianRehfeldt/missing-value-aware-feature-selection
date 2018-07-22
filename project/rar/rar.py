@@ -42,7 +42,7 @@ class RaR(Subspacing):
         redundancy_approach = kwargs.get("redundancy_approach", "arvind")
 
         if approach == "fuzzy":
-            min_samples = 0
+            min_samples = 0.1
 
         self.params.update({
             "alpha": alpha,
@@ -121,14 +121,14 @@ class RaR(Subspacing):
             targets = np.random.choice(open_features, n_targets, False)
 
         results = self.hics.evaluate_subspace(subspace, targets)
-        rel, red_s, is_empty, deviations = results
+        rel, red_s, is_empty, deviation = results
 
         if is_empty:
-            rel, red_s, targets = 0, [], [], 0
+            rel, red_s, targets, deviation = 0, [], [], 0
 
         return {
             "relevance": rel,
-            "deviations": deviations,
+            "deviation": deviation,
             "redundancies": red_s,
             "targets": targets,
         }

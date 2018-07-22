@@ -13,6 +13,7 @@ class HICS():
         self._init_n_selects()
         self._init_slice_options()
         self._cache_label()
+        self.deviations = []
 
         if not self.params["approach"] == "imputation" and self.params["cache_enabled"]:
             self._init_slice_cache()
@@ -86,10 +87,10 @@ class HICS():
             options["min_samples"] = min_samples
         return get_slices(X, types, cache, **options)
 
-    def get_cached_slices(self, subspace):
+    def get_cached_slices(self, subspace, use_cache=True):
         dim = len(subspace)
 
-        if self.params["cache_enabled"]:
+        if self.params["cache_enabled"] and use_cache:
             slices = [self.slices[subspace[i]][dim] for i in range(dim)]
             slices = combine_slices(slices).copy()
         else:
@@ -118,10 +119,19 @@ class HICS():
 
         # RETURN IF TOO FEW SLICES
         if len(slices) <= self.params["min_slices"]:
-            return 0, [], True
+            return 0, [], True, 0
 
         # COMPUTE RELEVANCE AND REDUNDANCIES
         rels, deviations = self.get_relevance(slices, lengths)
+        self.deviations.append(deviations)
+        if deviations > 0.1 and len(subspace) == 1:
+            rels = np.zeros(5)
+            for i in range(5):
+                new_slices, new_lengths = self.get_cached_slices(
+                    subspace, False)
+                rels[i] = self.get_relevance(new_slices, new_lengths)[0]
+            rels = np.mean(rels)
+
         reds = self.get_redundancies(slices, lengths, targets, T)
         return rels, reds, False, deviations
 
