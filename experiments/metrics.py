@@ -5,8 +5,16 @@ import pandas as pd
 def calc_cg(gold_ranking, ranking, use_position=True):
     CG = np.zeros(len(gold_ranking))
     current_cg = 0
+    sorted_values = gold_ranking.sort_values(ascending=False)
+    sum_of_indices = 0
+    for i in range(len(gold_ranking)):
+        sum_of_indices += 1 / (i + 2)
+
     for i, feature in enumerate(ranking):
         score = gold_ranking[feature]
+        if use_position:
+            score = 1 / (sorted_values.index.get_loc(feature) + 2)
+            score /= sum_of_indices
         current_cg += score
         CG[i] = current_cg
     CG[CG == 0] = current_cg
