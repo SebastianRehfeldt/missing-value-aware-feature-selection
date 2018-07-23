@@ -36,7 +36,7 @@ def calc_dcg(gold_ranking, ranking, use_position=True):
 
 
 def calc_ndcg(gold_ranking, ranking, use_position=True):
-    DCG = calc_dcg(gold_ranking, ranking)
+    DCG = calc_dcg(gold_ranking, ranking, use_position)
 
     # calculate ideal discounted cumulative gain for normalization
     i, IDCG = 2, 0

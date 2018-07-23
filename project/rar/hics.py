@@ -78,13 +78,11 @@ class HICS():
 
             for i in range(1, self.params["subspace_size"][1] + 1):
                 n = self.n_select_d[i]
-                self.slices[col][i] = self.get_slices(X, types, cache, 0, n)
+                self.slices[col][i] = self.get_slices(X, types, cache, n)
 
-    def get_slices(self, X, types, cache=None, min_samples=None, n=None):
+    def get_slices(self, X, types, cache=None, n=None):
         options = self.slice_options.copy()
         options["n_select"] = n or self.n_select_d[X.shape[1]]
-        if min_samples is not None:
-            options["min_samples"] = min_samples
         return get_slices(X, types, cache, **options)
 
     def get_cached_slices(self, subspace, use_cache=True):
@@ -97,9 +95,6 @@ class HICS():
             X = self.data.X[subspace]
             types = self.data.f_types[subspace]
             slices = self.get_slices(X, types)
-            if self.params["approach"] != "partial":
-                return slices
-            slices = slices[0]
 
         if self.params["approach"] == "partial":
             max_nans = int(np.floor(dim / 2))
@@ -113,7 +108,8 @@ class HICS():
         if self.params["approach"] == "imputation":
             types = self.data.f_types[subspace]
             X, T = self._apply_imputation(subspace, targets, types)
-            slices, lengths = self.get_slices(X, types)
+            slices = self.get_slices(X, types)
+            slices, lengths = prune_slices(slices, self.params["min_samples"])
         else:
             slices, lengths = self.get_cached_slices(subspace)
 
@@ -124,9 +120,10 @@ class HICS():
         # COMPUTE RELEVANCE AND REDUNDANCIES
         rels, deviations = self.get_relevance(slices, lengths)
         self.deviations.append(deviations)
-        if deviations > 0.1 and len(subspace) == 1:
-            rels = np.zeros(5)
-            for i in range(5):
+        n_resamples = self.params["resamples"]
+        if deviations > 0.1 and len(subspace) == 1 and n_resamples > 0:
+            rels = np.zeros(n_resamples)
+            for i in range(n_resamples):
                 new_slices, new_lengths = self.get_cached_slices(
                     subspace, False)
                 rels[i] = self.get_relevance(new_slices, new_lengths)[0]

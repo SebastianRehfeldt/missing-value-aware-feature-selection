@@ -76,7 +76,7 @@ for i in range(5):
         data.l_type,
         data.shape,
         n_jobs=1,
-        approach="fuzzy",
+        approach="partial",
         n_targets=0,
         n_subspaces=800,
         subspace_size=(1, 3),
@@ -88,6 +88,7 @@ for i in range(5):
         cache_enabled=True,
         sample_slices=True,
         min_samples=3,
+        resamples=10,
     )
 
     rar.fit(data.X, data.y)
