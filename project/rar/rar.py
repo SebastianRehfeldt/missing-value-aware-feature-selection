@@ -32,6 +32,7 @@ class RaR(Subspacing):
         create_category = kwargs.get("create_category", False)
         min_slices = kwargs.get("min_slices", 10)
         min_samples = kwargs.get("min_samples", 5)
+        resamples = kwargs.get("resamples", 3)
         max_subspaces = kwargs.get("max_subspaces", 1000)
         sample_slices = kwargs.get("sample_slices", True)
         cache_enabled = kwargs.get("cache_enabled", self.shape[1] < 50)
@@ -40,9 +41,6 @@ class RaR(Subspacing):
         imputation_method = kwargs.get("imputation_method", "knn")
         contrast_iterations = kwargs.get("contrast_iterations", 100)
         redundancy_approach = kwargs.get("redundancy_approach", "arvind")
-
-        if approach == "fuzzy":
-            min_samples = 0.1
 
         self.params.update({
             "alpha": alpha,
@@ -54,6 +52,7 @@ class RaR(Subspacing):
             "create_category": create_category,
             "min_slices": min_slices,
             "min_samples": min_samples,
+            "resamples": resamples,
             "max_subspaces": max_subspaces,
             "sample_slices": sample_slices,
             "cache_enabled": cache_enabled,

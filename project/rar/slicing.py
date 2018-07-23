@@ -10,12 +10,7 @@ def get_slices(X, types, cache, **options):
             "numeric": get_numerical_slices
         }[types[col]](X[col].values, cache, **options)
 
-    slices = combine_slices(slices)
-    if options["min_samples"] == 0:
-        return slices
-
-    # remove empty and very small slices
-    return prune_slices(slices, options["min_samples"])
+    return combine_slices(slices)
 
 
 def combine_slices(slices):
@@ -112,8 +107,6 @@ def get_categorical_slices(X, cache, **options):
 
             slices[i, index_dict[value]] = True
 
-    if options["approach"] == "deletion" and contains_nans:
-        slices[:, index_dict["?"]] = False
     if options["approach"] == "partial" and contains_nans:
         slices[:, index_dict["?"]] = True
     if options["approach"] == "fuzzy" and contains_nans:
