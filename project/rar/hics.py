@@ -35,7 +35,6 @@ class HICS():
     def _init_slice_options(self):
         self.slice_options = {
             "n_iterations": self.params["contrast_iterations"],
-            "should_sample": self.params["sample_slices"],
             "min_samples": self.params["min_samples"],
             "approach": self.params["approach"],
             "weight": self.params["weight"],
