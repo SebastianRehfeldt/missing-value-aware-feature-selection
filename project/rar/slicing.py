@@ -31,20 +31,14 @@ def prune_slices(slices, min_samples=3):
 def get_numerical_slices(X, cache, **options):
     n_iterations, n_select = options["n_iterations"], options["n_select"]
 
-    if cache is not None:
-        indices, nans = cache["indices"], cache["nans"].values
-    else:
-        indices = np.argsort(X)
-        nans = np.isnan(X)
+    indices = cache["indices"] if cache is not None else np.argsort(X)
+    nans = cache["nans"] if cache is not None else np.isnan(X)
 
     # TODO: account for missing values (also increase max_start if range very small)
     max_start = X.shape[0] - n_select
-    if options["approach"] == "imputation":
-        max_value = np.max(X)
-    else:
+    if not options["approach"] == "imputation":
         non_nan_count = indices.shape[0] - np.sum(nans)
         max_start = non_nan_count - n_select
-        max_value = X[indices[non_nan_count - 1]]
         if max_start < 1:
             max_start = int(non_nan_count / 2)
 
@@ -53,17 +47,10 @@ def get_numerical_slices(X, cache, **options):
     dtype = np.float16 if options["approach"] == "fuzzy" else bool
     slices = np.zeros((n_iterations, X.shape[0]), dtype=dtype)
     for i, start in enumerate(start_positions):
-        if options["should_sample"]:
-            idx = indices[start:start + n_select]
-            slices[i, idx] = True
-        else:
-            start_value = X[indices[start]]
-            end_position = start + n_select
-            end_value = min(X[indices[end_position]], max_value)
-            slices[i] = np.logical_and(X >= start_value, X <= end_value)
+        end = min(start + n_select, non_nan_count - 1)
+        idx = indices[start:end]
+        slices[i, idx] = True
 
-    if options["approach"] == "deletion":
-        slices[:, nans] = False
     if options["approach"] == "partial":
         slices[:, nans] = True
     if options["approach"] == "fuzzy":
@@ -94,15 +81,11 @@ def get_categorical_slices(X, cache, **options):
         current_sum = 0
         for value in values:
             current_sum += value_dict[value]
-
             if current_sum >= n_select:
-                if options["should_sample"]:
-                    n_missing = n_select - (current_sum - value_dict[value])
-                    perm = np.random.permutation(value_dict[value])[:n_missing]
-                    idx = index_dict[value][perm]
-                    slices[i, idx] = True
-                else:
-                    slices[i, index_dict[value]] = True
+                n_missing = n_select - (current_sum - value_dict[value])
+                perm = np.random.permutation(value_dict[value])[:n_missing]
+                idx = index_dict[value][perm]
+                slices[i, idx] = True
                 break
 
             slices[i, index_dict[value]] = True
