@@ -34,7 +34,6 @@ def get_numerical_slices(X, cache, **options):
     indices = cache["indices"] if cache is not None else np.argsort(X)
     nans = cache["nans"] if cache is not None else np.isnan(X)
 
-    # TODO: account for missing values (also increase max_start if range very small)
     max_start = X.shape[0] - n_select
     if not options["approach"] == "imputation":
         non_nan_count = indices.shape[0] - np.sum(nans)
@@ -54,7 +53,9 @@ def get_numerical_slices(X, cache, **options):
     if options["approach"] == "partial":
         slices[:, nans] = True
     if options["approach"] == "fuzzy":
+        nan_count = X.shape[0] - non_nan_count
         slices[:, nans] = (n_select / non_nan_count) * options["weight"]
+    #print((n_select / non_nan_count) * options["weight"])
     return slices
 
 
@@ -94,6 +95,7 @@ def get_categorical_slices(X, cache, **options):
         slices[:, index_dict["?"]] = True
     if options["approach"] == "fuzzy" and contains_nans:
         non_nan_count = X.shape[0] - value_dict["?"]
+        nan_count = X.shape[0] - non_nan_count
         w = (n_select / non_nan_count) * options["weight"]
         slices[:, index_dict["?"]] = w
     return slices

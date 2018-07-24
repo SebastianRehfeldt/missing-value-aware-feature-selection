@@ -121,12 +121,13 @@ class HICS():
         self.deviations.append(deviations)
         n_resamples = self.params["resamples"]
         if deviations > 0.1 and len(subspace) == 1 and n_resamples > 0:
-            rels = np.zeros(n_resamples)
-            for i in range(n_resamples):
+            resamples = np.zeros(n_resamples + 1)
+            resamples[0] = rels
+            for i in range(1, n_resamples + 1):
                 new_slices, new_lengths = self.get_cached_slices(
                     subspace, False)
-                rels[i] = self.get_relevance(new_slices, new_lengths)[0]
-            rels = np.mean(rels)
+                resamples[i] = self.get_relevance(new_slices, new_lengths)[0]
+            rels = np.mean(resamples)
 
         reds = self.get_redundancies(slices, lengths, targets, T)
         return rels, reds, False, deviations
