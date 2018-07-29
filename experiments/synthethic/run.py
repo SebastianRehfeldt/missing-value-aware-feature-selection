@@ -5,7 +5,7 @@ from experiments.utils import write_config
 from experiments.ranking import get_rankings
 from experiments.synthethic import CONFIG, DATASET_CONFIG, ALGORITHMS
 
-ID = "1"
+ID = "8"
 NAME = "synthethic"
 FOLDER = os.path.join(EXPERIMENTS_PATH, NAME, "EXP_" + ID)
 if os.path.isdir(FOLDER):

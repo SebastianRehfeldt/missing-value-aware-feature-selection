@@ -19,16 +19,20 @@ class DataGenerator():
     def set_seed(self, seed):
         np.random.seed(seed)
 
+    def get_clusters(self):
+        clusters = self.clusters.copy()
+        return [v for k, v in clusters.items()]
+
     def _init_params(self, **params):
-        self.n_samples = params.get("n_samples", 1000)
+        self.n_samples = params.get("n_samples", 500)
         self.n_features = params.get("n_features", 20)
-        self.n_independent = params.get("n_independent", 18)
-        self.n_dependent = params.get("n_dependent", 2)
-        self.n_relevant = params.get("n_relevant", 3)
+        self.n_independent = params.get("n_independent", 20)
+        self.n_dependent = params.get("n_dependent", 0)
+        self.n_relevant = params.get("n_relevant", 0)
         self.n_discrete = params.get("n_discrete", 0)
-        self.n_clusters = params.get("n_clusters", 0)
+        self.n_clusters = params.get("n_clusters", 3)
         self.y_flip = params.get("y_flip", 0.01)
-        self.max_features_in_cluster = params.get("max_features_in_cluster", 3)
+        self.max_features_in_cluster = params.get("max_features_in_cluster", 2)
         self.max_discrete_values = params.get("max_discrete_values", 10)
 
     def xor_signs(self, subspace):
@@ -81,7 +85,7 @@ class DataGenerator():
                 if relevance_vector[idx] == 0:
                     relevance_vector[idx] = rel
                 else:
-                    relevance_vector[idx] = (relevance_vector[idx] + rel) / 2
+                    relevance_vector[idx] = relevance_vector[idx] + rel
         relevance_vector /= np.sum(relevance_vector)
         self.relevance_vector = relevance_vector
 
@@ -129,8 +133,7 @@ class DataGenerator():
             self.X[idx_neg, index] = np.random.choice(values_neg, len(idx_neg))
 
     def _finalize(self):
-        names = ["feature" + str(i) for i in range(self.n_features)]
-        names = np.random.permutation(names)
+        names = ["f" + str(i) for i in range(self.n_features)]
 
         X = pd.DataFrame(self.X[:, :self.n_features], columns=names)
         y = pd.Series(self.y, name="class")

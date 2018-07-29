@@ -3,10 +3,10 @@ DATASET_CONFIG = {
     "n_features": 20,
     "n_independent": 20,
     "n_dependent": 0,
-    "n_relevant": 4,
+    "n_relevant": 0,
     "n_discrete": 0,
-    "n_clusters": 2,
+    "n_clusters": 3,
     "y_flip": 0.01,
-    "max_features_in_cluster": 3,
+    "max_features_in_cluster": 2,
     "max_discrete_values": 10
 }

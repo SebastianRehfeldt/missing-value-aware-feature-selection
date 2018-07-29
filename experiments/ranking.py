@@ -65,7 +65,9 @@ def get_rankings(CONFIG, DATASET_CONFIG, ALGORITHMS):
                         data.shape,
                         **algorithm["config"],
                     )
-                    selector.fit(data.X, data.y)
+                    # fix for global deletion
+                    if data.shape[0] >= 30:
+                        selector.fit(data.X, data.y)
                     ranking = selector.get_ranking()
                     duration = clock() - start
 
