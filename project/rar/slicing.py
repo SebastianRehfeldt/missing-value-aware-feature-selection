@@ -2,7 +2,6 @@ import numpy as np
 
 
 def get_slices(X, types, cache, **options):
-    # collect slices for each column
     slices = [None] * X.shape[1]
     for i, col in enumerate(X):
         slices[i] = {
@@ -34,13 +33,12 @@ def get_numerical_slices(X, cache, **options):
     indices = cache["indices"] if cache is not None else np.argsort(X)
     nans = cache["nans"] if cache is not None else np.isnan(X)
 
-    max_start = X.shape[0] - n_select
-    if not options["approach"] == "imputation":
-        non_nan_count = indices.shape[0] - np.sum(nans)
-        max_start = non_nan_count - n_select
-        if max_start < 1:
-            max_start = int(non_nan_count / 2)
+    nan_count = 0 if options["approach"] == "imputation" else np.sum(nans)
+    mr = nan_count / X.shape[0]
+    n_select = max(5, int(np.ceil(n_select * (1 - mr))))
 
+    non_nan_count = X.shape[0] - nan_count
+    max_start = non_nan_count - n_select
     start_positions = np.random.randint(0, max_start, n_iterations)
 
     dtype = np.float16 if options["approach"] == "fuzzy" else bool
@@ -53,9 +51,8 @@ def get_numerical_slices(X, cache, **options):
     if options["approach"] == "partial":
         slices[:, nans] = True
     if options["approach"] == "fuzzy":
-        nan_count = X.shape[0] - non_nan_count
-        slices[:, nans] = (n_select / non_nan_count) * options["weight"]
-    #print((n_select / non_nan_count) * options["weight"])
+        factor = options["weight"]**(1 / options["d"])
+        slices[:, nans] = options["alpha"] * factor
     return slices
 
 
@@ -69,6 +66,10 @@ def get_categorical_slices(X, cache, **options):
 
     value_dict = dict(zip(values, counts))
     index_dict = {val: np.where(X == val)[0] for val in values}
+
+    nan_count = value_dict.get("?", 0)
+    mr = nan_count / X.shape[0]
+    n_select = max(5, int(np.ceil(n_select * (1 - mr))))
 
     contains_nans = "?" in value_dict
     if contains_nans:
@@ -95,7 +96,7 @@ def get_categorical_slices(X, cache, **options):
         slices[:, index_dict["?"]] = True
     if options["approach"] == "fuzzy" and contains_nans:
         non_nan_count = X.shape[0] - value_dict["?"]
-        nan_count = X.shape[0] - non_nan_count
-        w = (n_select / non_nan_count) * options["weight"]
+        factor = options["weight"]**(1 / options["d"])
+        w = (n_select / non_nan_count) * factor
         slices[:, index_dict["?"]] = w
     return slices
