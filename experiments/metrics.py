@@ -58,7 +58,7 @@ def calc_mse(gold_ranking, ranking):
     return sse / len(ranking)
 
 
-def compute_statistics(rankings, relevances, mean_scores=None):
+def compute_statistics(rankings, relevances, mean_scores=None, run_i=None):
     d = defaultdict(dict)
     cg_means, cg_deviations = d.copy(), d.copy()
     ndcg_means, ndcg_deviations = d.copy(), d.copy()
@@ -73,7 +73,8 @@ def compute_statistics(rankings, relevances, mean_scores=None):
             # The mean and std are calculated over all datasets and insertions
             # Run means a new dataset and i indicates multiple insertions
             cgs, cgs_pos, ndcgs, ndcgs_pos, sses = [], [], [], [], []
-            for run in range(len(ranking)):
+            runs = range(len(ranking)) if run_i is None else [run_i]
+            for run in runs:
                 for i in range(len(ranking[run])):
                     if isinstance(relevances, pd.DataFrame):
                         # use relevance scores as gold ranking for synthetic
@@ -85,7 +86,7 @@ def compute_statistics(rankings, relevances, mean_scores=None):
                         gold_scores = complete_scores / complete_scores.sum()
 
                     # CG and NDCG
-                    t = 1e-4
+                    t = 1e-8
                     scores = [k for k, v in ranking[run][i].items() if v > t]
                     CG = calc_cg(gold_scores, scores)
                     cgs.append(CG)
