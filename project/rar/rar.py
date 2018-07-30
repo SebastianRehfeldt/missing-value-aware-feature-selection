@@ -6,7 +6,8 @@ from math import factorial, ceil, log
 
 from project.base import Subspacing
 from .optimizer import deduce_relevances
-from .rar_utils import sort_redundancies_by_target, get_ranking_arvind, get_ranking_tom
+from .rar_utils import sort_redundancies_by_target
+from .rar_utils import get_ranking_arvind, get_ranking_tom
 
 
 class RaR(Subspacing):
@@ -74,7 +75,7 @@ class RaR(Subspacing):
     def _get_size(self):
         # small change to rar to enable datasets with less than 5 features
         max_size = int(self.shape[1] / 2)
-        return (1, min(5, max_size))
+        return (1, min(3, max_size))
 
     def _get_n_subspaces(self):
         n_subspaces = {

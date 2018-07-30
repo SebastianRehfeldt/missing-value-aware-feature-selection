@@ -17,6 +17,7 @@ class DataGenerator():
         self.data = None
 
     def set_seed(self, seed):
+        self.seed = seed
         np.random.seed(seed)
 
     def get_clusters(self):
@@ -182,3 +183,18 @@ class DataGenerator():
             self.create_dataset()
 
         return self.data, self.relevance_vector
+
+    def get_params(self):
+        return {
+            "n_samples": self.n_samples,
+            "n_features": self.n_features,
+            "n_independent": self.n_independent,
+            "n_dependent": self.n_dependent,
+            "n_relevant": self.n_relevant,
+            "n_discrete": self.n_discrete,
+            "n_clusters": self.n_clusters,
+            "y_flip": self.y_flip,
+            "max_features_in_cluster": self.max_features_in_cluster,
+            "max_discrete_values": self.max_discrete_values,
+            "seed": self.seed,
+        }
