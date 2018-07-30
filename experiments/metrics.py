@@ -58,9 +58,8 @@ def calc_mse(gold_ranking, ranking):
     return sse / len(ranking)
 
 
-def compute_statistics(rankings, relevances):
+def compute_statistics(rankings, relevances, mean_scores=None):
     d = defaultdict(dict)
-    first_key = list(rankings.keys())[0]
     cg_means, cg_deviations = d.copy(), d.copy()
     ndcg_means, ndcg_deviations = d.copy(), d.copy()
     cg_means_pos, cg_deviations_pos = d.copy(), d.copy()
@@ -76,12 +75,12 @@ def compute_statistics(rankings, relevances):
             cgs, cgs_pos, ndcgs, ndcgs_pos, sses = [], [], [], [], []
             for run in range(len(ranking)):
                 for i in range(len(ranking[run])):
-                    # use ranking on complete data as gold ranking for uci
                     if isinstance(relevances, pd.DataFrame):
+                        # use relevance scores as gold ranking for synthetic
+                        complete_scores = mean_scores[key][run]
                         gold_scores = relevances[str(run)]
-                        complete_scores = rankings[first_key][key][run][i]
-                        complete_scores = pd.Series(complete_scores)
                     else:
+                        # use ranking on complete data as gold ranking for uci
                         complete_scores = relevances[key][run]
                         gold_scores = complete_scores / complete_scores.sum()
 
