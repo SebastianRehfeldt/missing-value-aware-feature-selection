@@ -10,8 +10,8 @@ def plot_mean_durations(FOLDER, durations):
     fig.savefig(path)
 
 
-def plot_cgs(FOLDER, cgs):
-    CG_FOLDER = os.path.join(FOLDER, "CG")
+def plot_cgs(FOLDER, cgs, name):
+    CG_FOLDER = os.path.join(FOLDER, name)
     os.makedirs(CG_FOLDER, exist_ok=True)
 
     for mr in cgs[0].keys():

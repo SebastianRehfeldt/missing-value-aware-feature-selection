@@ -1,8 +1,9 @@
 import numpy as np
 import pandas as pd
+from collections import defaultdict
 
 
-def calc_cg(gold_ranking, ranking, use_position=True):
+def calc_cg(gold_ranking, ranking, use_position=False):
     CG = np.zeros(len(gold_ranking))
     current_cg = 0
     sorted_values = gold_ranking.sort_values(ascending=False)
@@ -21,7 +22,7 @@ def calc_cg(gold_ranking, ranking, use_position=True):
     return CG
 
 
-def calc_dcg(gold_ranking, ranking, use_position=True):
+def calc_dcg(gold_ranking, ranking, use_position=False):
     i, DCG = 2, 0
     sorted_values = gold_ranking.sort_values(ascending=False)
     for feature in ranking:
@@ -35,7 +36,7 @@ def calc_dcg(gold_ranking, ranking, use_position=True):
     return DCG
 
 
-def calc_ndcg(gold_ranking, ranking, use_position=True):
+def calc_ndcg(gold_ranking, ranking, use_position=False):
     DCG = calc_dcg(gold_ranking, ranking, use_position)
 
     # calculate ideal discounted cumulative gain for normalization
@@ -61,25 +62,21 @@ def calc_mse(gold_ranking, ranking):
 
 
 def compute_statistics(rankings, relevances):
+    d = defaultdict(dict)
     first_key = list(rankings.keys())[0]
-    cg_means, cg_deviations = {}, {}
-    ndcg_means, ndcg_deviations = {}, {}
-    sse_means, sse_deviations = {}, {}
+    cg_means, cg_deviations = d.copy(), d.copy()
+    ndcg_means, ndcg_deviations = d.copy(), d.copy()
+    cg_means_pos, cg_deviations_pos = d.copy(), d.copy()
+    ndcg_means_pos, ndcg_deviations_pos = d.copy(), d.copy()
+    sse_means, sse_deviations = d.copy(), d.copy()
 
     for missing_rate in rankings.keys():
-        cg_means[missing_rate] = {}
-        cg_deviations[missing_rate] = {}
-        ndcg_means[missing_rate] = {}
-        ndcg_deviations[missing_rate] = {}
-        sse_means[missing_rate] = {}
-        sse_deviations[missing_rate] = {}
-
         for key in rankings[missing_rate].keys():
             ranking = rankings[missing_rate][key]
 
             # The mean and std are calculated over all datasets and insertions
             # Run means a new dataset and i indicates multiple insertions
-            cgs, ndcgs, sses = [], [], []
+            cgs, cgs_pos, ndcgs, ndcgs_pos, sses = [], [], [], [], []
             for run in range(len(ranking)):
                 for i in range(len(ranking[run])):
                     # use ranking on complete data as gold ranking for uci
@@ -97,6 +94,11 @@ def compute_statistics(rankings, relevances):
                     NDCG = calc_ndcg(gold_scores, scores)
                     ndcgs.append(NDCG)
 
+                    CG_POS = calc_cg(gold_scores, scores, True)
+                    cgs_pos.append(CG_POS)
+                    NDCG_POS = calc_ndcg(gold_scores, scores, True)
+                    ndcgs_pos.append(NDCG_POS)
+
                     # SSE
                     complete_scores = rankings[first_key][key][run][i]
                     complete_scores = pd.Series(complete_scores)
@@ -110,16 +112,30 @@ def compute_statistics(rankings, relevances):
             ndcg_means[missing_rate][key] = np.mean(ndcgs)
             ndcg_deviations[missing_rate][key] = np.std(ndcgs)
 
+            cg_means_pos[missing_rate][key] = np.mean(cgs_pos, axis=0)
+            cg_deviations_pos[missing_rate][key] = np.std(cgs_pos, axis=0)
+
+            ndcg_means_pos[missing_rate][key] = np.mean(ndcgs_pos)
+            ndcg_deviations_pos[missing_rate][key] = np.std(ndcgs_pos)
+
             sse_means[missing_rate][key] = np.mean(sses)
             sse_deviations[missing_rate][key] = np.std(sses)
 
     ndcg_means = pd.DataFrame(ndcg_means).T
     ndcg_deviations = pd.DataFrame(ndcg_deviations).T
+    ndcg_means_pos = pd.DataFrame(ndcg_means_pos).T
+    ndcg_deviations_pos = pd.DataFrame(ndcg_deviations_pos).T
     sse_means = pd.DataFrame(sse_means).T
     sse_deviations = pd.DataFrame(sse_deviations).T
     mse_means = sse_means / len(rankings[missing_rate][key])
-    return (cg_means, cg_deviations), (ndcg_means, ndcg_deviations), (
-        sse_means, sse_deviations), (mse_means, sse_deviations)
+
+    cgs = (cg_means, cg_deviations)
+    ndcgs = (ndcg_means, ndcg_deviations)
+    cgs_pos = (cg_means_pos, cg_deviations_pos)
+    ndcgs_pos = (ndcg_means_pos, ndcg_deviations_pos)
+    sses = (sse_means, sse_deviations)
+    mses = (mse_means, sse_deviations)
+    return cgs, ndcgs, cgs_pos, ndcgs_pos, sses, mses
 
 
 def calc_avg_statistics(rankings):

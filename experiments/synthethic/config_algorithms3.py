@@ -3,6 +3,40 @@ from project.feature_selection import RKNN, Filter, SFS
 from project.feature_selection.orange import Orange
 
 ALGORITHMS = {
+    "SFS + Tree": {
+        "class": SFS,
+        "config": {
+            "eval_method": "tree"
+        }
+    },
+    "RKNN": {
+        "class": RKNN,
+        "config": {}
+    },
+    "MI": {
+        "class": Filter,
+        "config": {
+            "eval_method": "mi"
+        }
+    },
+    "Relief": {
+        "class": Orange,
+        "config": {
+            "eval_method": "relief"
+        }
+    },
+    "FCBF": {
+        "class": Orange,
+        "config": {
+            "eval_method": "fcbf"
+        }
+    },
+    "Random Forest": {
+        "class": Orange,
+        "config": {
+            "eval_method": "rf"
+        }
+    },
     "RaR Deletion": {
         "class": RaR,
         "config": {
