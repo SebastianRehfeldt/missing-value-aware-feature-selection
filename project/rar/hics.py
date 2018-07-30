@@ -77,11 +77,13 @@ class HICS():
 
             for i in range(1, self.params["subspace_size"][1] + 1):
                 n = self.n_select_d[i]
-                self.slices[col][i] = self.get_slices(X, types, cache, n)
+                self.slices[col][i] = self.get_slices(X, types, cache, n, i)
 
-    def get_slices(self, X, types, cache=None, n=None):
+    def get_slices(self, X, types, cache=None, n=None, d=None):
         options = self.slice_options.copy()
         options["n_select"] = n or self.n_select_d[X.shape[1]]
+        options["alpha"] = self.alphas_d[X.shape[1]]
+        options["d"] = d or X.shape[1]
         return get_slices(X, types, cache, **options)
 
     def get_cached_slices(self, subspace, use_cache=True):
@@ -95,11 +97,16 @@ class HICS():
             types = self.data.f_types[subspace]
             slices = self.get_slices(X, types)
 
-        if self.params["approach"] == "partial":
+        min_samples = self.params["min_samples"]
+        if self.params["approach"] in ["partial", "fuzzy"]:
             max_nans = int(np.floor(dim / 2))
+            if self.params["approach"] == "fuzzy":
+                min_samples = 0
+                max_nans = dim - 1
+
             nan_sums = np.sum(self.nans[subspace].values, axis=1)
             slices[:, nan_sums > max_nans] = False
-        return prune_slices(slices, self.params["min_samples"])
+        return prune_slices(slices, min_samples)
 
     def evaluate_subspace(self, subspace, targets=[]):
         # GET SLICES
