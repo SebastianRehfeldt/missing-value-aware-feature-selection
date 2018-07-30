@@ -1,4 +1,5 @@
 import os
+import numpy as np
 import pandas as pd
 
 
@@ -17,6 +18,12 @@ def plot_cgs(FOLDER, cgs, name):
     for mr in cgs[0].keys():
         cg_means = pd.DataFrame(cgs[0][mr])
         cg_stds = pd.DataFrame(cgs[1][mr])
+        cg_means.loc[-1] = np.zeros(cg_means.shape[1])
+        cg_stds.loc[-1] = np.zeros(cg_stds.shape[1])
+        cg_means.index += 1
+        cg_stds.index += 1
+        cg_means.sort_index(inplace=True)
+        cg_stds.sort_index(inplace=True)
 
         ax = cg_means.plot(kind="line", title="CG over features")
         ax.set(xlabel="# Features", ylabel="CG (Mean)")

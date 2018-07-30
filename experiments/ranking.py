@@ -22,11 +22,10 @@ def calc_mean_ranking(rankings):
 
 
 def get_rankings(CONFIG, DATASET_CONFIG, ALGORITHMS):
-    durations, rankings = {}, {}
+    durations, rankings, relevances = {}, {}, []
     for i in range(CONFIG["n_runs"]):
         ### CREATE DATASET WHICH IS USED FOR EVALUATION ###
         if CONFIG["is_real_data"]:
-
             name = DATASET_CONFIG["name"]
             data_loader = DataLoader(ignored_attributes=["molecule_name"])
             data_original = data_loader.load_data(name, "arff")
@@ -39,11 +38,7 @@ def get_rankings(CONFIG, DATASET_CONFIG, ALGORITHMS):
             generator = DataGenerator(**params)
             generator.set_seed(CONFIG["seeds"][i])
             data_original, relevance_vector = generator.create_dataset()
-
-            if i == 0:
-                relevances = pd.DataFrame(relevance_vector)
-            else:
-                relevances[i] = relevance_vector
+            relevances.append(relevance_vector)
 
         data_original = scale_data(data_original)
 
@@ -96,4 +91,7 @@ def get_rankings(CONFIG, DATASET_CONFIG, ALGORITHMS):
 
             print("Finished missing rate {:.1f}".format(mr), flush=True)
         print("Finished run {:d}".format(i + 1), flush=True)
+
+    if not CONFIG["is_real_data"]:
+        relevances = pd.DataFrame(relevances).T
     return rankings, durations, relevances

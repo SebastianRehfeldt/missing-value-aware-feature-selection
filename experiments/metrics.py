@@ -4,10 +4,9 @@ from collections import defaultdict
 
 
 def calc_cg(gold_ranking, ranking, use_position=False):
-    CG = np.zeros(len(gold_ranking))
-    current_cg = 0
+    CG = np.ones(len(gold_ranking)) * -1
     sorted_values = gold_ranking.sort_values(ascending=False)
-    sum_of_indices = 0
+    current_cg, sum_of_indices = 0, 0
     for i in range(len(gold_ranking)):
         sum_of_indices += 1 / (i + 2)
 
@@ -18,7 +17,7 @@ def calc_cg(gold_ranking, ranking, use_position=False):
             score /= sum_of_indices
         current_cg += score
         CG[i] = current_cg
-    CG[CG == 0] = current_cg
+    CG[CG == -1] = current_cg
     return CG
 
 
@@ -80,6 +79,7 @@ def compute_statistics(rankings, relevances, mean_scores=None, run_i=None):
                         # use relevance scores as gold ranking for synthetic
                         complete_scores = mean_scores[key][run]
                         gold_scores = relevances[str(run)]
+                        gold_scores.dropna(inplace=True)
                     else:
                         # use ranking on complete data as gold ranking for uci
                         complete_scores = relevances[key][run]

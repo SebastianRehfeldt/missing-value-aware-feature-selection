@@ -7,7 +7,7 @@ from experiments.utils import write_config
 from experiments.ranking import get_rankings, calc_mean_ranking
 from experiments.synthethic import CONFIG, DATASET_CONFIG, ALGORITHMS
 
-ID = "100"
+ID = "101"
 NAME = "synthethic"
 FOLDER = os.path.join(EXPERIMENTS_PATH, NAME, "EXP_" + ID)
 if os.path.isdir(FOLDER):
@@ -20,10 +20,11 @@ write_config(FOLDER, CONFIG, DATASET_CONFIG, ALGORITHMS)
 res = get_rankings(CONFIG, DATASET_CONFIG, ALGORITHMS)
 rankings, durations, relevances = res
 
+# %%
 # STORE AND READ RAW RESULTS
 from experiments.utils import write_results, read_results
 
-write_results(FOLDER, relevances, durations, rankings)
+# write_results(FOLDER, relevances, durations, rankings)
 relevances, durations, rankings = read_results(FOLDER)
 mean_scores = calc_mean_ranking(rankings)
 
@@ -32,8 +33,9 @@ n_mrs = len(durations.keys())
 algorithms = list(durations['0.0'].keys())
 n_algorithms = len(algorithms)
 n_runs = len(durations['0.0'][algorithms[0]])
+update = CONFIG["update_attribute"]
 index = CONFIG["updates"]
-index = [d["n_samples"] for d in index]
+index = [d[update] for d in index]
 
 # COMPUTE MEAN DURATIONS
 mean_durations = pd.DataFrame(
@@ -49,8 +51,8 @@ for mr, results in durations.items():
 
 # PLOT AND STORE MEAN DURATIONS
 mean_durations.to_csv(os.path.join(FOLDER, "mean_runtime.csv"))
-ax = mean_durations.plot(kind="bar", title="Runtime over samples")
-ax.set(xlabel="# Samples", ylabel="Runtime (s)")
+ax = mean_durations.plot(kind="bar", title="Runtime over {:s}".format(update))
+ax.set(xlabel=update, ylabel="Runtime (s)")
 ax.xaxis.set_tick_params(rotation=0)
 fig = ax.get_figure()
 fig.savefig(os.path.join(FOLDER, "mean_runtimes.png").format(mr))
@@ -64,7 +66,7 @@ for run in range(n_runs):
     stats[run] = compute_statistics(rankings, relevances, mean_scores, run)
     cgs, ndcgs, cgs_pos, ndcgs_pos, sses, mses = stats[run]
 
-    NEW_FOLDER = os.path.join(FOLDER, "RUN_" + str(run))
+    NEW_FOLDER = os.path.join(FOLDER, update + "_" + str(index[run]))
 
     plot_scores(NEW_FOLDER, ndcgs, "NDCG")
     plot_scores(NEW_FOLDER, ndcgs_pos, "NDCG_POS")
@@ -90,14 +92,18 @@ kind = "bar" if n_runs <= 2 else "line"
 
 ndcg_mean.to_csv(os.path.join(FOLDER, "mean_ndcgs.csv"))
 ax = ndcg_mean.plot(
-    kind=kind, title="NDCG (mean) over samples and missing rates")
-ax.set(xlabel="# Samples", ylabel="NDCG (mean)")
+    kind=kind,
+    title="NDCG (mean) over {:s} and missing rates".format(update),
+)
+ax.set(xlabel=update, ylabel="NDCG (mean)")
 ax.xaxis.set_tick_params(rotation=0)
 ax.get_figure().savefig(os.path.join(FOLDER, "ndcg_mean.png"))
 
 ndcg_deviation.to_csv(os.path.join(FOLDER, "mean_deviation.csv"))
 ax = ndcg_deviation.plot(
-    kind=kind, title="NDCG (std) over samples and missing rates")
-ax.set(xlabel="# Samples", ylabel="NDCG (std)")
+    kind=kind,
+    title="NDCG (std) over {:s} and missing rates".format(update),
+)
+ax.set(xlabel=update, ylabel="NDCG (std)")
 ax.xaxis.set_tick_params(rotation=0)
 ax.get_figure().savefig(os.path.join(FOLDER, "ndcg_deviation.png"))
