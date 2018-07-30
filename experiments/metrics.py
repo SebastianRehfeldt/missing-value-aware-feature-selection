@@ -30,7 +30,6 @@ def calc_dcg(gold_ranking, ranking, use_position=False):
             score = 1 / (sorted_values.index.get_loc(feature) + 2)
         else:
             score = gold_ranking[feature]
-
         DCG += score / np.log2(i)
         i += 1
     return DCG
@@ -45,10 +44,8 @@ def calc_ndcg(gold_ranking, ranking, use_position=False):
     for score in optimal_ranking:
         if use_position:
             score = 1 / i
-
         IDCG += score / np.log2(i)
         i += 1
-
     return DCG / IDCG
 
 
@@ -80,11 +77,13 @@ def compute_statistics(rankings, relevances):
             for run in range(len(ranking)):
                 for i in range(len(ranking[run])):
                     # use ranking on complete data as gold ranking for uci
-                    if relevances is not None:
+                    if isinstance(relevances, pd.DataFrame):
                         gold_scores = relevances[str(run)]
+                        complete_scores = rankings[first_key][key][run][i]
+                        complete_scores = pd.Series(complete_scores)
                     else:
-                        r = pd.Series(rankings[first_key][key][run][i])
-                        gold_scores = r / r.sum()
+                        complete_scores = relevances[key][run]
+                        gold_scores = complete_scores / complete_scores.sum()
 
                     # CG and NDCG
                     t = 1e-4
@@ -100,8 +99,6 @@ def compute_statistics(rankings, relevances):
                     ndcgs_pos.append(NDCG_POS)
 
                     # SSE
-                    complete_scores = rankings[first_key][key][run][i]
-                    complete_scores = pd.Series(complete_scores)
                     scores = pd.Series(ranking[run][i])
                     SSE = calc_sse(complete_scores, scores)
                     sses.append(SSE)
@@ -136,25 +133,3 @@ def compute_statistics(rankings, relevances):
     sses = (sse_means, sse_deviations)
     mses = (mse_means, sse_deviations)
     return cgs, ndcgs, cgs_pos, ndcgs_pos, sses, mses
-
-
-def calc_avg_statistics(rankings):
-    mrs = list(rankings.keys())
-    keys = list(rankings[mrs[0]].keys())
-    data = np.ones((len(mrs), len(keys)))
-    ndcgs = pd.DataFrame(data=data, columns=keys, index=mrs)
-    gold_rankings = []
-
-    for mr in rankings.keys():
-        print("==========")
-        for key in rankings[mr]:
-            df = pd.DataFrame(rankings[mr][key][0])
-            mean_scores = df.mean(0).sort_values(ascending=False)
-            if mr == '0.0':
-                gold_rankings.append(mean_scores)
-            else:
-                ranking = list(mean_scores.index)
-                print(ranking)
-                gold_ranking = pd.concat(gold_rankings, axis=1).mean(1)
-                ndcgs[key][mr] = calc_ndcg(gold_ranking, ranking)
-    return ndcgs, gold_ranking.sort_values(ascending=False)

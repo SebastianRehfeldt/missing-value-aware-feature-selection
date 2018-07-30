@@ -10,6 +10,17 @@ from project.utils.imputer import Imputer
 from project.utils.deleter import Deleter
 
 
+def calc_mean_ranking(rankings):
+    # mean ranking over complete datasets serves as gold standard on uci
+    relevances = defaultdict(list)
+    for algorithm, results in rankings['0.0'].items():
+        for run in range(len(results)):
+            mean = pd.DataFrame(results[run]).mean(0)
+            mean = mean.sort_values(ascending=False)
+            relevances[algorithm].append(mean)
+    return relevances
+
+
 def get_rankings(CONFIG, DATASET_CONFIG, ALGORITHMS):
     durations, rankings = {}, {}
     for i in range(CONFIG["n_runs"]):
