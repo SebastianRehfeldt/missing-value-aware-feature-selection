@@ -10,12 +10,12 @@ from sklearn.metrics import f1_score
 from project import EXPERIMENTS_PATH
 from project.utils import DataLoader
 from project.utils import introduce_missing_values, scale_data
-from experiments.pipelines.utils import get_pipelines
+from experiments.classification.utils import get_pipelines
 
 # LOAD DATA AND DEFINE SELECTORS AND CLASSIFIERS
 name = "ionosphere"
 FOLDER = os.path.join(EXPERIMENTS_PATH, "pipelines", name)
-os.makedirs(FOLDER, exist_ok=True)
+os.makedirs(FOLDER)
 
 data_loader = DataLoader(ignored_attributes=["molecule_name"])
 data = data_loader.load_data(name, "arff")
@@ -30,8 +30,8 @@ names = [
     "mice impute ++ rar",
 ]
 
-missing_rates = [0.2 * i for i in range(3)]
-k_s = [2, 6]  # [1, 2, 4, 6, 8]
+missing_rates = [0.2 * i for i in range(5)]
+k_s = [2, 4, 6]  # [1, 2, 4, 6, 8]
 classifiers = ["knn", "gnb"]
 for mr in missing_rates:
     data_copy = deepcopy(data)
@@ -75,8 +75,8 @@ for mr in missing_rates:
 
                     mean, std, t = np.mean(res), np.std(res), time() - start
 
-                print(names[i], "\n", res)
                 # STORE RESULTS
+                print(names[i], "\n", res)
                 col = names[i]
                 if not col == "complete":
                     col += "_" + str(k)
@@ -88,3 +88,44 @@ for mr in missing_rates:
         scores.append(scores_clf)
     scores = pd.concat(scores).T
     scores.to_csv(os.path.join(FOLDER, "results_{:.2f}.csv".format(mr)))
+
+# %%
+from glob import glob
+
+paths = glob(FOLDER + "/*.csv")
+results, missing_rates = [], []
+
+for path in paths:
+    results.append(pd.DataFrame.from_csv(path))
+    missing_rates.append(path.split("_")[-1].split(".csv")[0])
+
+avg_knn = pd.DataFrame()
+for i, res in enumerate(results):
+    avg_knn[missing_rates[i]] = res["AVG_knn"]
+
+#ax = avg_knn.iloc[5:].T.plot(kind="line", title="F1 over missing rates")
+ax = avg_knn.T.plot(kind="line", title="F1 over missing rates")
+ax.set(xlabel="Missing Rate", ylabel="F1 (Mean)")
+fig = ax.get_figure()
+fig.savefig(os.path.join(FOLDER, "knn_means.png"))
+avg_knn = pd.DataFrame()
+
+time_knn = pd.DataFrame()
+for i, res in enumerate(results):
+    time_knn[missing_rates[i]] = res["TIME_knn"]
+
+ax = time_knn.T.plot(kind="line", title="Fitting time over missing rates")
+ax.set(xlabel="Missing Rate", ylabel="Time (s)")
+fig = ax.get_figure()
+fig.savefig(os.path.join(FOLDER, "knn_time.png"))
+time_knn = pd.DataFrame()
+
+avg_gnb = pd.DataFrame()
+for i, res in enumerate(results):
+    avg_gnb[missing_rates[i]] = res["AVG_gnb"]
+
+#ax = avg_gnb.iloc[5:].T.plot(kind="line", title="F1 over missing rates")
+ax = avg_gnb.T.plot(kind="line", title="F1 over missing rates")
+ax.set(xlabel="Missing Rate", ylabel="F1 (Mean)")
+fig = ax.get_figure()
+fig.savefig(os.path.join(FOLDER, "gnb_means.png"))
