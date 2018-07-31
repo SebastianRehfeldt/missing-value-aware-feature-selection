@@ -14,7 +14,7 @@ from experiments.classification.utils import get_pipelines
 
 # LOAD DATA AND DEFINE SELECTORS AND CLASSIFIERS
 name = "ionosphere"
-FOLDER = os.path.join(EXPERIMENTS_PATH, "pipelines", name)
+FOLDER = os.path.join(EXPERIMENTS_PATH, "classification", "imputation", name)
 os.makedirs(FOLDER)
 
 data_loader = DataLoader(ignored_attributes=["molecule_name"])
