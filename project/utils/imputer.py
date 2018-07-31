@@ -40,9 +40,8 @@ class Imputer():
         Keyword Arguments:
             y {pd.series} -- Label vector (default: {None})
         """
-        self.f_types = self.f_types[X.columns]
-        return self._complete(
-            pd.DataFrame(X, columns=self.f_types.index.tolist()))
+        cols = self.f_types[X.columns].index.tolist()
+        return self._complete(pd.DataFrame(X, columns=cols), cols)
 
     def fit_transform(self, X, y=None):
         """
@@ -69,14 +68,18 @@ class Imputer():
             "strategy": self.strategy,
         }
 
-    def _complete(self, X):
+    def _complete(self, X, cols=None):
         """
         Complete numeric features
 
         Arguments:
             X {df} -- Feature matrix which should be filled
         """
-        cols = self.f_types.loc[self.f_types == "numeric"].index
+        if cols is None:
+            cols = self.f_types.loc[self.f_types == "numeric"].index
+        else:
+            cols = self.f_types[cols].loc[self.f_types == "numeric"].index
+
         X_copy = X.copy()
         if X[cols].isnull().values.any():
             X_copy[cols] = self._get_imputer().complete(X_copy[cols])

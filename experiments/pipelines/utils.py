@@ -39,11 +39,19 @@ def get_pipelines(data, k, names, classifier):
         if name == "complete":
             pipelines.append(Pipeline(steps=[('classify', clf)]))
         if "+ impute" in name:
-            print("create imputer pipe")
+            strategy, selector = name.split(" ")[-1], name.split(" ")[0]
             pipelines.append(
                 Pipeline(steps=[
-                    ('reduce', selectors[name.split(" ")[0]]),
-                    ('imputer', Imputer(data.f_types, "simple")),
+                    ('reduce', selectors[selector]),
+                    ('imputer', Imputer(data.f_types, strategy)),
+                    ('classify', clf),
+                ]))
+        elif "impute +" in name:
+            strategy, selector = name.split(" ")[0], name.split(" ")[-1]
+            pipelines.append(
+                Pipeline(steps=[
+                    ('imputer', Imputer(data.f_types, strategy)),
+                    ('reduce', selectors[selector]),
                     ('classify', clf),
                 ]))
         else:

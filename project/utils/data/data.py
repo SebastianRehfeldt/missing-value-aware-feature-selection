@@ -3,6 +3,7 @@ import pandas as pd
 from copy import deepcopy
 from Orange.data.variable import DiscreteVariable, ContinuousVariable
 from Orange.data import Domain, Table
+from sklearn.model_selection import StratifiedKFold
 
 from .assertions import assert_data, assert_df, assert_types
 
@@ -70,6 +71,19 @@ class Data():
         combined = pd.concat([self.X, self.y], axis=1)
         domain = Domain(attributes, class_vars=class_var)
         return Table.from_list(domain=domain, rows=combined.values.tolist())
+
+    def split(self, n_splits=3):
+        splits = []
+        kf = StratifiedKFold(n_splits)
+        f_types, l_type = self.f_types, self.l_type
+
+        for train_index, test_index in kf.split(self.X, self.y):
+            X_train, X_test = self.X.iloc[train_index], self.X.iloc[test_index]
+            y_train, y_test = self.y[train_index], self.y[test_index]
+            train = Data(X_train, y_train, f_types, l_type, X_train.shape)
+            test = Data(X_test, y_test, f_types, l_type, X_test.shape)
+            splits.append((train, test))
+        return splits
 
     @staticmethod
     def get_variable(c_type, name, column):
