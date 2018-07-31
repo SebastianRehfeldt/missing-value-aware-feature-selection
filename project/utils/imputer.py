@@ -40,6 +40,7 @@ class Imputer():
         Keyword Arguments:
             y {pd.series} -- Label vector (default: {None})
         """
+        self.f_types = self.f_types[X.columns]
         return self._complete(
             pd.DataFrame(X, columns=self.f_types.index.tolist()))
 

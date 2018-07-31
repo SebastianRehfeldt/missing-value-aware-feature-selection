@@ -26,7 +26,7 @@ class RaR(Subspacing):
         # TODO: create RaR config
         alpha = kwargs.get("alpha", self._get_alpha())
         beta = kwargs.get("beta", 0.01)
-        n_targets = kwargs.get("n_targets", 3)
+        n_targets = kwargs.get("n_targets", 1)
         weight = kwargs.get("weight", 1)
         eval_method = kwargs.get("eval_method", "rar")
         approach = kwargs.get("approach", "deletion")

@@ -31,7 +31,7 @@ else:
     k = [int((relevances > 0).sum())]
 
 data = scale_data(data)
-data.shuffle_rows()
+data.shuffle_rows(seed=42)
 
 FOLDER = os.path.join(EXPERIMENTS_PATH, "grid", name)
 os.makedirs(FOLDER, exist_ok=True)

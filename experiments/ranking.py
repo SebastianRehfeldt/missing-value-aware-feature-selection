@@ -29,7 +29,7 @@ def get_rankings(CONFIG, DATASET_CONFIG, ALGORITHMS):
             name = DATASET_CONFIG["name"]
             data_loader = DataLoader(ignored_attributes=["molecule_name"])
             data_original = data_loader.load_data(name, "arff")
-            data_original = data_original.shuffle_rows()
+            data_original.shuffle_rows(seed=CONFIG["seeds"][i])
             relevances = None
         else:
             params = DATASET_CONFIG.copy()

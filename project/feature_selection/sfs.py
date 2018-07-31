@@ -8,6 +8,10 @@ from project.shared.evaluation import evaluate_subspace
 
 
 class SFS(Selector):
+    def _init_parameters(self, **kwargs):
+        super()._init_parameters(**kwargs)
+        self.params["do_stop"] = kwargs.get("do_stop", False)
+
     def _fit(self):
         """
         Calculate feature importances using sfs
@@ -17,7 +21,8 @@ class SFS(Selector):
         open_features = self.names[:]
 
         i, features = 0, []
-        while len(features) < self.data.shape[1]:
+        n = self.params["k"] if self.params["do_stop"] else self.data.shape[1]
+        while len(features) < n:
             scores = []
             for feature in open_features:
                 X_sel, types = self.data.get_subspace(features + [feature])
