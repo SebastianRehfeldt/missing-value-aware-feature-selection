@@ -52,7 +52,9 @@ class Data():
         y_salted = self._add_salt_y()
         return self.replace(copy=copy, X=X_salted, y=y_salted)
 
-    def shuffle_rows(self, copy=False):
+    def shuffle_rows(self, copy=False, seed=None):
+        if seed is not None:
+            np.random.seed(seed)
         indices = np.random.permutation(self.shape[0])
         X_shuffled = self.X.iloc[indices].reset_index(drop=True)
         y_shuffled = self.y.iloc[indices].reset_index(drop=True)

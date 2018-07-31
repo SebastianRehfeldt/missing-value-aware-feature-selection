@@ -5,7 +5,7 @@ data/**/*.txt
 data/**/*.json
 data/**/*.arff
 experiments/grid/*/*
-experiments/pipelines/*.csv
+experiments/pipelines/*/*
 **/EXP_*
 
 # Byte-compiled / optimized / DLL files
