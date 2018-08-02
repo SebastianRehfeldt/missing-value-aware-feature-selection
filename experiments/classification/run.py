@@ -9,105 +9,154 @@ from collections import defaultdict
 from sklearn.metrics import f1_score
 
 from project import EXPERIMENTS_PATH
-from project.utils import DataLoader
+from project.utils import DataLoader, Data
 from project.utils import introduce_missing_values, scale_data
-from experiments.classification.utils import get_pipelines, swap_pipeline_steps
+from experiments.classification.utils import get_selectors, get_classifiers
 from experiments.plots import plot_mean_durations
 
 # LOAD DATA AND DEFINE SELECTORS AND CLASSIFIERS
 name = "ionosphere"
-FOLDER = os.path.join(EXPERIMENTS_PATH, "classification", "imputation", name)
+FOLDER = os.path.join(EXPERIMENTS_PATH, "classification", "incomplete", name)
+CSV_FOLDER = os.path.join(FOLDER, "csv")
 os.makedirs(FOLDER)
+os.makedirs(CSV_FOLDER)
 
 data_loader = DataLoader(ignored_attributes=["molecule_name"])
 data = data_loader.load_data(name, "arff")
 data = scale_data(data)
 data.shuffle_rows(seed=42)
 
-names = [
-    "rar",
-    "rar + impute mice",
-    "rar ++ impute mice",
-    "mice impute + rar",
-    "mice impute ++ rar",
-]
-
+names = ["rar", "rknn", "sfs", "mi", "mrmr", "cfs", "relief_o", "fcbf_o", "rf"]
+classifiers = ["knn", "tree"]
+k_s = [i + 1 for i in range(15)]
 missing_rates = [0.1 * i for i in range(10)]
-k_s = [2, 5]
-classifiers = ["knn", "tree", "gnb"]
+
+times = {mr: defaultdict(list) for mr in missing_rates}
+complete_scores = deepcopy(times)
 for mr in missing_rates:
-    scores = []
     data_copy = deepcopy(data)
     data_copy = introduce_missing_values(data_copy, missing_rate=mr, seed=42)
 
-    for clf in classifiers:
-        scores_clf = defaultdict(list)
-        times_clf = defaultdict(list)
+    scores_clf = {k: defaultdict(list) for k in k_s}
+    scores = {algo: deepcopy(scores_clf) for algo in classifiers}
+    splits = data_copy.split()
+    for train, test in splits:
+        # EVALUATE COMPLETE SET
+        clfs = get_classifiers(train, classifiers)
+        for i_c, clf in enumerate(clfs):
+            clf.fit(train.X, train.y)
+            y_pred = clf.predict(test.X)
+            f1 = f1_score(test.y, y_pred, average="micro")
+            complete_scores[mr][classifiers[i_c]].append(f1)
 
-        splits = data_copy.split()
-        for train_data, test_data in splits:
+        # EVALUATE SELECTORS
+        selectors = get_selectors(train, names, max(k_s))
+        for i_s, selector in enumerate(selectors):
+            start = time()
+
+            train_data = deepcopy(train)
+            selector.fit(train_data.X, train_data.y)
+
+            t = time() - start
+            times[mr][names[i_s]].append(t)
+
             for k in k_s:
+                X_train = selector.transform(train.X, k)
+                X_test = selector.transform(test.X, k)
 
-                pipelines = get_pipelines(data_copy, k, names, clf)
-                for i, pipe in enumerate(pipelines):
-                    # GET RESULTS
-                    if clf in ["gnb"] and mr > 0 and "impute" not in names[i]:
-                        f1, t = 0, 0
-                    else:
-                        train, test = deepcopy(train_data), deepcopy(test_data)
-                        start = time()
-                        pipe.fit(train.X, train.y.reset_index(drop=True))
+                f_types = train.f_types[X_train.columns]
+                transformed_data = Data(X_train, train.y, f_types,
+                                        train.l_type, X_train.shape)
 
-                        if "++" in names[i]:
-                            swap_pipeline_steps(pipe)
+                clfs = get_classifiers(transformed_data, classifiers)
+                for i_c, clf in enumerate(clfs):
+                    clf.fit(X_train, train.y.reset_index(drop=True))
+                    y_pred = clf.predict(X_test)
+                    f1 = f1_score(test.y, y_pred, average="micro")
+                    scores[classifiers[i_c]][k][names[i_s]].append(f1)
 
-                        y_pred = pipe.predict(test.X)
-                        f1 = f1_score(test.y, y_pred, average="micro")
-                        t = time() - start
+    for clf in classifiers:
+        means = pd.DataFrame(scores[clf]).applymap(np.mean).T
+        stds = pd.DataFrame(scores[clf]).applymap(np.std).T
+        means.to_csv(
+            os.path.join(CSV_FOLDER, "mean_{:s}_{:.2f}.csv".format(clf, mr)))
+        stds.to_csv(
+            os.path.join(CSV_FOLDER, "std_{:s}_{:.2f}.csv".format(clf, mr)))
 
-                    # STORE RESULTS
-                    col = names[i]
-                    if not col == "complete":
-                        col += "_" + str(k)
+# TIMES
+mean_times = pd.DataFrame(times).applymap(np.mean).T
+mean_times.to_csv(os.path.join(CSV_FOLDER, "mean_times.csv"))
+std_times = pd.DataFrame(times).applymap(np.std).T
+std_times.to_csv(os.path.join(CSV_FOLDER, "std_times.csv"))
 
-                    scores_clf[col].append(f1)
-                    times_clf[col].append(t)
+# COMPLETE SCORES
+mean_scores = pd.DataFrame(complete_scores).applymap(np.mean).T
+mean_scores.to_csv(os.path.join(CSV_FOLDER, "mean_scores.csv"))
+std_scores = pd.DataFrame(complete_scores).applymap(np.std).T
+std_scores.to_csv(os.path.join(CSV_FOLDER, "std_scores.csv"))
 
-        mean_scores = pd.DataFrame(scores_clf).mean()
-        std_scores = pd.DataFrame(scores_clf).std()
-        mean_times = pd.DataFrame(times_clf).mean()
-        scores_clf = pd.DataFrame({
-            "AVG_{:s}".format(clf): mean_scores,
-            "STD_{:s}".format(clf): std_scores,
-            "TIME_{:s}".format(clf): mean_times,
-        }).T
-        scores.append(scores_clf)
-    scores = pd.concat(scores).T
-    scores.to_csv(os.path.join(FOLDER, "results_{:.2f}.csv".format(mr)))
+# PLOT TIMES
+times = pd.DataFrame.from_csv(os.path.join(CSV_FOLDER, "mean_times.csv"))
+plot_mean_durations(FOLDER, times)
 
-# %%
-# READ RESULTS
-paths = glob(FOLDER + "/*.csv")
-results, missing_rates = [], []
+times = pd.DataFrame.from_csv(os.path.join(CSV_FOLDER, "std_times.csv"))
+ax = times.plot(kind="line", title="Fitting time over missing rates")
+fig = ax.get_figure()
+fig.savefig(os.path.join(FOLDER, "runtimes_deviations.png"))
+times = pd.DataFrame()
 
-for path in paths:
-    results.append(pd.DataFrame.from_csv(path))
-    missing_rates.append(path.split("_")[-1].split(".csv")[0])
+# PLOT AVG AMONG BEST K=5 FEATURES
+k = 5
+file_prefixes = ["mean_", "std_"]
 
-# PLOT TIME
-time_knn = pd.DataFrame()
-for i, res in enumerate(results):
-    time_knn[missing_rates[i]] = res["TIME_knn"]
-plot_mean_durations(FOLDER, time_knn.T)
+mean_scores = pd.DataFrame.from_csv(
+    os.path.join(CSV_FOLDER, "mean_scores.csv"))
+std_scores = pd.DataFrame.from_csv(os.path.join(CSV_FOLDER, "std_scores.csv"))
 
-# PLOT CLASSIFICATION SCORES
 for clf in classifiers:
-    scores = pd.DataFrame()
-    for i, res in enumerate(results):
-        scores[missing_rates[i]] = res["AVG_{:s}".format(clf)]
+    for p in file_prefixes:
+        search_string = "{:s}{:s}*.csv".format(p, clf)
+        filepaths = glob(os.path.join(CSV_FOLDER, search_string))
 
-    # ax = scores.iloc[5:].T.plot(kind="line", title="F1 over missing rates")
-    ax = scores.T.plot(kind="line", title="F1 over missing rates")
-    ax.set(xlabel="Missing Rate", ylabel="F1 (Mean)")
-    fig = ax.get_figure()
-    fig.savefig(os.path.join(FOLDER, "{:s}_means.png".format(clf)))
+        for i, f in enumerate(filepaths):
+            df = pd.DataFrame.from_csv(f)
+            if i == 0:
+                scores = pd.DataFrame(
+                    np.zeros((len(missing_rates), len(df.columns) + 1)),
+                    index=missing_rates,
+                    columns=["complete"] + list(df.columns))
+
+            scores.iloc[i] = df.iloc[:k].mean()
+
+        scores["complete"] = mean_scores[clf] if "me" in p else std_scores[clf]
+
+        t = "Average f1 {:s} among top {:d} features ({:s})".format(p, k, clf)
+        ax = scores.plot(kind="line", title=t)
+        ax.set(xlabel="Missing Rate", ylabel="F1")
+        fig = ax.get_figure()
+        filename = "{:s}f1_{:s}_{:d}.png".format(p, clf, k)
+        fig.savefig(os.path.join(FOLDER, filename))
+
+# PLOT SINGLE FILES
+mr_s = [0.00]
+clfs = ["knn", "tree"]
+kinds = ["mean", "std"]
+
+for clf in clfs:
+    for mr in mr_s:
+        title = "F1 score over features (clf={:s}, mr={:.2f})".format(clf, mr)
+        for kind in kinds:
+            path = os.path.join(CSV_FOLDER, "{:s}_{:s}_{:.2f}.csv".format(
+                kind, clf, mr))
+            df = pd.DataFrame.from_csv(path)
+
+            if kind == "mean":
+                df["complete"] = mean_scores[clf][mr]
+            else:
+                df["complete"] = std_scores[clf][mr]
+
+            ax = df.plot(title=title)
+            ax.set(xlabel="# Features", ylabel="F1 ({:s})".format(kind))
+            fig = ax.get_figure()
+            path = "{:s}_{:s}_{:.2f}.png".format(clf, kind, mr)
+            fig.savefig(os.path.join(FOLDER, path))
