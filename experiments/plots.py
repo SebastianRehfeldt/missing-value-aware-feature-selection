@@ -5,7 +5,9 @@ import pandas as pd
 
 def plot_mean_durations(FOLDER, durations):
     path = os.path.join(FOLDER, "runtimes.png")
-    ax = durations.plot(kind="bar", title="Mean fitting time", rot=0)
+
+    kind = "bar" if durations.shape[0] <= 2 else "line"
+    ax = durations.plot(kind=kind, title="Mean fitting time", rot=0)
     ax.set(xlabel="Missing Rate", ylabel="Time in seconds")
     fig = ax.get_figure()
     fig.savefig(path)

@@ -113,7 +113,7 @@ for j, mr in enumerate(missing_rates):
             contrast_iterations=250,
             alpha=min(0.1, 0.02 * (1 / (1 - mr))),
             redundancy_approach="arvind",
-            weight=0.1*mr,
+            weight=0.1 * mr,
             random_state=seeds1[i],
             cache_enabled=False,
             min_samples=5,
@@ -171,7 +171,6 @@ print(
         rar.hics.get_cached_slices(["f11", "f3"])[0][i, :],
         return_counts=True))
 print(np.sum(rar.hics.get_cached_slices(["f11", "f3"])[0][i, :]))
-
 
 # %%
 rar.hics.alphas_d
