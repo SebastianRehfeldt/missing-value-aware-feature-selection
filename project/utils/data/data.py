@@ -72,7 +72,7 @@ class Data():
         domain = Domain(attributes, class_vars=class_var)
         return Table.from_list(domain=domain, rows=combined.values.tolist())
 
-    def split(self, n_splits=3):
+    def split(self, n_splits=3, n_repeats=1):
         splits = []
         kf = StratifiedKFold(n_splits)
         f_types, l_type = self.f_types, self.l_type
@@ -82,7 +82,8 @@ class Data():
             y_train, y_test = self.y[train_index], self.y[test_index]
             train = Data(X_train, y_train, f_types, l_type, X_train.shape)
             test = Data(X_test, y_test, f_types, l_type, X_test.shape)
-            splits.append((train, test))
+            for i in range(n_repeats):
+                splits.append(deepcopy((train, test)))
         return splits
 
     @staticmethod

@@ -17,7 +17,7 @@ from experiments.plots import plot_mean_durations
 # LOAD DATA AND DEFINE SELECTORS AND CLASSIFIERS
 name = "ionosphere"
 FOLDER = os.path.join(EXPERIMENTS_PATH, "classification", "imputation", name)
-os.makedirs(FOLDER)
+os.makedirs(FOLDER, exist_ok=True)
 
 data_loader = DataLoader(ignored_attributes=["molecule_name"])
 data = data_loader.load_data(name, "arff")
@@ -32,46 +32,64 @@ names = [
     "mice impute ++ rar",
 ]
 
-missing_rates = [0.1 * i for i in range(10)]
 k_s = [2, 5]
+seeds = [42, 0, 13]
+n_runs = max(3, len(seeds))
+n_insertions = max(3, len(seeds))
+missing_rates = [0.1 * i for i in range(10)]
 classifiers = ["knn", "tree", "gnb"]
+
+# MISSING RATES
 for mr in missing_rates:
     scores = []
-    data_copy = deepcopy(data)
-    data_copy = introduce_missing_values(data_copy, missing_rate=mr, seed=42)
 
+    # CLASSIFIERS
     for clf in classifiers:
         scores_clf = defaultdict(list)
         times_clf = defaultdict(list)
 
-        splits = data_copy.split()
-        for train_data, test_data in splits:
-            for k in k_s:
+        # INSERTIONS
+        for j in range(n_insertions):
+            d = deepcopy(data)
+            d = introduce_missing_values(d, missing_rate=mr, seed=seeds[j])
 
-                pipelines = get_pipelines(data_copy, k, names, clf)
-                for i, pipe in enumerate(pipelines):
-                    # GET RESULTS
-                    if clf in ["gnb"] and mr > 0 and "impute" not in names[i]:
-                        f1, t = 0, 0
-                    else:
-                        train, test = deepcopy(train_data), deepcopy(test_data)
-                        start = time()
-                        pipe.fit(train.X, train.y.reset_index(drop=True))
+            # SPLITS AND RUNS
+            splits = d.split(n_repeats=n_runs)
+            for i_split, (train_data, test_data) in enumerate(splits):
 
-                        if "++" in names[i]:
-                            swap_pipeline_steps(pipe)
+                # K'S
+                for k in k_s:
 
-                        y_pred = pipe.predict(test.X)
-                        f1 = f1_score(test.y, y_pred, average="micro")
-                        t = time() - start
+                    # PIPELINES
+                    pipelines = get_pipelines(train_data, k, names, clf)
+                    for i, pipe in enumerate(pipelines):
+                        # GET RESULTS
+                        robust = clf not in ["gnb"] or "impute" in names[i]
+                        if not robust and mr > 0:
+                            f1, t = 0, 0
+                        else:
+                            train = deepcopy(train_data)
+                            test = deepcopy(test_data)
+                            start = time()
 
-                    # STORE RESULTS
-                    col = names[i]
-                    if not col == "complete":
-                        col += "_" + str(k)
+                            seed = seeds[i_split % n_runs]
+                            np.random.seed(seed)
+                            pipe.fit(train.X, train.y.reset_index(drop=True))
 
-                    scores_clf[col].append(f1)
-                    times_clf[col].append(t)
+                            if "++" in names[i]:
+                                swap_pipeline_steps(pipe)
+
+                            y_pred = pipe.predict(test.X)
+                            f1 = f1_score(test.y, y_pred, average="micro")
+                            t = time() - start
+
+                        # STORE RESULTS
+                        col = names[i]
+                        if not col == "complete":
+                            col += "_" + str(k)
+
+                        scores_clf[col].append(f1)
+                        times_clf[col].append(t)
 
         mean_scores = pd.DataFrame(scores_clf).mean()
         std_scores = pd.DataFrame(scores_clf).std()
@@ -85,7 +103,6 @@ for mr in missing_rates:
     scores = pd.concat(scores).T
     scores.to_csv(os.path.join(FOLDER, "results_{:.2f}.csv".format(mr)))
 
-# %%
 # READ RESULTS
 paths = glob(FOLDER + "/*.csv")
 results, missing_rates = [], []
