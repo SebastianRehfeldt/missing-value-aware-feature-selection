@@ -27,11 +27,9 @@ data = scale_data(data)
 data.shuffle_rows(seed=42)
 
 names = ["rar", "rknn", "sfs", "mi", "mrmr", "cfs", "relief_o", "fcbf_o", "rf"]
-names = ["rar"]
 classifiers = ["knn", "tree"]
 k_s = [i + 1 for i in range(15)]
 missing_rates = [0.1 * i for i in range(10)]
-missing_rates = [0.1 * i for i in range(2)]
 
 times = {mr: defaultdict(list) for mr in missing_rates}
 complete_scores = deepcopy(times)
@@ -108,11 +106,8 @@ fig.savefig(os.path.join(FOLDER, "runtimes_deviations.png"))
 times = pd.DataFrame()
 
 # PLOT AVG AMONG BEST K=5 FEATURES
-# %%
 k = 5
-classifiers = ["knn", "tree"]
 file_prefixes = ["mean_", "std_"]
-missing_rates = [0.1 * i for i in range(2)]
 
 mean_scores = pd.DataFrame.from_csv(
     os.path.join(CSV_FOLDER, "mean_scores.csv"))
@@ -142,11 +137,7 @@ for clf in classifiers:
         filename = "{:s}f1_{:s}_{:d}.png".format(p, clf, k)
         fig.savefig(os.path.join(FOLDER, filename))
 
-# %%
-mean_scores
-
-# %%
-# PLOT SINGLE FILE
+# PLOT SINGLE FILES
 mr_s = [0.00]
 clfs = ["knn", "tree"]
 kinds = ["mean", "std"]

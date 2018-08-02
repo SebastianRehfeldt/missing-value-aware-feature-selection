@@ -3,6 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 from time import time
+from glob import glob
 from copy import deepcopy
 
 from sklearn.metrics import f1_score
@@ -11,6 +12,7 @@ from project import EXPERIMENTS_PATH
 from project.utils import DataLoader
 from project.utils import introduce_missing_values, scale_data
 from experiments.classification.utils import get_pipelines
+from experiments.plots import plot_mean_durations
 
 # LOAD DATA AND DEFINE SELECTORS AND CLASSIFIERS
 name = "ionosphere"
@@ -31,8 +33,8 @@ names = [
 ]
 
 missing_rates = [0.2 * i for i in range(5)]
-k_s = [2, 4, 6]  # [1, 2, 4, 6, 8]
-classifiers = ["knn", "gnb"]
+k_s = [2, 5]
+classifiers = ["knn", "gnb", "tree"]
 for mr in missing_rates:
     data_copy = deepcopy(data)
     data_copy = introduce_missing_values(data_copy, missing_rate=mr, seed=42)
@@ -57,7 +59,7 @@ for mr in missing_rates:
                         if reducer is not None:
                             reducer.set_params(is_fitted=False)
 
-                        pipe.fit(train.X, train.y)
+                        pipe.fit(train.X, train.y.reset_index(drop=True))
 
                         if "++" in names[i]:
                             temp_step = deepcopy(pipe.steps[0])
@@ -76,7 +78,7 @@ for mr in missing_rates:
                     mean, std, t = np.mean(res), np.std(res), time() - start
 
                 # STORE RESULTS
-                print(names[i], "\n", res)
+                print(names[i], clf, mr, "mean:", mean)
                 col = names[i]
                 if not col == "complete":
                     col += "_" + str(k)
@@ -90,8 +92,7 @@ for mr in missing_rates:
     scores.to_csv(os.path.join(FOLDER, "results_{:.2f}.csv".format(mr)))
 
 # %%
-from glob import glob
-
+# READ RESULTS
 paths = glob(FOLDER + "/*.csv")
 results, missing_rates = [], []
 
@@ -99,33 +100,20 @@ for path in paths:
     results.append(pd.DataFrame.from_csv(path))
     missing_rates.append(path.split("_")[-1].split(".csv")[0])
 
-avg_knn = pd.DataFrame()
-for i, res in enumerate(results):
-    avg_knn[missing_rates[i]] = res["AVG_knn"]
-
-#ax = avg_knn.iloc[5:].T.plot(kind="line", title="F1 over missing rates")
-ax = avg_knn.T.plot(kind="line", title="F1 over missing rates")
-ax.set(xlabel="Missing Rate", ylabel="F1 (Mean)")
-fig = ax.get_figure()
-fig.savefig(os.path.join(FOLDER, "knn_means.png"))
-avg_knn = pd.DataFrame()
-
+# PLOT TIME
 time_knn = pd.DataFrame()
 for i, res in enumerate(results):
     time_knn[missing_rates[i]] = res["TIME_knn"]
+plot_mean_durations(FOLDER, time_knn.T)
 
-ax = time_knn.T.plot(kind="line", title="Fitting time over missing rates")
-ax.set(xlabel="Missing Rate", ylabel="Time (s)")
-fig = ax.get_figure()
-fig.savefig(os.path.join(FOLDER, "knn_time.png"))
-time_knn = pd.DataFrame()
+# PLOT CLASSIFICATION SCORES
+for clf in classifiers:
+    scores = pd.DataFrame()
+    for i, res in enumerate(results):
+        scores[missing_rates[i]] = res["AVG_{:s}".format(clf)]
 
-avg_gnb = pd.DataFrame()
-for i, res in enumerate(results):
-    avg_gnb[missing_rates[i]] = res["AVG_gnb"]
-
-#ax = avg_gnb.iloc[5:].T.plot(kind="line", title="F1 over missing rates")
-ax = avg_gnb.T.plot(kind="line", title="F1 over missing rates")
-ax.set(xlabel="Missing Rate", ylabel="F1 (Mean)")
-fig = ax.get_figure()
-fig.savefig(os.path.join(FOLDER, "gnb_means.png"))
+    ax = scores.iloc[5:].T.plot(kind="line", title="F1 over missing rates")
+    # ax = scores.T.plot(kind="line", title="F1 over missing rates")
+    ax.set(xlabel="Missing Rate", ylabel="F1 (Mean)")
+    fig = ax.get_figure()
+    fig.savefig(os.path.join(FOLDER, "{:s}_means.png".format(clf)))
