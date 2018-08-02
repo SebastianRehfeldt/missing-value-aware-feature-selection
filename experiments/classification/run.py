@@ -27,6 +27,10 @@ data = scale_data(data)
 data.shuffle_rows(seed=42)
 
 names = ["rar", "rknn", "sfs", "mi", "mrmr", "cfs", "relief_o", "fcbf_o", "rf"]
+
+seeds = [42, 0, 13]
+n_runs = 3 if len(seeds) >= 3 else len(seeds)
+n_insertions = 3 if len(seeds) >= 3 else len(seeds)
 classifiers = ["knn", "tree"]
 k_s = [i + 1 for i in range(15)]
 missing_rates = [0.1 * i for i in range(10)]
@@ -34,46 +38,50 @@ missing_rates = [0.1 * i for i in range(10)]
 times = {mr: defaultdict(list) for mr in missing_rates}
 complete_scores = deepcopy(times)
 for mr in missing_rates:
-    data_copy = deepcopy(data)
-    data_copy = introduce_missing_values(data_copy, missing_rate=mr, seed=42)
 
     scores_clf = {k: defaultdict(list) for k in k_s}
     scores = {algo: deepcopy(scores_clf) for algo in classifiers}
-    splits = data_copy.split()
-    for train, test in splits:
-        # EVALUATE COMPLETE SET
-        clfs = get_classifiers(train, classifiers)
-        for i_c, clf in enumerate(clfs):
-            clf.fit(train.X, train.y)
-            y_pred = clf.predict(test.X)
-            f1 = f1_score(test.y, y_pred, average="micro")
-            complete_scores[mr][classifiers[i_c]].append(f1)
 
-        # EVALUATE SELECTORS
-        selectors = get_selectors(train, names, max(k_s))
-        for i_s, selector in enumerate(selectors):
-            start = time()
+    for j in range(n_insertions):
+        d = deepcopy(data)
+        d = introduce_missing_values(d, missing_rate=mr, seed=seeds[j])
 
-            train_data = deepcopy(train)
-            selector.fit(train_data.X, train_data.y)
+        splits = d.split(n_repeats=n_runs)
+        for i_split, (train, test) in enumerate(splits):
+            # EVALUATE COMPLETE SET
+            clfs = get_classifiers(train, classifiers)
+            for i_c, clf in enumerate(clfs):
+                clf.fit(train.X, train.y)
+                y_pred = clf.predict(test.X)
+                f1 = f1_score(test.y, y_pred, average="micro")
+                complete_scores[mr][classifiers[i_c]].append(f1)
 
-            t = time() - start
-            times[mr][names[i_s]].append(t)
+            # EVALUATE SELECTORS
+            selectors = get_selectors(train, names, max(k_s))
+            for i_s, selector in enumerate(selectors):
+                start = time()
 
-            for k in k_s:
-                X_train = selector.transform(train.X, k)
-                X_test = selector.transform(test.X, k)
+                train_data = deepcopy(train)
+                np.random.seed(seeds[i_split % n_runs])
+                selector.fit(train_data.X, train_data.y)
 
-                f_types = train.f_types[X_train.columns]
-                transformed_data = Data(X_train, train.y, f_types,
-                                        train.l_type, X_train.shape)
+                t = time() - start
+                times[mr][names[i_s]].append(t)
 
-                clfs = get_classifiers(transformed_data, classifiers)
-                for i_c, clf in enumerate(clfs):
-                    clf.fit(X_train, train.y.reset_index(drop=True))
-                    y_pred = clf.predict(X_test)
-                    f1 = f1_score(test.y, y_pred, average="micro")
-                    scores[classifiers[i_c]][k][names[i_s]].append(f1)
+                for k in k_s:
+                    X_train = selector.transform(train.X, k)
+                    X_test = selector.transform(test.X, k)
+
+                    f_types = train.f_types[X_train.columns]
+                    transformed_data = Data(X_train, train.y, f_types,
+                                            train.l_type, X_train.shape)
+
+                    clfs = get_classifiers(transformed_data, classifiers)
+                    for i_c, clf in enumerate(clfs):
+                        clf.fit(X_train, train.y.reset_index(drop=True))
+                        y_pred = clf.predict(X_test)
+                        f1 = f1_score(test.y, y_pred, average="micro")
+                        scores[classifiers[i_c]][k][names[i_s]].append(f1)
 
     for clf in classifiers:
         means = pd.DataFrame(scores[clf]).applymap(np.mean).T

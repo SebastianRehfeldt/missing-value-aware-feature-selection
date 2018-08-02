@@ -17,7 +17,7 @@ from experiments.plots import plot_mean_durations
 # LOAD DATA AND DEFINE SELECTORS AND CLASSIFIERS
 name = "ionosphere"
 FOLDER = os.path.join(EXPERIMENTS_PATH, "classification", "imputation", name)
-os.makedirs(FOLDER, exist_ok=True)
+os.makedirs(FOLDER)
 
 data_loader = DataLoader(ignored_attributes=["molecule_name"])
 data = data_loader.load_data(name, "arff")
@@ -34,8 +34,8 @@ names = [
 
 k_s = [2, 5]
 seeds = [42, 0, 13]
-n_runs = max(3, len(seeds))
-n_insertions = max(3, len(seeds))
+n_runs = 3 if len(seeds) >= 3 else len(seeds)
+n_insertions = 3 if len(seeds) >= 3 else len(seeds)
 missing_rates = [0.1 * i for i in range(10)]
 classifiers = ["knn", "tree", "gnb"]
 
