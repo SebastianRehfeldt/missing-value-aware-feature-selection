@@ -5,13 +5,13 @@ import pandas as pd
 from time import time
 from glob import glob
 from copy import deepcopy
-
+from collections import defaultdict
 from sklearn.metrics import f1_score
 
 from project import EXPERIMENTS_PATH
 from project.utils import DataLoader
 from project.utils import introduce_missing_values, scale_data
-from experiments.classification.utils import get_pipelines
+from experiments.classification.utils import get_pipelines, swap_pipeline_steps
 from experiments.plots import plot_mean_durations
 
 # LOAD DATA AND DEFINE SELECTORS AND CLASSIFIERS
@@ -26,67 +26,61 @@ data.shuffle_rows(seed=42)
 
 names = [
     "rar",
-    "rar ++ impute mice",
     "rar + impute mice",
+    "rar ++ impute mice",
     "mice impute + rar",
     "mice impute ++ rar",
 ]
 
-missing_rates = [0.2 * i for i in range(5)]
+missing_rates = [0.1 * i for i in range(10)]
 k_s = [2, 5]
-classifiers = ["knn", "gnb", "tree"]
+classifiers = ["knn", "tree", "gnb"]
 for mr in missing_rates:
+    scores = []
     data_copy = deepcopy(data)
     data_copy = introduce_missing_values(data_copy, missing_rate=mr, seed=42)
-    scores = []
 
     for clf in classifiers:
-        scores_clf = pd.DataFrame()
+        scores_clf = defaultdict(list)
+        times_clf = defaultdict(list)
 
-        for k in k_s:
-            pipelines = get_pipelines(data_copy, k, names, clf)
+        splits = data_copy.split()
+        for train_data, test_data in splits:
+            for k in k_s:
 
-            for i, pipe in enumerate(pipelines):
-                # GET RESULTS
-                start = time()
-                if clf in ["gnb"] and mr > 0 and "impute" not in names[i]:
-                    mean, std, t = 0, 0, 0
-                else:
-                    res = []
-                    splits = data_copy.split()
-                    for train, test in splits:
-                        reducer = pipe.named_steps.get("reduce")
-                        if reducer is not None:
-                            reducer.set_params(is_fitted=False)
-
+                pipelines = get_pipelines(data_copy, k, names, clf)
+                for i, pipe in enumerate(pipelines):
+                    # GET RESULTS
+                    if clf in ["gnb"] and mr > 0 and "impute" not in names[i]:
+                        f1, t = 0, 0
+                    else:
+                        train, test = deepcopy(train_data), deepcopy(test_data)
+                        start = time()
                         pipe.fit(train.X, train.y.reset_index(drop=True))
 
                         if "++" in names[i]:
-                            temp_step = deepcopy(pipe.steps[0])
-                            pipe.steps[0] = deepcopy(pipe.steps[1])
-                            pipe.steps[1] = temp_step
+                            swap_pipeline_steps(pipe)
 
                         y_pred = pipe.predict(test.X)
                         f1 = f1_score(test.y, y_pred, average="micro")
-                        res.append(f1)
+                        t = time() - start
 
-                        if "++" in names[i]:
-                            temp_step = deepcopy(pipe.steps[0])
-                            pipe.steps[0] = deepcopy(pipe.steps[1])
-                            pipe.steps[1] = temp_step
+                    # STORE RESULTS
+                    col = names[i]
+                    if not col == "complete":
+                        col += "_" + str(k)
 
-                    mean, std, t = np.mean(res), np.std(res), time() - start
+                    scores_clf[col].append(f1)
+                    times_clf[col].append(t)
 
-                # STORE RESULTS
-                print(names[i], clf, mr, "mean:", mean)
-                col = names[i]
-                if not col == "complete":
-                    col += "_" + str(k)
-                scores_clf[col] = pd.Series({
-                    "AVG_" + clf: mean,
-                    "STD_" + clf: std,
-                    "TIME_" + clf: t
-                })
+        mean_scores = pd.DataFrame(scores_clf).mean()
+        std_scores = pd.DataFrame(scores_clf).std()
+        mean_times = pd.DataFrame(times_clf).mean()
+        scores_clf = pd.DataFrame({
+            "AVG_{:s}".format(clf): mean_scores,
+            "STD_{:s}".format(clf): std_scores,
+            "TIME_{:s}".format(clf): mean_times,
+        }).T
         scores.append(scores_clf)
     scores = pd.concat(scores).T
     scores.to_csv(os.path.join(FOLDER, "results_{:.2f}.csv".format(mr)))
@@ -112,8 +106,8 @@ for clf in classifiers:
     for i, res in enumerate(results):
         scores[missing_rates[i]] = res["AVG_{:s}".format(clf)]
 
-    ax = scores.iloc[5:].T.plot(kind="line", title="F1 over missing rates")
-    # ax = scores.T.plot(kind="line", title="F1 over missing rates")
+    # ax = scores.iloc[5:].T.plot(kind="line", title="F1 over missing rates")
+    ax = scores.T.plot(kind="line", title="F1 over missing rates")
     ax.set(xlabel="Missing Rate", ylabel="F1 (Mean)")
     fig = ax.get_figure()
     fig.savefig(os.path.join(FOLDER, "{:s}_means.png".format(clf)))

@@ -1,3 +1,4 @@
+from copy import deepcopy
 from sklearn.pipeline import Pipeline
 from sklearn.naive_bayes import GaussianNB
 
@@ -39,6 +40,12 @@ def get_classifiers(data, names):
     return [classifiers[name] for name in names]
 
 
+def swap_pipeline_steps(pipe):
+    temp_step = deepcopy(pipe.steps[0])
+    pipe.steps[0] = deepcopy(pipe.steps[1])
+    pipe.steps[1] = temp_step
+
+
 def get_pipelines(data, k, names, classifier):
     d = [data.f_types, data.l_type, data.shape]
 
@@ -72,7 +79,7 @@ def get_pipelines(data, k, names, classifier):
             strategy, selector = name.split(" ")[-1], name.split(" ")[0]
             pipelines.append(
                 Pipeline(steps=[
-                    ('reduce', selectors[selector]),
+                    ('reduce', deepcopy(selectors[selector])),
                     ('imputer', Imputer(data.f_types, strategy)),
                     ('classify', clf),
                 ]))
@@ -81,13 +88,13 @@ def get_pipelines(data, k, names, classifier):
             pipelines.append(
                 Pipeline(steps=[
                     ('imputer', Imputer(data.f_types, strategy)),
-                    ('reduce', selectors[selector]),
+                    ('reduce', deepcopy(selectors[selector])),
                     ('classify', clf),
                 ]))
         else:
             pipelines.append(
                 Pipeline(steps=[
-                    ('reduce', selectors[name]),
+                    ('reduce', deepcopy(selectors[name])),
                     ('classify', clf),
                 ]))
 
