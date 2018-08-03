@@ -41,10 +41,10 @@ class SKClassifier():
 
         self.clf = {
             "svm": SVC,
-            "bayes": GaussianNB,
+            "gnb": GaussianNB,
             "xgb": XGBClassifier,
+            "log": LogisticRegression,
             "knn": KNeighborsClassifier,
-            "logreg": LogisticRegression,
             "tree": DecisionTreeClassifier,
         }[self.kind]()
         self.clf.fit(X, y)
