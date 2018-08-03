@@ -40,8 +40,8 @@ def get_classifiers(data, names):
         "gnb": SKClassifier(data.f_types, "gnb"),
         "xgb": SKClassifier(data.f_types, "xgb"),
         "log": SKClassifier(data.f_types, "log"),
-        "sk-knn": SKClassifier(data.f_types, "knn"),
-        "sk-tree": SKClassifier(data.f_types, "tree"),
+        "sk_knn": SKClassifier(data.f_types, "knn"),
+        "sk_tree": SKClassifier(data.f_types, "tree"),
     }
     return [classifiers[name] for name in names]
 
