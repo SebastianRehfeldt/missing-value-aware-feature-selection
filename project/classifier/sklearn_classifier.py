@@ -1,7 +1,9 @@
 import numpy as np
 import pandas as pd
+from copy import deepcopy
 from sklearn.preprocessing import LabelEncoder
 
+from xgboost import XGBClassifier
 from sklearn.svm import SVC
 from sklearn.naive_bayes import GaussianNB
 from sklearn.linear_model import LogisticRegression
@@ -18,11 +20,11 @@ class SKClassifier():
         self.fill_value = 42 if kind == "tree" else 0
 
     def encode(self, X):
+        nans = X == "?"
         for col in X:
             if self.f_types[col] == "nominal":
-                nans = X[col] == "?"
                 X[col] = LabelEncoder().fit_transform(X[col])
-                X[col][nans] = np.nan
+        X[nans] = np.nan
         return X
 
     def add_dummies(self, X):
@@ -33,13 +35,14 @@ class SKClassifier():
         new_X = pd.concat([X, nans], axis=1)
         return new_X.fillna(0)
 
-    def fit(self, X, y):
-        X = self.encode(X)
+    def fit(self, X_train, y):
+        X = self.encode(deepcopy(X_train))
         X = X.fillna(self.fill_value)
 
         self.clf = {
             "svm": SVC,
             "bayes": GaussianNB,
+            "xgb": XGBClassifier,
             "knn": KNeighborsClassifier,
             "logreg": LogisticRegression,
             "tree": DecisionTreeClassifier,
@@ -48,9 +51,9 @@ class SKClassifier():
         return self
 
     def predict(self, X_test):
-        X_test = self.encode(X_test)
-        X_test = X_test.fillna(self.fill_value)
-        return self.clf.predict(X_test)
+        X = self.encode(deepcopy(X_test))
+        X = X.fillna(self.fill_value)
+        return self.clf.predict(X)
 
     def get_params(self, deep=False):
         return {
