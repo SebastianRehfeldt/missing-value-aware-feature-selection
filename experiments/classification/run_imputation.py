@@ -37,7 +37,7 @@ seeds = [42, 0, 13]
 n_runs = 3 if len(seeds) >= 3 else len(seeds)
 n_insertions = 3 if len(seeds) >= 3 else len(seeds)
 missing_rates = [0.1 * i for i in range(10)]
-classifiers = ["knn", "tree", "gnb"]
+classifiers = ["knn", "tree", "gnb", "svm"]
 
 # MISSING RATES
 for mr in missing_rates:

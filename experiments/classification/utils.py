@@ -1,12 +1,12 @@
 from copy import deepcopy
 from sklearn.pipeline import Pipeline
-from sklearn.naive_bayes import GaussianNB
 
 from project.feature_selection import RKNN, Filter, SFS
 from project.feature_selection.orange import Orange
 from project.feature_selection.ranking import Ranking
+from project.feature_selection.embedded import Embedded
 from project.rar.rar import RaR
-from project.classifier import KNN, Tree
+from project.classifier import KNN, Tree, SKClassifier
 from project.utils.imputer import Imputer
 
 
@@ -26,6 +26,7 @@ def get_selectors(data, names, max_k=None):
         "relief_o": Orange(*d, eval_method="relief"),
         "fcbf_o": Orange(*d, eval_method="fcbf"),
         "rf": Orange(*d, eval_method="rf"),
+        "xgb": Embedded(*d),
     }
 
     return [selectors[name] for name in names]
@@ -35,7 +36,12 @@ def get_classifiers(data, names):
     classifiers = {
         "knn": KNN(data.f_types, data.l_type, knn_neighbors=6),
         "tree": Tree(data.to_table().domain),
-        "gnb": GaussianNB(),
+        "svm": SKClassifier(data.f_types, "svm"),
+        "gnb": SKClassifier(data.f_types, "gnb"),
+        "xgb": SKClassifier(data.f_types, "xgb"),
+        "log": SKClassifier(data.f_types, "log"),
+        "sk-knn": SKClassifier(data.f_types, "knn"),
+        "sk-tree": SKClassifier(data.f_types, "tree"),
     }
     return [classifiers[name] for name in names]
 
@@ -55,20 +61,17 @@ def get_pipelines(data, k, names, classifier):
         "rknn": RKNN(*d, k=k),
         "sfs": SFS(*d, k=k, do_stop=True, eval_method="tree"),
         "mi": Filter(*d, k=k),
-        "relief_sk": Ranking(*d, eval_method="myrelief"),
-        "fcbf_sk": Ranking(*d, eval_method="fcbf"),
-        "mrmr": Ranking(*d, eval_method="mrmr"),
-        "cfs": Ranking(*d, eval_method="cfs"),
-        "relief_o": Orange(*d, eval_method="relief"),
-        "fcbf_o": Orange(*d, eval_method="fcbf"),
-        "rf": Orange(*d, eval_method="rf"),
+        "relief_sk": Ranking(*d, k=k, eval_method="myrelief"),
+        "fcbf_sk": Ranking(*d, k=k, eval_method="fcbf"),
+        "mrmr": Ranking(*d, k=k, eval_method="mrmr"),
+        "cfs": Ranking(*d, k=k, eval_method="cfs"),
+        "relief_o": Orange(*d, k=k, eval_method="relief"),
+        "fcbf_o": Orange(*d, k=k, eval_method="fcbf"),
+        "rf": Orange(*d, k=k, eval_method="rf"),
+        "xgb": Embedded(*d, k=k),
     }
 
-    clf = {
-        "knn": KNN(data.f_types, data.l_type, knn_neighbors=6),
-        "tree": Tree(data.to_table().domain),
-        "gnb": GaussianNB(),
-    }[classifier]
+    clf = get_classifiers(data, [classifier])[0]
 
     # DEFINE PIEPLINES
     pipelines = []

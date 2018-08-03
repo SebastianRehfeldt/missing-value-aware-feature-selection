@@ -26,12 +26,15 @@ data = data_loader.load_data(name, "arff")
 data = scale_data(data)
 data.shuffle_rows(seed=42)
 
-names = ["rar", "rknn", "sfs", "mi", "mrmr", "cfs", "relief_o", "fcbf_o", "rf"]
+names = [
+    "rar", "rknn", "sfs", "mi", "mrmr", "cfs", "relief_o", "fcbf_o", "rf",
+    "xgb"
+]
 
 seeds = [42, 0, 13]
 n_runs = 3 if len(seeds) >= 3 else len(seeds)
 n_insertions = 3 if len(seeds) >= 3 else len(seeds)
-classifiers = ["knn", "tree"]
+classifiers = ["knn", "tree", "gnb", "svm"]
 k_s = [i + 1 for i in range(15)]
 missing_rates = [0.1 * i for i in range(10)]
 
