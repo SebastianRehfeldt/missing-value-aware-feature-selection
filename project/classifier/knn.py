@@ -22,6 +22,7 @@ class KNN():
         self.params = {
             "knn_neighbors": kwargs.get("knn_neighbors", 6),
             "nominal_distance": kwargs.get("nominal_distance", 1),
+            "distance_metric": kwargs.get("distance_metric", "partial"),
         }
 
     def fit(self, X, y):
