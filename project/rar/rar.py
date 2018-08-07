@@ -23,7 +23,7 @@ class RaR(Subspacing):
         self.hics = None
 
     def _update_params(self, **kwargs):
-        # TODO: create RaR config
+        # TODO: create RaR Params class and config
         alpha = kwargs.get("alpha", self._get_alpha())
         beta = kwargs.get("beta", 0.01)
         boost = kwargs.get("boost", 0.1)
@@ -36,7 +36,6 @@ class RaR(Subspacing):
         min_samples = kwargs.get("min_samples", 3)
         resamples = kwargs.get("resamples", 5)
         max_subspaces = kwargs.get("max_subspaces", 1000)
-        cache_enabled = kwargs.get("cache_enabled", self.shape[1] < 50)
         subspace_size = kwargs.get("subspace_size", self._get_size())
         subspace_method = kwargs.get("subspace_method", "adaptive")
         imputation_method = kwargs.get("imputation_method", "knn")
@@ -56,7 +55,6 @@ class RaR(Subspacing):
             "min_samples": min_samples,
             "resamples": resamples,
             "max_subspaces": max_subspaces,
-            "cache_enabled": cache_enabled,
             "subspace_size": subspace_size,
             "subspace_method": subspace_method,
             "imputation_method": imputation_method,
@@ -66,6 +64,8 @@ class RaR(Subspacing):
 
         n_subspaces = self._get_n_subspaces()
         self.params["n_subspaces"] = kwargs.get("n_subspaces", n_subspaces)
+        use_cache = self.should_enable_cache()
+        self.params["cache_enabled"] = kwargs.get("cache_enabled", use_cache)
 
     def _get_alpha(self):
         # make sure to have enough samples inside a slice
@@ -105,6 +105,18 @@ class RaR(Subspacing):
 
     def _get_n_subspaces_fixed(self):
         return 1000
+
+    def should_enable_cache(self):
+        if self.shape[1] > 50 and self.shape[0] < 1000:
+            return False
+
+        subspace_size = self.params["subspace_size"]
+        mean_dim = np.mean(subspace_size)
+        max_slices = mean_dim * self.params["n_subspaces"]
+
+        n_dimensions = subspace_size[1] - subspace_size[0] + 1
+        all_slices = n_dimensions * self.shape[1]
+        return True if all_slices < max_slices else False
 
     def _evaluate_subspace(self, subspace):
         """
