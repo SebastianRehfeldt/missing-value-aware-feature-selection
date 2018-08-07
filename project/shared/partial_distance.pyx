@@ -17,22 +17,22 @@ def partial_distance_orange(x1, x2, **kwargs):
             # both missing
             if isnan(x1[i]) and isnan(x2[i]):
                 squared_dist += 1
-            
             # 1 missing (squared of known + half std)
-            if isnan(x1[i]):
+            elif isnan(x1[i]):
                 dist = x2[i]**2
                 squared_dist += (dist + 0.5)
-            if isnan(x2[i]):
+            elif isnan(x2[i]):
                 dist = x1[i]**2
                 squared_dist += (dist + 0.5)
-
             # euclidean dist if both present
-            dist = x1[i] - x2[i]
-            squared_dist += dist**2
+            else:
+                dist = x1[i] - x2[i]
+                squared_dist += dist**2
         else:
             # both missing
             if (x1[i] == "?") and (x2[i] == "?"):
                 squared_dist += nominal_distance
+                continue
                 
             # 1 missing (1 - prob of present value)
             prob = 0.5
