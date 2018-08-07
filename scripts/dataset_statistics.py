@@ -9,16 +9,15 @@ os.makedirs(PLOT_FOLDER, exist_ok=True)
 raw_data = get_raw_data(FOLDER)
 
 # %%
-print_dataset(raw_data, ["cleveland"])
+print_dataset(raw_data, ["iris"])
 
 # %%
 find(
     raw_data,
-    f=(13, 13),
-    s=(303, 303),
-    c=(2, 2),
-    mr=(0.1, 3),
-    types=["mixed"],
+    f=(13, 50),
+    s=(100, 1000),
+    c=(2, 10),
+    mr=(30, 100),
 )
 
 # %%
@@ -53,7 +52,16 @@ summary_types.to_csv(os.path.join(PLOT_FOLDER, "summary_types.csv"))
 summary_types
 
 # %%
-names = ["ionosphere", "heart-c", "semeion", "anneal"]
+names = [
+    "heart-c", "ionosphere", "semeion", "madelon", "musk", "isolet",
+    "hepatitis", "vote", "soybean", "anneal", "schizo"
+]
 overview = get_overview(raw_data, types, missing_rates, names)
 overview.to_csv(os.path.join(PLOT_FOLDER, "summary_datasets.csv"))
-overview
+try:
+    overview["anneal"]["CLASSES"] = 5
+    overview["soybean"]["CLASSES"] = 19
+except:
+    pass
+
+overview.T
