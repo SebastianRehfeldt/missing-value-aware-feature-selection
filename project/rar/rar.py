@@ -107,16 +107,24 @@ class RaR(Subspacing):
         return 1000
 
     def should_enable_cache(self):
-        if self.shape[1] > 50 and self.shape[0] < 1000:
-            return False
-
+        # CALCULATE EXPECTED SIZES WITHOUT CACHE
         subspace_size = self.params["subspace_size"]
         mean_dim = np.mean(subspace_size)
         max_slices = mean_dim * self.params["n_subspaces"]
 
+        # SLICES IN CACHE
         n_dimensions = subspace_size[1] - subspace_size[0] + 1
         all_slices = n_dimensions * self.shape[1]
-        return True if all_slices < max_slices else False
+
+        if all_slices > max_slices:
+            return False
+
+        # ESTIMATE NEEDED SIZE FOR CACHE (MAX = 1G)
+        n_iterations = self.params["contrast_iterations"]
+        expected_size = all_slices * n_iterations * self.shape[0]
+        if self.params["approach"] == "fuzzy":
+            expected_size *= 2
+        return False if expected_size > 1e9 else True
 
     def _evaluate_subspace(self, subspace):
         """
