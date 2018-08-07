@@ -79,11 +79,12 @@ class HICS():
                 n = self.n_select_d[i]
                 self.slices[col][i] = self.get_slices(X, types, cache, n, i)
 
-    def get_slices(self, X, types, cache=None, n=None, d=None):
+    def get_slices(self, X, types, cache=None, n=None, d=None, b=False):
         options = self.slice_options.copy()
         options["n_select"] = n or self.n_select_d[X.shape[1]]
         options["alpha"] = self.alphas_d[X.shape[1]]
         options["d"] = d or X.shape[1]
+        options["boost"] = b
         return get_slices(X, types, cache, **options)
 
     def get_cached_slices(self, subspace, use_cache=True):
@@ -107,6 +108,13 @@ class HICS():
             nan_sums = np.sum(self.nans[subspace].values, axis=1)
             slices[:, nan_sums > max_nans] = False
         return prune_slices(slices, min_samples)
+
+    def get_boost(self, feature):
+        X = self.data.X[feature].to_frame()
+        types = pd.Series(self.data.f_types[feature], [feature])
+        slices = self.get_slices(X, types, n=10, b=True)
+        lengths = np.sum(slices, axis=1)
+        return self.get_relevance(slices, lengths)
 
     def evaluate_subspace(self, subspace, targets=[]):
         # GET SLICES

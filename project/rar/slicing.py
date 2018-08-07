@@ -38,8 +38,17 @@ def get_numerical_slices(X, cache, **options):
     n_select = max(5, int(np.ceil(n_select * (1 - mr))))
 
     non_nan_count = X.shape[0] - nan_count
-    max_start = non_nan_count - n_select
-    start_positions = np.random.randint(0, max_start, n_iterations)
+    if options["boost"]:
+        max_start = min(10, non_nan_count - n_select)
+        start_positions = list(np.arange(0, max_start, 2))
+        min_start = max(non_nan_count - n_select - 10, 0)
+        start_positions_end = list(
+            np.arange(min_start, non_nan_count - n_select, 2))
+        start_positions = start_positions + start_positions_end
+        n_iterations = len(start_positions)
+    else:
+        max_start = non_nan_count - n_select
+        start_positions = np.random.randint(0, max_start, n_iterations)
 
     dtype = np.float16 if options["approach"] == "fuzzy" else bool
     slices = np.zeros((n_iterations, X.shape[0]), dtype=dtype)
@@ -47,6 +56,9 @@ def get_numerical_slices(X, cache, **options):
         end = min(start + n_select, non_nan_count - 1)
         idx = indices[start:end]
         slices[i, idx] = True
+
+    if options["boost"]:
+        return slices
 
     if options["approach"] == "partial":
         slices[:, nans] = True
@@ -75,6 +87,17 @@ def get_categorical_slices(X, cache, **options):
     if contains_nans:
         index = np.where(values == "?")[0]
         values = np.delete(values, index)
+
+    if options["boost"]:
+        s_per_class = 3 if len(values) < 10 else 1
+        n_iterations = len(values) * s_per_class
+        dtype = np.float16 if options["approach"] == "fuzzy" else bool
+        slices = np.zeros((n_iterations, X.shape[0]), dtype=dtype)
+        for i, value in enumerate(values):
+            for j in range(s_per_class):
+                perm = np.random.permutation(value_dict[value])[:n_select]
+                slices[i * s_per_class + j, index_dict[value][perm]] = True
+        return slices
 
     dtype = np.float16 if options["approach"] == "fuzzy" else bool
     slices = np.zeros((n_iterations, X.shape[0]), dtype=dtype)

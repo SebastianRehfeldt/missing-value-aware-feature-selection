@@ -26,6 +26,7 @@ class RaR(Subspacing):
         # TODO: create RaR config
         alpha = kwargs.get("alpha", self._get_alpha())
         beta = kwargs.get("beta", 0.01)
+        boost = kwargs.get("boost", 0.1)
         n_targets = kwargs.get("n_targets", 1)
         weight = kwargs.get("weight", 1)
         eval_method = kwargs.get("eval_method", "rar")
@@ -45,6 +46,7 @@ class RaR(Subspacing):
         self.params.update({
             "alpha": alpha,
             "beta": beta,
+            "boost": boost,
             "n_targets": n_targets,
             "weight": weight,
             "eval_method": eval_method,
@@ -140,6 +142,12 @@ class RaR(Subspacing):
         """
         relevances = deduce_relevances(self.names, knowledgebase)
         n_targets = self.params["n_targets"]
+
+        if self.params["boost"] > 0:
+            for key, value in relevances.items():
+                alpha = self.params["boost"]
+                boost = self.hics.get_boost(key)
+                relevances[key] = (1 - alpha) * value + alpha * boost[0]
 
         # return ranking based on relevances only
         if n_targets == 0:
