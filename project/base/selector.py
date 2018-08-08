@@ -92,6 +92,9 @@ class Selector(ABC):
                 np.zeros(len(self.names)),
                 index=self.names,
             )
+            mr_boost = 1 + np.mean(self.missing_rates)
+            self.params["contrast_iterations"] = int(
+                self.params["contrast_iterations"] * mr_boost)
             self.hics = HICS(self.data, self.nans, self.missing_rates,
                              **self.params)
 
