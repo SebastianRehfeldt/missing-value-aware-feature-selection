@@ -32,6 +32,7 @@ class RaR(Subspacing):
         eval_method = kwargs.get("eval_method", "rar")
         approach = kwargs.get("approach", "deletion")
         create_category = kwargs.get("create_category", False)
+        active_sampling = kwargs.get("active_sampling", True)
         min_slices = kwargs.get("min_slices", 10)
         min_samples = kwargs.get("min_samples", 3)
         resamples = kwargs.get("resamples", 5)
@@ -51,6 +52,7 @@ class RaR(Subspacing):
             "eval_method": eval_method,
             "approach": approach,
             "create_category": create_category,
+            "active_sampling": active_sampling,
             "min_slices": min_slices,
             "min_samples": min_samples,
             "resamples": resamples,

@@ -5,9 +5,10 @@ from .slicing import get_slices, combine_slices, prune_slices
 
 
 class HICS():
-    def __init__(self, data, nans, **params):
+    def __init__(self, data, nans, missing_rates, **params):
         self.data = data
         self.nans = nans
+        self.missing_rates = missing_rates
         self.params = params
         self._init_alphas()
         self._init_n_selects()
