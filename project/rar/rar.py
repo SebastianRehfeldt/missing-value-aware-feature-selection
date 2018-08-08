@@ -191,22 +191,23 @@ class RaR(Subspacing):
                     self.scores_1d[key] = self.hics.evaluate_subspace([key])[0]
                     open_fs.remove(key)
 
-                cum_rel = np.sum(self.scores_1d[features])
-                if cum_rel <= rel:
-                    self.interactions.append(features)
-                    d["score"]["relevance"] *= len(features)
-                    results.append(d)
+                if self.params["boost"] > 0:
+                    cum_rel = np.sum(self.scores_1d[features])
+                    if cum_rel <= rel:
+                        self.interactions.append(features)
+                        d["score"]["relevance"] *= len(features)
+                        results.append(d)
 
-                for key in intersection:
-                    results.append({
-                        "features": [key],
-                        "score": {
-                            "relevance": self.scores_1d[key],
-                            "deviation": 0,
-                            "redundancies": [0],
-                            "targets": [],
-                        }
-                    })
+                    for key in intersection:
+                        results.append({
+                            "features": [key],
+                            "score": {
+                                "relevance": self.scores_1d[key],
+                                "deviation": 0,
+                                "redundancies": [0],
+                                "targets": [],
+                            }
+                        })
 
             if 0 < len(open_fs) < 10:
                 for key in open_fs:
