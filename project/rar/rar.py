@@ -208,6 +208,12 @@ class RaR(Subspacing):
                         }
                     })
 
+            if 0 < len(open_fs) < 10:
+                for key in open_fs:
+                    res = self._evaluate_subspace([key])
+                    self.scores_1d[key] = res["relevance"]
+                    results.append({"features": [key], "score": res})
+
             kb = knowledgebase + results
             relevances = deduce_relevances(self.names, kb)
         else:
