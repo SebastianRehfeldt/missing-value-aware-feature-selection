@@ -140,10 +140,19 @@ class RaR(Subspacing):
         if self.params["redundancy_approach"] == "tom":
             open_features = [n for n in self.names if n not in subspace]
             n_targets = min(len(open_features), self.params["n_targets"])
-            targets = np.random.choice(open_features, n_targets, False)
+
+            p = None
+            if self.params["active_sampling"]:
+                p = self.scores_1d[open_features].values * 5 + 1
+                p /= np.sum(p)
+            targets = np.random.choice(open_features, n_targets, False, p)
 
         results = self.hics.evaluate_subspace(subspace, targets)
         rel, red_s, is_empty, deviation = results
+
+        if len(subspace) == 1 and self.params["active_sampling"]:
+            if rel > self.scores_1d[subspace[0]]:
+                self.scores_1d[subspace[0]] = rel
 
         if is_empty:
             rel, red_s, targets, deviation = 0, [], [], 0
