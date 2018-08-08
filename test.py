@@ -26,6 +26,17 @@ mr = 0
 data = introduce_missing_values(data, missing_rate=mr)
 data = scale_data(data)
 
+# %%
+from project.rar.rar import RaR
+
+rar = RaR(data.f_types, data.l_type, data.shape)
+rar.fit(data.X, data.y)
+rar.get_ranking()
+
+# %%
+rar.hics.evaluate_subspace(["a06", "a05"])
+
+# %%
 gold_ranking = [
     ('a05', 0.43040407748046167), ('a06', 0.41160532164225955),
     ('a29', 0.3919975515222594), ('a33', 0.39007589467758935),

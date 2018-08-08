@@ -13,7 +13,6 @@ class HICS():
         self._init_n_selects()
         self._init_slice_options()
         self._cache_label()
-        self.deviations = []
 
         if not self.params["approach"] == "imputation" and self.params["cache_enabled"]:
             self._init_slice_cache()
@@ -133,9 +132,10 @@ class HICS():
 
         # COMPUTE RELEVANCE AND REDUNDANCIES
         rels, deviations = self.get_relevance(slices, lengths)
-        self.deviations.append(deviations)
         n_resamples = self.params["resamples"]
         if deviations > 0.1 and len(subspace) == 1 and n_resamples > 0:
+            n_retries = int(np.floor(deviations * n_resamples / 0.5)) + 1
+            n_resamples = min(n_resamples, n_retries)
             resamples = np.zeros(n_resamples + 1)
             resamples[0] = rels
             for i in range(1, n_resamples + 1):
