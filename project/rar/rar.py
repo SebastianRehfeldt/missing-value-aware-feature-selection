@@ -21,6 +21,7 @@ class RaR(Subspacing):
         super()._init_parameters(**kwargs)
         self._update_params(**kwargs)
         self.hics = None
+        self.interactions = []
 
     def _update_params(self, **kwargs):
         # TODO: create RaR Params class and config
@@ -171,8 +172,46 @@ class RaR(Subspacing):
         Arguments:
             knowledgebase {list} -- List of subspace results
         """
-        relevances = deduce_relevances(self.names, knowledgebase)
-        n_targets = self.params["n_targets"]
+        if self.params["active_sampling"]:
+            results = []
+            open_fs = set(self.scores_1d.index[(self.scores_1d == 0).values])
+
+            m = [d for d in self.score_map if len(d['features']) > 1]
+            n = int(0.1 * self.params["n_subspaces"])
+            n = max(20, min(100, n))
+            m = sorted(
+                m, key=lambda k: k["score"]["relevance"], reverse=True)[:n]
+
+            for d in m:
+                features = set(d["features"])
+                rel = d["score"]["relevance"]
+                intersection = list(open_fs.intersection(features))
+
+                for key in intersection:
+                    self.scores_1d[key] = self.hics.evaluate_subspace([key])[0]
+                    open_fs.remove(key)
+
+                cum_rel = np.sum(self.scores_1d[features])
+                if cum_rel <= rel:
+                    self.interactions.append(features)
+                    d["score"]["relevance"] *= len(features)
+                    results.append(d)
+
+                for key in intersection:
+                    results.append({
+                        "features": [key],
+                        "score": {
+                            "relevance": self.scores_1d[key],
+                            "deviation": 0,
+                            "redundancies": [0],
+                            "targets": [],
+                        }
+                    })
+
+            kb = knowledgebase + results
+            relevances = deduce_relevances(self.names, kb)
+        else:
+            relevances = deduce_relevances(self.names, knowledgebase)
 
         if self.params["boost"] > 0:
             for key, value in relevances.items():
@@ -181,6 +220,7 @@ class RaR(Subspacing):
                 relevances[key] = (1 - alpha) * value + alpha * boost[0]
 
         # return ranking based on relevances only
+        n_targets = self.params["n_targets"]
         if n_targets == 0:
             return sorted(
                 relevances.items(),

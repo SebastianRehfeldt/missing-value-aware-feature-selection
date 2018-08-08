@@ -35,13 +35,10 @@ rar = RaR(
     data.shape,
     redundancy_approach="tom",
     active_sampling=True,
-    n_subspaces=100,
-)
+    n_subspaces=50)
+    
 rar.fit(data.X, data.y)
 rar.get_ranking()
-
-# %%
-rar.hics.evaluate_subspace(["a33"])
 
 # %%
 rar.scores_1d
