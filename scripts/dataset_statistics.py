@@ -58,10 +58,4 @@ names = [
 ]
 overview = get_overview(raw_data, types, missing_rates, names)
 overview.to_csv(os.path.join(PLOT_FOLDER, "summary_datasets.csv"))
-try:
-    overview["anneal"]["CLASSES"] = 5
-    overview["soybean"]["CLASSES"] = 19
-except:
-    pass
-
 overview.T

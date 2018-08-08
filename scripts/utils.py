@@ -240,6 +240,11 @@ def get_overview(data, types, missing_rates, names):
             n_incomplete = m["NumberOfInstancesWithMissingValues"]
             na_ratio = n_incomplete / m["NumberOfInstances"] * 100
 
+            if d["name"] == "anneal" and m["NumberOfClasses"] != 5:
+                continue
+            if d["name"] == "soybean" and m["NumberOfClasses"] != 19:
+                continue
+
             stats = []
             stats.append(m["NumberOfInstances"])
             stats.append(m["NumberOfFeatures"] - 1)
