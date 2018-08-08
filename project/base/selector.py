@@ -86,7 +86,9 @@ class Selector(ABC):
                 nominal_nans = (self.data.X == "?")
                 self.nans = np.logical_or(self.nans, nominal_nans)
 
-            self.hics = HICS(self.data, self.nans, **self.params)
+            self.missing_rates = self.nans.sum() / self.data.shape[0]
+            self.hics = HICS(self.data, self.nans, self.missing_rates,
+                             **self.params)
 
         self._fit()
         self.is_fitted = True

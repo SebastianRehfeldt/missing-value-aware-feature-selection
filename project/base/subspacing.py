@@ -65,13 +65,18 @@ class Subspacing(Selector):
         n_subspaces, start = self.params["n_subspaces"], 0
         subspaces = [None] * n_subspaces
 
+        p = None
+        if self.params["active_sampling"]:
+            p = self.missing_rates.values * 2 + 1
+            p /= np.sum(p)
+
         # add multi-d subspaces
         max_retries = 10
         for i in range(start, n_subspaces):
             found_new, retries = False, 0
             while not found_new and retries < max_retries:
                 m = np.random.randint(lower, upper + 1, 1)[0]
-                f = sorted(np.random.choice(self.names, m, replace=False))
+                f = sorted(np.random.choice(self.names, m, replace=False, p=p))
                 found_new = f not in subspaces
                 retries += 1
             subspaces[i] = f
