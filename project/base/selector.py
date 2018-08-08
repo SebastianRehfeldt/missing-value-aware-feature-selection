@@ -3,6 +3,7 @@
 """
 import sys
 import numpy as np
+import pandas as pd
 from abc import ABC, abstractmethod
 from project.utils import Data
 from project.utils import assert_df, assert_series, assert_l_type
@@ -87,6 +88,10 @@ class Selector(ABC):
                 self.nans = np.logical_or(self.nans, nominal_nans)
 
             self.missing_rates = self.nans.sum() / self.data.shape[0]
+            self.scores_1d = pd.Series(
+                np.zeros(len(self.names)),
+                index=self.names,
+            )
             self.hics = HICS(self.data, self.nans, self.missing_rates,
                              **self.params)
 

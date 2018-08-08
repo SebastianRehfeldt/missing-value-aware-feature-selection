@@ -29,12 +29,22 @@ data = scale_data(data)
 # %%
 from project.rar.rar import RaR
 
-rar = RaR(data.f_types, data.l_type, data.shape)
+rar = RaR(
+    data.f_types,
+    data.l_type,
+    data.shape,
+    redundancy_approach="tom",
+    active_sampling=True,
+    n_subspaces=100,
+)
 rar.fit(data.X, data.y)
 rar.get_ranking()
 
 # %%
-rar.hics.evaluate_subspace(["a06", "a05"])
+rar.hics.evaluate_subspace(["a33"])
+
+# %%
+rar.scores_1d
 
 # %%
 gold_ranking = [
