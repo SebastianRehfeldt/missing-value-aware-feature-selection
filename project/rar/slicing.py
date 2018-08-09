@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.stats import norm
 
 
 def get_slices(X, types, cache, **options):
@@ -42,9 +43,8 @@ def get_numerical_slices(X, cache, **options):
         max_start = min(10, non_nan_count - n_select)
         start_positions = list(np.arange(0, max_start, 2))
         min_start = max(non_nan_count - n_select - 10, 0)
-        start_positions_end = list(
-            np.arange(min_start, non_nan_count - n_select, 2))
-        start_positions = start_positions + start_positions_end
+        end_positions = list(np.arange(min_start, non_nan_count - n_select, 2))
+        start_positions = start_positions + end_positions
         n_iterations = len(start_positions)
     else:
         max_start = non_nan_count - n_select
@@ -52,19 +52,30 @@ def get_numerical_slices(X, cache, **options):
 
     dtype = np.float16 if options["approach"] == "fuzzy" else bool
     slices = np.zeros((n_iterations, X.shape[0]), dtype=dtype)
+    if options["weight_approach"] == "probabilistic":
+        probs = np.zeros((n_iterations, nan_count))
     for i, start in enumerate(start_positions):
         end = min(start + n_select, non_nan_count - 1)
         idx = indices[start:end]
         slices[i, idx] = True
+        if options["weight_approach"] == "probabilistic":
+            min_val, max_val = X[indices[start]], X[indices[end]]
+            if True:
+                count = ((X >= min_val) & (X <= max_val)).sum()
+                probs[i, :] = count / non_nan_count
+            else:
+                prob = norm.cdf(max_val) - norm.cdf(min_val)
+                prob += norm.pdf(min_val)
+                probs[i, :] = prob
 
-    if options["boost"]:
-        return slices
-
-    if options["approach"] == "partial":
+    if options["approach"] == "partial" and not options["boost"]:
         slices[:, nans] = True
     if options["approach"] == "fuzzy":
         factor = options["weight"]**(1 / options["d"])
-        slices[:, nans] = options["alpha"] * factor
+        if options["weight_approach"] == "probabilistic":
+            slices[:, nans] = probs * factor
+        else:
+            slices[:, nans] = options["alpha"] * factor
     return slices
 
 
@@ -80,6 +91,7 @@ def get_categorical_slices(X, cache, **options):
     index_dict = {val: np.where(X == val)[0] for val in values}
 
     nan_count = value_dict.get("?", 0)
+    non_nan_count = X.shape[0] - nan_count
     mr = nan_count / X.shape[0]
     n_select = max(5, int(np.ceil(n_select * (1 - mr))))
 
@@ -91,35 +103,46 @@ def get_categorical_slices(X, cache, **options):
     if options["boost"]:
         s_per_class = 3 if len(values) < 10 else 1
         n_iterations = len(values) * s_per_class
+
+        if options["weight_approach"] == "probabilistic":
+            probs = np.zeros((n_iterations, nan_count))
+
         dtype = np.float16 if options["approach"] == "fuzzy" else bool
         slices = np.zeros((n_iterations, X.shape[0]), dtype=dtype)
         for i, value in enumerate(values):
             for j in range(s_per_class):
                 perm = np.random.permutation(value_dict[value])[:n_select]
                 slices[i * s_per_class + j, index_dict[value][perm]] = True
-        return slices
+                if options["weight_approach"] == "probabilistic":
+                    probs[i, :] += value_dict[value] / non_nan_count
 
-    dtype = np.float16 if options["approach"] == "fuzzy" else bool
-    slices = np.zeros((n_iterations, X.shape[0]), dtype=dtype)
-    for i in range(n_iterations):
-        values = np.random.permutation(values)
-        current_sum = 0
-        for value in values:
-            current_sum += value_dict[value]
-            if current_sum >= n_select:
-                n_missing = n_select - (current_sum - value_dict[value])
-                perm = np.random.permutation(value_dict[value])[:n_missing]
-                idx = index_dict[value][perm]
-                slices[i, idx] = True
-                break
+    else:
+        if options["weight_approach"] == "probabilistic":
+            probs = np.zeros((n_iterations, nan_count))
+        dtype = np.float16 if options["approach"] == "fuzzy" else bool
+        slices = np.zeros((n_iterations, X.shape[0]), dtype=dtype)
+        for i in range(n_iterations):
+            values = np.random.permutation(values)
+            current_sum = 0
+            for value in values:
+                if options["weight_approach"] == "probabilistic":
+                    probs[i, :] += value_dict[value] / non_nan_count
+                current_sum += value_dict[value]
+                if current_sum >= n_select:
+                    n_missing = n_select - (current_sum - value_dict[value])
+                    perm = np.random.permutation(value_dict[value])[:n_missing]
+                    idx = index_dict[value][perm]
+                    slices[i, idx] = True
+                    break
 
-            slices[i, index_dict[value]] = True
+                slices[i, index_dict[value]] = True
 
-    if options["approach"] == "partial" and contains_nans:
+    if options["approach"] == "partial" and contains_nans and not options["boost"]:
         slices[:, index_dict["?"]] = True
     if options["approach"] == "fuzzy" and contains_nans:
-        non_nan_count = X.shape[0] - value_dict["?"]
         factor = options["weight"]**(1 / options["d"])
-        w = (n_select / non_nan_count) * factor
-        slices[:, index_dict["?"]] = w
+        if options["weight_approach"] == "probabilistic":
+            slices[:, index_dict["?"]] = probs * factor
+        else:
+            slices[:, index_dict["?"]] = options["alpha"] * factor
     return slices
