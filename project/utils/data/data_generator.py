@@ -25,6 +25,11 @@ class DataGenerator():
         clusters = self.clusters.copy()
         return [v for k, v in clusters.items()]
 
+    def get_complete_relevant(self):
+        relevant = self.relevance_vector[self.relevance_vector > 0].index
+        missing = ["f" + str(i) for i in self.informative_missing]
+        return list(set(relevant).difference(set(missing)))
+
     def _init_params(self, **params):
         self.n_samples = params.get("n_samples", 500)
         self.n_features = params.get("n_features", 20)

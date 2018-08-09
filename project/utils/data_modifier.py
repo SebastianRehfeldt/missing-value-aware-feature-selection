@@ -4,49 +4,53 @@
     be different from specified one if missing values are already present.
 """
 import numpy as np
+from copy import deepcopy
+from scipy.stats import mode
 
 
 def introduce_missing_values(data,
                              missing_rate=0.25,
                              missing_type="MCAR",
-                             seed=42):
-    """
-    Introduce missing values by a specified method
-
-    Arguments:
-        data {Data} -- Data object where missing values should be inserted
-
-    Keyword Arguments:
-        missing_rate {float} -- Rate of inserted nan's (default: {0.25})
-        missing_type {str} -- Meachnism for missingness (default: {"MCAR"})
-    """
-    n_total_values = data.shape[0] * data.shape[1]
-    n_removals = round(missing_rate * n_total_values)
+                             seed=42,
+                             features=None):
+    np.random.seed(seed)
 
     if missing_type == "MCAR":
-        return _remove_with_mcar(data, n_total_values, n_removals, seed)
+        X = _remove_with_mcar(data.X, data.f_types, missing_rate, features)
+        return data.replace(X=X)
+    elif missing_type == "predictive":
+        return _remove_by_class(data, missing_rate, features)
     else:
         raise NotImplementedError
 
 
-def _remove_with_mcar(data, n_total_values, n_removals, seed):
-    """
-    Insert missing values completely at random
-
-    Arguments:
-        data {Data} -- Data object where missing values should be inserted
-        n_total_values {int} -- Number of total values in dataframe
-        n_removals {int} -- Number of missing values being inserted
-    """
+def _remove_with_mcar(X, f_types, missing_rate, features):
     # Create mask where values should be inserted
-    np.random.seed(seed)
-    rn = np.random.normal(size=data.shape)
+    if features is not None:
+        X_orig = deepcopy(X)
+        X = X[features]
+
+    rn = np.random.normal(size=X.shape)
+    n_removals = round(missing_rate * X.shape[0] * X.shape[1])
     min_value = np.sort(rn, kind="mergesort", axis=None)[n_removals]
     mask = rn < min_value
 
     # Values in df with mask == True will be NaN
-    features = data.X.where(mask == False)
-    for col in data.X:
-        if data.f_types[col] == "nominal":
-            features[col].fillna("?", inplace=True)
-    return data.replace(X=features)
+    new_X = X.where(mask == False)
+    for col in X:
+        if f_types[col] == "nominal":
+            new_X[col].fillna("?", inplace=True)
+
+    if features is not None:
+        X_orig[features] = new_X
+        new_X = X_orig
+    return new_X
+
+
+def _remove_by_class(data, missing_rate, features):
+    complete_X = data.X
+    idx = np.where(data.y == mode(data.y).mode[0])[0]
+    X = _remove_with_mcar(data.X.iloc[idx, :], data.f_types, missing_rate,
+                          features)
+    complete_X.iloc[idx, :] = X
+    return data.replace(X=complete_X)
