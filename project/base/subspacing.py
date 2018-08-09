@@ -66,7 +66,7 @@ class Subspacing(Selector):
         subspaces = [None] * n_subspaces
 
         p = None
-        if self.params["active_sampling"]:
+        if self.params.get("active_sampling", False):
             p = self.missing_rates.values * 2 + 1
             p /= np.sum(p)
 

@@ -46,6 +46,8 @@ cdef public double _calculate_max_dist(double[:] m, np.float_t[:] slice_, double
                 distance *= -1
             if distance > max_dist:
                 max_dist = distance
+    if max_dist > 1:
+        return 1
     return max_dist
     
 def _calculate_contrasts_kld(cache):

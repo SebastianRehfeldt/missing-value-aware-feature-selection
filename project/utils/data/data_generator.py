@@ -13,7 +13,8 @@ class DataGenerator():
         self.set_seed(random_state)
         self._init_params(**params)
 
-        self.X = np.zeros((self.n_samples, self.n_features + self.n_clusters))
+        n = self.n_features + self.n_clusters + self.n_informative_missing
+        self.X = np.zeros((self.n_samples, n))
         self.data = None
 
     def set_seed(self, seed):
@@ -30,6 +31,8 @@ class DataGenerator():
         self.n_independent = params.get("n_independent", 20)
         self.n_dependent = params.get("n_dependent", 0)
         self.n_relevant = params.get("n_relevant", 0)
+        self.n_informative_missing = params.get("n_informative_missing", 0)
+        self.missing_rate = params.get("missing_rate", 0.3)
         self.n_discrete = params.get("n_discrete", 0)
         self.n_clusters = params.get("n_clusters", 3)
         self.y_flip = params.get("y_flip", 0.01)
@@ -58,7 +61,7 @@ class DataGenerator():
             subset = np.random.choice(indices, n_features_in_clust, False)
             self.clusters[i] = subset
 
-            pos = self.n_clusters - i
+            pos = self.n_clusters - i + self.n_informative_missing
             signs = self.xor_signs(subset)
             values = self.xor_values(subset)
             self.X[:, -pos] = signs * values
@@ -66,15 +69,24 @@ class DataGenerator():
     def _add_dependent(self):
         self.linear_combination = [None] * self.n_dependent
         for i in range(self.n_dependent):
-            linear_combination = np.random.uniform(0, 1, self.n_independent)
+            linear_combination = np.random.uniform(0.2, 1, self.n_independent)
             self.linear_combination[i] = linear_combination
 
             self.X[:, i + self.n_independent] = np.sum(
                 linear_combination * self.X[:, :self.n_independent], axis=1)
 
+    def _add_informative_missing(self):
+        for i in range(self.n_informative_missing):
+            pos = self.n_informative_missing - i
+            n = int(self.n_samples * self.missing_rate)
+            idx = np.random.choice(range(self.n_samples), n, False)
+            self.X[idx, -pos] = 1
+
     def _create_relevance_vector(self):
-        self.relevance_features = np.random.uniform(0, 1, self.n_relevant)
-        self.relevance_clusters = np.random.uniform(0, 1, self.n_clusters)
+        self.relevance_features = np.random.uniform(0.2, 1, self.n_relevant)
+        self.relevance_clusters = np.random.uniform(0.2, 1, self.n_clusters)
+        self.relevance_missing = np.random.uniform(0.2, 1,
+                                                   self.n_informative_missing)
 
         relevance_vector = np.zeros(self.n_features)
         relevance_vector[:self.n_relevant] = self.relevance_features
@@ -87,6 +99,15 @@ class DataGenerator():
                     relevance_vector[idx] = rel
                 else:
                     relevance_vector[idx] = relevance_vector[idx] + rel
+
+        if self.n_informative_missing > 0:
+            irrelevant = np.where(relevance_vector == 0)[0]
+            m = np.random.choice(irrelevant, self.n_informative_missing, False)
+            self.informative_missing = m
+            for idx in range(self.n_informative_missing):
+                score = self.relevance_missing[idx] * self.missing_rate
+                relevance_vector[m[idx]] = score
+
         relevance_vector /= np.sum(relevance_vector)
         self.relevance_vector = relevance_vector
 
@@ -95,9 +116,17 @@ class DataGenerator():
             self.X[:, :self.n_relevant] * self.relevance_features, axis=1)
 
         if self.n_clusters > 0:
+            s = -self.n_clusters - self.n_informative_missing
+            e = -self.n_informative_missing
             combination_c = np.sum(
-                self.X[:, -self.n_clusters:] * self.relevance_clusters, axis=1)
+                self.X[:, s:e] * self.relevance_clusters, axis=1)
             combination += combination_c
+
+        if self.n_informative_missing > 0:
+            pos = -self.n_informative_missing
+            combination_m = np.sum(
+                self.X[:, pos:] * self.relevance_missing, axis=1)
+            combination += combination_m
 
         # Compute target vector by using sign and flipping
         y = combination > 0
@@ -107,6 +136,13 @@ class DataGenerator():
         y[y_flips] = ~y[y_flips]
 
         self.y = y.astype(int).astype(str)
+
+    def _remove_informative_missing(self):
+        for i in range(self.n_informative_missing):
+            dummy = self.X[:, -self.n_informative_missing + i]
+            idx = np.where(dummy == 1)[0]
+            target = self.informative_missing[i]
+            self.X[idx, target] = np.nan
 
     def _discretize_features(self):
         self.discrete_features = np.random.choice(
@@ -162,14 +198,22 @@ class DataGenerator():
         # Add dependent features as linear combination of irrelevant features
         self._add_dependent()
 
+        # TODO
+        self._add_informative_missing()
+
         # Add random noise
-        self.X += np.random.normal(0, 0.1, size=self.X.shape)
+        size = (self.X.shape[0], self.X.shape[1] - self.n_informative_missing)
+        self.X[:, :-self.n_informative_missing] += np.random.normal(
+            0, 0.1, size=size)
 
         # Create relevance vector
         self._create_relevance_vector()
 
         # Compute linear combination and set labels
         self._compute_label_vector()
+
+        # TODO
+        self._remove_informative_missing()
 
         # Discretize features based on hidden state of feature
         self._discretize_features()

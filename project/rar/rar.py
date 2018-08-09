@@ -197,7 +197,7 @@ class RaR(Subspacing):
                     cum_rel = np.sum(self.scores_1d[features])
                     if 1.5 * cum_rel <= rel:
                         self.interactions.append(features)
-                        d["score"]["relevance"] *= len(features)
+                        d["score"]["relevance"] *= np.sqrt(len(features))
                         results.append(d)
 
                     for key in intersection:
