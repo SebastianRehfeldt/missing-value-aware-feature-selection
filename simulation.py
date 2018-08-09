@@ -1,8 +1,8 @@
 # %%
 from project.utils.data import DataGenerator
-from project.utils.plots import plot_nans_by_class
+from project.utils.plots import plot_nan_correlation
 
-gen = DataGenerator(None, n_informative_missing=2, missing_rate=0.2)
+gen = DataGenerator(None, n_informative_missing=2, missing_rate=0)
 data, rel = gen.create_dataset()
 """
 print(gen.clusters)
@@ -15,17 +15,13 @@ from copy import deepcopy
 from project.utils.data_modifier import introduce_missing_values
 
 data2 = deepcopy(data)
-data2 = introduce_missing_values(
-    data, 0.2, "MCAR", features=gen.get_complete_relevant())
-gen.relevance_vector
+data2 = introduce_missing_values(data, 0.2, "NMAR")
 
 # %%
+data2.X.describe()
 
 # %%
-data.X
-
-# %%
-plot_nans_by_class(data2)
+plot_nan_correlation(data2)
 
 # %%
 from project.rar.rar import RaR

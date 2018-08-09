@@ -20,6 +20,8 @@ def introduce_missing_values(data,
         return data.replace(X=X)
     elif missing_type == "predictive":
         return _remove_by_class(data, missing_rate, features)
+    elif missing_type == "NMAR":
+        return _remove_with_nmar(data, missing_rate, features)
     else:
         raise NotImplementedError
 
@@ -54,3 +56,25 @@ def _remove_by_class(data, missing_rate, features):
                           features)
     complete_X.iloc[idx, :] = X
     return data.replace(X=complete_X)
+
+
+def _remove_with_nmar(data, missing_rate, features):
+    X = data.X
+    if features is not None:
+        X_orig = deepcopy(X)
+        X = X[features]
+
+    n_removals = round(X.shape[0] * missing_rate)
+    sorted_indices = np.argsort(X, axis=0)
+    for col in X.columns:
+        # remove bottom or top values
+        indices = sorted_indices[col]
+        if np.random.choice(range(2), 1)[0] == 0:
+            X[col].iloc[indices[:n_removals]] = np.nan
+        else:
+            X[col].iloc[indices[-n_removals:]] = np.nan
+
+    if features is not None:
+        X_orig[features] = X
+        X = X_orig
+    return data.replace(X=X)
