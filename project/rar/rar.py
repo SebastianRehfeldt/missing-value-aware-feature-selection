@@ -30,12 +30,13 @@ class RaR(Subspacing):
         boost = kwargs.get("boost", 0.1)
         n_targets = kwargs.get("n_targets", 1)
         weight = kwargs.get("weight", 1)
+        weight_approach = kwargs.get("weight_approach", "alpha")
         eval_method = kwargs.get("eval_method", "rar")
         approach = kwargs.get("approach", "deletion")
         create_category = kwargs.get("create_category", False)
         active_sampling = kwargs.get("active_sampling", True)
-        min_slices = kwargs.get("min_slices", 10)
-        min_samples = kwargs.get("min_samples", 3)
+        min_slices = kwargs.get("min_slices", 30)
+        min_samples = kwargs.get("min_samples", 5)
         resamples = kwargs.get("resamples", 5)
         max_subspaces = kwargs.get("max_subspaces", 1000)
         subspace_size = kwargs.get("subspace_size", self._get_size())
@@ -50,6 +51,7 @@ class RaR(Subspacing):
             "boost": boost,
             "n_targets": n_targets,
             "weight": weight,
+            "weight_approach": weight_approach,
             "eval_method": eval_method,
             "approach": approach,
             "create_category": create_category,
@@ -193,7 +195,7 @@ class RaR(Subspacing):
 
                 if self.params["boost"] > 0:
                     cum_rel = np.sum(self.scores_1d[features])
-                    if cum_rel <= rel:
+                    if 1.5 * cum_rel <= rel:
                         self.interactions.append(features)
                         d["score"]["relevance"] *= len(features)
                         results.append(d)
