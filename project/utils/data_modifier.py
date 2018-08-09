@@ -22,6 +22,8 @@ def introduce_missing_values(data,
         return _remove_by_class(data, missing_rate, features)
     elif missing_type == "NMAR":
         return _remove_with_nmar(data, missing_rate, features)
+    elif missing_type == "correlated":
+        return _remove_with_correlation(data, missing_rate, features)
     else:
         raise NotImplementedError
 
@@ -73,6 +75,48 @@ def _remove_with_nmar(data, missing_rate, features):
             X[col].iloc[indices[:n_removals]] = np.nan
         else:
             X[col].iloc[indices[-n_removals:]] = np.nan
+
+    if features is not None:
+        X_orig[features] = X
+        X = X_orig
+    return data.replace(X=X)
+
+
+def _remove_with_correlation(data, missing_rate, features):
+    X = data.X
+    if features is not None:
+        X_orig = deepcopy(X)
+        X = X[features]
+
+    n_removals = round(X.shape[0] * missing_rate)
+    indices = np.random.choice(range(X.shape[0]), n_removals, False)
+    dummy = np.zeros(X.shape[0], dtype=bool)
+    dummy[indices] = True
+
+    for col in X.columns:
+        corr = np.random.normal(0, 0.5)
+        corr = np.clip(corr, -1, 1)
+        n_shuffle = int((1 - abs(corr)) * X.shape[0])
+        indices = np.random.choice(range(X.shape[0]), n_shuffle, False)
+
+        d = deepcopy(dummy) if corr >= 0 else deepcopy(~dummy)
+        shuffled = d[indices]
+        np.random.shuffle(shuffled)
+        d[indices] = shuffled
+
+        if corr < 0:
+            n = d.sum()
+            if n > n_removals:
+                indices = np.random.choice(range(n), n - n_removals, False)
+                indices = np.where(d)[0][indices]
+                d[indices] = False
+            else:
+                indices = np.random.choice(
+                    range(n_removals), n_removals - n, False)
+                indices = np.where(~d)[0][indices]
+                d[indices] = True
+
+        X[col][d] = np.nan
 
     if features is not None:
         X_orig[features] = X
