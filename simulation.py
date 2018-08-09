@@ -1,6 +1,6 @@
 # %%
 from project.utils.data import DataGenerator
-from project.utils.plots import plot_nan_correlation
+from project.utils.plots import plot_nan_correlation, plot_nan_percentage
 
 gen = DataGenerator(None, n_informative_missing=2, missing_rate=0)
 data, rel = gen.create_dataset()
@@ -15,13 +15,13 @@ from copy import deepcopy
 from project.utils.data_modifier import introduce_missing_values
 
 data2 = deepcopy(data)
-data2 = introduce_missing_values(data, 0.2, "NMAR")
-
-# %%
-data2.X.describe()
+data2 = introduce_missing_values(data, 0.5, "correlated")
 
 # %%
 plot_nan_correlation(data2)
+
+# %%
+plot_nan_percentage(data2)
 
 # %%
 from project.rar.rar import RaR
