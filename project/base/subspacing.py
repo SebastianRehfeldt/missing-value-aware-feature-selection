@@ -71,7 +71,6 @@ class Subspacing(Selector):
             p += self.nan_correlation.mean().values * 5
             p /= np.sum(p)
 
-        # add multi-d subspaces
         max_retries = 3
         dimensions = np.random.randint(lower, upper + 1, n_subspaces)
         for i in range(n_subspaces):
@@ -82,6 +81,8 @@ class Subspacing(Selector):
                 found_new = f not in subspaces
                 retries += 1
             subspaces[i] = f
+
+        subspaces.sort(key=len)
         return subspaces
 
     def _evaluate(self, subspaces):
