@@ -150,7 +150,9 @@ class RaR(Subspacing):
 
             p = None
             if self.params["active_sampling"]:
+                corr = self.nan_correlation.loc[subspace, open_features].max()
                 p = self.scores_1d[open_features].values * 5 + 1
+                p += corr * 5
                 p /= np.sum(p)
             targets = np.random.choice(open_features, n_targets, False, p)
 

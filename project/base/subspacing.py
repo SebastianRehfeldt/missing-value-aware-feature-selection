@@ -4,9 +4,9 @@
 import itertools
 import numpy as np
 from abc import abstractmethod
+from joblib import Parallel, delayed
 
 from project.base import Selector
-from joblib import Parallel, delayed
 
 
 class Subspacing(Selector):
@@ -62,21 +62,23 @@ class Subspacing(Selector):
         size = self.params["subspace_size"]
         lower, upper = size if isinstance(size, tuple) else (1, size)
 
-        n_subspaces, start = self.params["n_subspaces"], 0
+        n_subspaces = self.params["n_subspaces"]
         subspaces = [None] * n_subspaces
 
         p = None
         if self.params.get("active_sampling", False):
             p = self.missing_rates.values * 2 + 1
+            p += self.nan_correlation.mean().values * 5
             p /= np.sum(p)
 
         # add multi-d subspaces
-        max_retries = 10
-        for i in range(start, n_subspaces):
+        max_retries = 3
+        dimensions = np.random.randint(lower, upper + 1, n_subspaces)
+        for i in range(n_subspaces):
             found_new, retries = False, 0
             while not found_new and retries < max_retries:
-                m = np.random.randint(lower, upper + 1, 1)[0]
-                f = sorted(np.random.choice(self.names, m, replace=False, p=p))
+                f = np.random.choice(self.names, dimensions[i], False, p=p)
+                f = sorted(f)
                 found_new = f not in subspaces
                 retries += 1
             subspaces[i] = f
