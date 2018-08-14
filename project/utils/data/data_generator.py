@@ -122,9 +122,12 @@ class DataGenerator():
 
         if self.n_clusters > 0:
             s = -self.n_clusters - self.n_informative_missing
-            e = -self.n_informative_missing
-            combination_c = np.sum(
-                self.X[:, s:e] * self.relevance_clusters, axis=1)
+            if self.n_informative_missing == 0:
+                x = self.X[:, s:]
+            else:
+                x = self.X[:, s:-self.n_informative_missing]
+
+            combination_c = np.sum(x * self.relevance_clusters, axis=1)
             combination += combination_c
 
         if self.n_informative_missing > 0:
@@ -194,8 +197,8 @@ class DataGenerator():
 
     def create_dataset(self):
         # Add independent features from N(0,1)
-        self.X[:, :self.n_independent] = np.random.normal(
-            0, 1.0, (self.n_samples, self.n_independent))
+        size = (self.n_samples, self.n_independent)
+        self.X[:, :self.n_independent] = np.random.normal(0, 1.0, size)
 
         # Add clusters on irrelevant features to last columns of array
         self._add_clusters()
@@ -208,8 +211,7 @@ class DataGenerator():
 
         # Add random noise
         size = (self.X.shape[0], self.X.shape[1] - self.n_informative_missing)
-        self.X[:, :-self.n_informative_missing] += np.random.normal(
-            0, 0.1, size=size)
+        self.X[:, :size[1]] += np.random.normal(0, 0.1, size=size)
 
         # Create relevance vector
         self._create_relevance_vector()
