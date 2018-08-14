@@ -52,11 +52,11 @@ def _deduce_redundancy(samples, selected_features):
     return max_red
 
 
-def get_ranking_tom(relevances, redundancies, names):
+def get_ranking_tom(relevances, redundancies, names, nan_correlation, a):
     best = sorted(relevances.items(), key=lambda k_v: k_v[1], reverse=True)[0]
 
     ranking = {}
-    ranking[best[0]] = _combine_scores(best[1], 0)
+    ranking[best[0]] = (1 - a) * _combine_scores(best[1], 0) + a
 
     open_features = deepcopy(names)
     open_features.remove(best[0])
@@ -70,6 +70,8 @@ def get_ranking_tom(relevances, redundancies, names):
         for f in open_features:
             red = _deduce_redundancy(redundancies[f], selected)
             score = _combine_scores(relevances[f], red)
+            corr = nan_correlation.loc[selected, f].max()
+            score = (1 - a) * score + a * corr
             if score >= best_score:
                 best_score, best_feature = deepcopy(score), deepcopy(f)
 
@@ -90,12 +92,12 @@ def create_subspace(best_feature, selected):
     return subspace
 
 
-def get_ranking_arvind(hics, relevances, names, n_targets):
+def get_ranking_arvind(hics, relevances, names, n_targets, nan_correlation, a):
     best = sorted(relevances.items(), key=lambda k_v: k_v[1], reverse=True)[0]
     best_feature = best[0]
 
     ranking = {}
-    ranking[best_feature] = _combine_scores(best[1], 0)
+    ranking[best_feature] = (1 - a) * _combine_scores(best[1], 0) + a
 
     open_features = deepcopy(names)
     open_features.remove(best_feature)
@@ -132,10 +134,13 @@ def get_ranking_arvind(hics, relevances, names, n_targets):
         else:
             redundancies = [max_redundancies[f] for f in open_features]
 
-        combined_scores = [
+        combined_scores = np.asarray([
             _combine_scores(relevances[f], redundancies[i])
             for i, f in enumerate(open_features)
-        ]
+        ])
+
+        corr = nan_correlation.loc[selected, open_features].max()
+        combined_scores = (1 - a) * combined_scores + a * corr.values
 
         best_index = np.argmax(combined_scores)
         best_feature = open_features[best_index]
