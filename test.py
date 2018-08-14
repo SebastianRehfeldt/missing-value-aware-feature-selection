@@ -2,50 +2,20 @@
 import numpy as np
 import pandas as pd
 from time import time
-from pprint import pprint
+from copy import deepcopy
 
-from project.utils import DataLoader
-from project.utils import introduce_missing_values, scale_data
-# from project.utils.imputer import Imputer
+from project.rar.rar import RaR
+from project.utils.data import DataGenerator
+from project.utils.imputer import Imputer
+from project.utils import DataLoader, introduce_missing_values, scale_data
+from experiments.metrics import calc_ndcg
 
 data_loader = DataLoader(ignored_attributes=["molecule_name"])
-name = "madelon"
-name = "boston"
-name = "analcatdata_reviewer"
-name = "credit-approval"  # standard config
-name = "musk"  # standard config
-name = "iris"
-name = "heart-c"  # 800 subspaces, alpha = 0,2, 100 iterations, (1,3)
-name = "isolet"
-name = "semeion"
-name = "ionosphere"  # 800 subspaces, alpha=0.02, 250 iterations ,(1,3)
+name = "ionosphere"
 data = data_loader.load_data(name, "arff")
+data = scale_data(data)
 print(data.shape, flush=True)
 
-mr = 0.8
-data = introduce_missing_values(data, missing_rate=mr)
-data = scale_data(data)
-
-# %%
-from project.rar.rar import RaR
-
-rar = RaR(
-    data.f_types,
-    data.l_type,
-    data.shape,
-    approach="fuzzy",
-    boost=0.1,
-    n_subspaces=500,
-)
-
-rar.fit(data.X, data.y)
-rar.get_ranking()
-
-# %%
-rar.scores_1d
-rar.hics.evaluate_subspace(["a05"])
-
-# %%
 gold_ranking = [
     ('a05', 0.43040407748046167), ('a06', 0.41160532164225955),
     ('a29', 0.3919975515222594), ('a33', 0.39007589467758935),
@@ -82,30 +52,21 @@ gold_ranking = [
 ]
 
 zlst = list(zip(*gold_ranking))
-gold_ranking = pd.Series(zlst[1], index=zlst[0])
+relevance_vector = pd.Series(zlst[1], index=zlst[0])
 
 # %%
-from project.rar.rar import RaR
-from experiments.metrics import calc_ndcg
-from project.utils.data import DataGenerator
-from copy import deepcopy
-from project.utils.imputer import Imputer
-
-n_runs = 1
-seeds1 = [0]
-seeds1 = [42, 0, 113, 98, 234, 143, 1, 20432, 4357, 12]
-seeds = [3] * 10
-missing_rates = [0.5, 0.7, 0.8, 0.9]
-missing_rates = [0]
-missing_rates = [0.05 * i for i in range(20)]
+n_runs = 5
+seeds = [42, 0, 113, 98, 234, 143, 1, 20432, 4357, 12]
 missing_rates = [0.1 * i for i in range(10)]
+missing_rates = [0.5]
+missing_rates = [0.2 * i for i in range(5)]
 avgs = np.zeros(len(missing_rates))
 stds = np.zeros(len(missing_rates))
 sums = np.zeros(len(missing_rates))
 data_orig = deepcopy(data)
 
 is_synthetic = True
-generator = DataGenerator(n_samples=3000, n_relevant=1)
+generator = DataGenerator(n_samples=500)
 
 for j, mr in enumerate(missing_rates):
     print("======== {:.2f} ========".format(mr))
@@ -117,7 +78,7 @@ for j, mr in enumerate(missing_rates):
             imputer = Imputer(data_orig.f_types, strategy="knn")
 
         data_copy = deepcopy(data_orig)
-        data_copy = introduce_missing_values(data_copy, mr, seed=seeds1[i])
+        data_copy = introduce_missing_values(data_copy, mr, seed=seeds[i])
         # data_copy = imputer.complete(data_copy)
 
         start = time()
@@ -125,98 +86,44 @@ for j, mr in enumerate(missing_rates):
             data_copy.f_types,
             data_copy.l_type,
             data_copy.shape,
-            n_jobs=1,
             approach="fuzzy",
-            n_targets=0,
-            n_subspaces=0,
-            subspace_size=(1, 3),
-            contrast_iterations=250,
-            alpha=min(0.1, 0.02 * (1 / (1 - mr))),
-            redundancy_approach="arvind",
-            weight=0.1 * mr,
-            random_state=seeds1[i],
-            cache_enabled=False,
-            min_samples=5,
-            min_slices=30,
-            resamples=10,
+            random_state=seeds[j],
         )
 
         rar.fit(data_copy.X, data_copy.y)
         # pprint(rar.get_ranking())
         # print(time() - start)
         ranking = [k for k, v in rar.get_ranking() if v > 1e-4]
-        ndcgs[i] = calc_ndcg(relevance_vector, ranking, False)
-        # print(ndcgs[i])
+        ndcgs[i] = calc_ndcg(relevance_vector, ranking, True)
+        print(ndcgs[i])
 
     avgs[j] = np.mean(ndcgs)
     stds[j] = np.std(ndcgs)
     sums[j] = np.sum([v for k, v in rar.get_ranking()])
-
-    print(rar.hics.evaluate_subspace(["f2"]))
-    print(rar.hics.evaluate_subspace(["f0"]))
-    print(rar.hics.evaluate_subspace(["f13", "f17"]))
-    print(rar.hics.evaluate_subspace(["f11", "f3"]))
+    print(avgs[j], stds[j])
 
 rar_results = pd.DataFrame(avgs, columns=["AVG"], index=missing_rates)
 rar_results["STD"] = stds
 rar_results["SUM"] = sums
 rar_results = rar_results.T
-rar_fuz = rar_results.copy()
-# rar_results
+rar_results.T
 
 # %%
-print(rar.hics.evaluate_subspace(["f2"]))
-print(rar.hics.evaluate_subspace(["f0"]))
-print(rar.hics.evaluate_subspace(["f13", "f17"]))
-print(rar.hics.evaluate_subspace(["f11", "f3"]))
-
-# %%
-relevance_vector.sort_values(ascending=False)
-
-# %%
-generator.get_clusters()
-
-# %%
-rar.get_ranking()
-
-# %%
-rar.score_map
-
-# %%
-i = 0
-
-print(rar.hics.evaluate_subspace(["f11", "f3"]))
-print(
-    np.unique(
-        rar.hics.get_cached_slices(["f11", "f3"])[0][i, :],
-        return_counts=True))
-print(np.sum(rar.hics.get_cached_slices(["f11", "f3"])[0][i, :]))
-
-# %%
-rar.hics.alphas_d
-rar.hics.n_select_d
-
-# %%
-k = 5
-X_new = rar.transform(data.X, k)
-X_new.head()
+k = 4
+X_new = rar.transform(data_copy.X, k)
+types = pd.Series(data.f_types, X_new.columns.values)
+new_data = data_copy.replace(True, X=X_new, shape=X_new.shape, f_types=types)
 X_new.corr().style.background_gradient()
 
 # %%
-types = pd.Series(data.f_types, X_new.columns.values)
-new_data = data.replace(True, X=X_new, shape=X_new.shape, f_types=types)
-
-print(new_data.X.shape)
-
 from project.classifier import KNN
+from project.classifier.sklearn_classifier import SKClassifier
 from sklearn.cross_validation import cross_val_score, StratifiedKFold
 from sklearn.metrics import f1_score, make_scorer
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.naive_bayes import GaussianNB
 
 knn = KNN(new_data.f_types, new_data.l_type, knn_neighbors=20)
-clf = KNeighborsClassifier(n_neighbors=20)
-gnb = GaussianNB()
+clf = SKClassifier(data.f_types, kind="knn")
+gnb = SKClassifier(data.f_types, kind="gnb")
 
 cv = StratifiedKFold(new_data.y, n_folds=5, shuffle=True)
 scorer = make_scorer(f1_score, average="micro")
