@@ -53,7 +53,6 @@ cdef public double _calculate_max_dist(double[:] m, np.float_t[:] slice_, double
 def _calculate_contrasts_kld(cache):
     counts = cache["counts"]
     slices = cache["slices"]
-    lengths = cache["lengths"]
 
     probs = counts / len(cache["sorted"])
     cdfs = np.zeros((len(slices), len(probs)))
@@ -63,6 +62,6 @@ def _calculate_contrasts_kld(cache):
         cdfs[:, i] = np.sum(slices[:, p:p + count], axis=1)
         p += count
 
-    cdfs /= lengths[:, None]
     cdfs += 1e-8
+    cdfs /= np.sum(cdfs, axis=1)[:, None]
     return np.sum(cdfs * np.log2(cdfs / probs), axis=1)

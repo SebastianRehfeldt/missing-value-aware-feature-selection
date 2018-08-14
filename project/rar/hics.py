@@ -104,7 +104,7 @@ class HICS():
             max_nans = int(np.floor(dim / 2))
             if self.params["approach"] == "fuzzy":
                 min_samples = 0
-                max_nans = dim
+                max_nans = dim - 1
 
             nan_sums = np.sum(self.nans[subspace].values, axis=1)
             slices[:, nan_sums > max_nans] = False
@@ -155,7 +155,7 @@ class HICS():
         indices = self.label_indices
         cache = self._create_cache(y, l_type, slices, lengths, indices)
         relevances = calculate_contrasts(cache)
-        rel = max(0, 1 - np.exp(-1 * np.mean(relevances)))
+        rel = 1 - np.exp(-1 * np.mean(relevances))
         return (rel, np.std(relevances))
 
     def get_redundancies(self, slices, lengths, targets, T=None):

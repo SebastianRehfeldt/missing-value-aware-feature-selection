@@ -22,7 +22,7 @@ name = "ionosphere"  # 800 subspaces, alpha=0.02, 250 iterations ,(1,3)
 data = data_loader.load_data(name, "arff")
 print(data.shape, flush=True)
 
-mr = 0
+mr = 0.8
 data = introduce_missing_values(data, missing_rate=mr)
 data = scale_data(data)
 
@@ -33,15 +33,17 @@ rar = RaR(
     data.f_types,
     data.l_type,
     data.shape,
-    redundancy_approach="tom",
-    active_sampling=True,
-    n_subspaces=50)
-    
+    approach="fuzzy",
+    boost=0.1,
+    n_subspaces=500,
+)
+
 rar.fit(data.X, data.y)
 rar.get_ranking()
 
 # %%
 rar.scores_1d
+rar.hics.evaluate_subspace(["a05"])
 
 # %%
 gold_ranking = [
