@@ -33,6 +33,7 @@ class RaR(Subspacing):
         weight_approach = kwargs.get("weight_approach", "alpha")
         eval_method = kwargs.get("eval_method", "rar")
         regularization = kwargs.get("regularization", 1)
+        nullity_corr_boost = kwargs.get("nullity_corr_boost", 0.1)
         approach = kwargs.get("approach", "deletion")
         create_category = kwargs.get("create_category", False)
         active_sampling = kwargs.get("active_sampling", True)
@@ -55,6 +56,7 @@ class RaR(Subspacing):
             "weight_approach": weight_approach,
             "eval_method": eval_method,
             "regularization": regularization,
+            "nullity_corr_boost": nullity_corr_boost,
             "approach": approach,
             "create_category": create_category,
             "active_sampling": active_sampling,
@@ -244,6 +246,10 @@ class RaR(Subspacing):
         # combine relevances with redundancies as done by tom or arvind
         if self.params["redundancy_approach"] == "tom":
             redundancies = sort_redundancies_by_target(knowledgebase)
-            return get_ranking_tom(relevances, redundancies, self.names)
+            return get_ranking_tom(relevances, redundancies, self.names,
+                                   self.nan_correlation,
+                                   self.params["nullity_corr_boost"])
 
-        return get_ranking_arvind(self.hics, relevances, self.names, n_targets)
+        return get_ranking_arvind(self.hics, relevances, self.names, n_targets,
+                                  self.nan_correlation,
+                                  self.params["nullity_corr_boost"])
