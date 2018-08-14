@@ -1,7 +1,7 @@
 import gurobipy as gb
 
 
-def deduce_relevances(features, knowledgebase):
+def deduce_relevances(features, knowledgebase, regularization=1):
     gb.setParam('OutputFlag', 0)
     m = gb.Model('rar')
 
@@ -14,8 +14,8 @@ def deduce_relevances(features, knowledgebase):
     vars_sum = sum(solver_variables.values())
 
     m.setObjective(
-        vars_sum + _squared_dist(solver_variables.values(), vars_average),
-        gb.GRB.MINIMIZE)
+        vars_sum + regularization * _squared_dist(
+            solver_variables.values(), vars_average), gb.GRB.MINIMIZE)
 
     m.addConstr(vars_average == (vars_sum / len(features)))
 

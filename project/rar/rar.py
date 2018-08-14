@@ -32,6 +32,7 @@ class RaR(Subspacing):
         weight = kwargs.get("weight", 1)
         weight_approach = kwargs.get("weight_approach", "alpha")
         eval_method = kwargs.get("eval_method", "rar")
+        regularization = kwargs.get("regularization", 1)
         approach = kwargs.get("approach", "deletion")
         create_category = kwargs.get("create_category", False)
         active_sampling = kwargs.get("active_sampling", True)
@@ -53,6 +54,7 @@ class RaR(Subspacing):
             "weight": weight,
             "weight_approach": weight_approach,
             "eval_method": eval_method,
+            "regularization": regularization,
             "approach": approach,
             "create_category": create_category,
             "active_sampling": active_sampling,
@@ -218,9 +220,11 @@ class RaR(Subspacing):
                     results.append({"features": [key], "score": res})
 
             kb = knowledgebase + results
-            relevances = deduce_relevances(self.names, kb)
+            reg = self.params["regularization"]
+            relevances = deduce_relevances(self.names, kb, reg)
         else:
-            relevances = deduce_relevances(self.names, knowledgebase)
+            reg = self.params["regularization"]
+            relevances = deduce_relevances(self.names, knowledgebase, reg)
 
         if self.params["boost"] > 0:
             for key, value in relevances.items():
