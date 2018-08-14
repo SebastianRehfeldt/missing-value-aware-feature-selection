@@ -1,25 +1,22 @@
 # %%
+from copy import deepcopy
 from project.utils.data import DataGenerator
-from project.utils.plots import plot_nan_correlation
+from project.utils.plots import plot_nan_correlation, plot_nans_by_class
+from project.utils.data_modifier import introduce_missing_values
 from experiments.metrics import calc_ndcg
 
 gen = DataGenerator(None, n_informative_missing=2, missing_rate=0)
 data, rel = gen.create_dataset()
+data = introduce_missing_values(data, 0.5, "correlated")
 """
 print(gen.clusters)
 print(gen.informative_missing)
 print(rel.sort_values(ascending=False))
+
+
+
 """
-
-# %%
-from copy import deepcopy
-from project.utils.data_modifier import introduce_missing_values
-
-data2 = deepcopy(data)
-data2 = introduce_missing_values(data, 0.5, "correlated")
-
-# %%
-plot_nan_correlation(data2)
+plot_nan_correlation(data)
 
 # %%
 from project.rar.rar import RaR
@@ -30,8 +27,7 @@ rar = RaR(
     data.shape,
     approach="deletion",
     redundancy_approach="tom",
-    active_sampling=True,
-    boost=0.1,
+    n_subspaces=5000,
 )
 rar.fit(data.X, data.y)
 ranking = rar.get_ranking()
