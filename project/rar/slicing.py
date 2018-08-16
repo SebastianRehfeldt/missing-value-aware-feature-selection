@@ -58,24 +58,18 @@ def get_numerical_slices(X, cache, col, **options):
         idx = indices[start:end]
         if options["weight_approach"] == "new":
             min_val, max_val = X[indices[start]], X[indices[end]]
-            X_complete = options["X_complete"].values[:, col]
-            noise = np.random.normal(0, 0.1, len(X_complete))
-            X_complete += np.clip(noise, -0.2, 0.2)
-
-            X_inside = np.logical_and(X_complete >= min_val - 0.1,
-                                      X_complete <= max_val + 0.1)
-            nans_inside = np.logical_and(X_inside, nans)
-            n_nans_inside = nans_inside.sum()
-
+            center_val = (min_val + max_val) / 2
             weight_nans = options["n_select"] - n_select
-            print(weight_nans, n_nans_inside)
-            if n_nans_inside > weight_nans:
-                # TODO: sample?
-                weight = weight_nans / n_nans_inside
-                slices[i, nans_inside] = weight
-                print(weight)
-            else:
-                print(1 / 0)
+
+            X_complete = options["X_complete"].values[:, col]
+            noise = np.random.normal(0, 0.2, len(X_complete))
+            X_complete += np.clip(noise, -0.5, 0.5)
+            X_dist = np.abs(X_complete - center_val)
+            X_dist[~nans] = np.inf
+
+            a = 2
+            bla = np.argpartition(X_dist, weight_nans * a)[:weight_nans * a]
+            slices[i, bla] = 1 / a
 
         slices[i, idx] = True
         if options["weight_approach"] == "probabilistic":
