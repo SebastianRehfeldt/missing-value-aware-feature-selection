@@ -68,7 +68,7 @@ class Subspacing(Selector):
         p = None
         if self.params.get("active_sampling", False):
             p = self.missing_rates.values * 2 + 1
-            p += self.nan_correlation.mean().values * 5
+            p += (1 - self.nan_correlation.mean().values) * 5
             p /= np.sum(p)
 
         max_retries = 3
@@ -80,6 +80,8 @@ class Subspacing(Selector):
                 f = sorted(f)
                 found_new = f not in subspaces
                 retries += 1
+                if dimensions[i] == 1 and retries > 2:
+                    dimensions[i] = np.random.randint(2, upper + 1, 1)[0]
             subspaces[i] = f
 
         subspaces.sort(key=len)
