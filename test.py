@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from time import time
 from copy import deepcopy
+from pprint import pprint
 
 from project.rar.rar import RaR
 from project.utils.data import DataGenerator
@@ -16,6 +17,28 @@ data = data_loader.load_data(name, "arff")
 data = scale_data(data)
 print(data.shape, flush=True)
 
+imputer = Imputer(data.f_types, strategy="mice")
+data = introduce_missing_values(data, 0.8, seed=42)
+d = deepcopy(data)
+#d = imputer.complete(data)
+
+# %%
+rar = RaR(
+    d.f_types,
+    d.l_type,
+    d.shape,
+    approach="fuzzy",
+    weight_approach="new",
+    boost=0,
+    nullity_corr_boost=0,
+    active_sampling=False,
+)
+rar.fit(d.X, d.y)
+ranking = [k for k, v in rar.get_ranking() if v > 1e-4]
+print(calc_ndcg(relevance_vector, ranking, True))
+pprint(rar.get_ranking())
+
+# %%
 gold_ranking = [
     ('a05', 0.43040407748046167), ('a06', 0.41160532164225955),
     ('a29', 0.3919975515222594), ('a33', 0.39007589467758935),
@@ -75,7 +98,7 @@ for j, mr in enumerate(missing_rates):
         if is_synthetic:
             generator.set_seed(seeds[i])
             data_orig, relevance_vector = generator.create_dataset()
-            imputer = Imputer(data_orig.f_types, strategy="knn")
+            imputer = Imputer(data_orig.f_types, strategy="mice")
 
         data_copy = deepcopy(data_orig)
         data_copy = introduce_missing_values(data_copy, mr, seed=seeds[i])
@@ -87,7 +110,10 @@ for j, mr in enumerate(missing_rates):
             data_copy.l_type,
             data_copy.shape,
             approach="fuzzy",
+            weight_approach="new",
             random_state=seeds[j],
+            boost=0,
+            active_sampling=True,
         )
 
         rar.fit(data_copy.X, data_copy.y)
@@ -107,6 +133,9 @@ rar_results["STD"] = stds
 rar_results["SUM"] = sums
 rar_results = rar_results.T
 rar_results.T
+# %%
+relevance_vector
+rar.hics.evaluate_subspace(["f1"])
 
 # %%
 k = 4

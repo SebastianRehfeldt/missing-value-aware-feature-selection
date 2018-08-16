@@ -8,7 +8,7 @@ def get_slices(X, types, cache, **options):
         slices[i] = {
             "nominal": get_categorical_slices,
             "numeric": get_numerical_slices
-        }[types[col]](X[col].values, cache, **options)
+        }[types[col]](X[col].values, cache, i, **options)
 
     return combine_slices(slices)
 
@@ -19,7 +19,6 @@ def combine_slices(slices):
     return np.multiply.reduce(slices, 0, dtype=slices[0].dtype)
 
 
-# TODO: min_samples should differ between approaches
 def prune_slices(slices, min_samples=3):
     sums = np.sum(slices, axis=1, dtype=float)
     indices = sums > min_samples
@@ -28,7 +27,7 @@ def prune_slices(slices, min_samples=3):
     return slices, sums
 
 
-def get_numerical_slices(X, cache, **options):
+def get_numerical_slices(X, cache, col, **options):
     n_iterations, n_select = options["n_iterations"], options["n_select"]
 
     indices = cache["indices"] if cache is not None else np.argsort(X)
@@ -57,6 +56,27 @@ def get_numerical_slices(X, cache, **options):
     for i, start in enumerate(start_positions):
         end = min(start + n_select, non_nan_count - 1)
         idx = indices[start:end]
+        if options["weight_approach"] == "new":
+            min_val, max_val = X[indices[start]], X[indices[end]]
+            X_complete = options["X_complete"].values[:, col]
+            noise = np.random.normal(0, 0.1, len(X_complete))
+            X_complete += np.clip(noise, -0.2, 0.2)
+
+            X_inside = np.logical_and(X_complete >= min_val - 0.1,
+                                      X_complete <= max_val + 0.1)
+            nans_inside = np.logical_and(X_inside, nans)
+            n_nans_inside = nans_inside.sum()
+
+            weight_nans = options["n_select"] - n_select
+            print(weight_nans, n_nans_inside)
+            if n_nans_inside > weight_nans:
+                # TODO: sample?
+                weight = weight_nans / n_nans_inside
+                slices[i, nans_inside] = weight
+                print(weight)
+            else:
+                print(1 / 0)
+
         slices[i, idx] = True
         if options["weight_approach"] == "probabilistic":
             min_val, max_val = X[indices[start]], X[indices[end]]
@@ -70,7 +90,7 @@ def get_numerical_slices(X, cache, **options):
 
     if options["approach"] == "partial" and not options["boost"]:
         slices[:, nans] = True
-    if options["approach"] == "fuzzy":
+    if options["approach"] == "fuzzy" and not options["weight_approach"] == "new":
         factor = options["weight"]**(1 / options["d"])
         if options["weight_approach"] == "probabilistic":
             slices[:, nans] = probs * factor

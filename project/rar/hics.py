@@ -15,6 +15,12 @@ class HICS():
         self._init_slice_options()
         self._cache_label()
 
+        if self.params["weight_approach"] == "new":
+            from project.utils.imputer import Imputer
+
+            imputer = Imputer(self.data.f_types, "mice")
+            self.X_complete = imputer._complete(self.data.X)
+
         if not self.params["approach"] == "imputation" and self.params["cache_enabled"]:
             self._init_slice_cache()
             self._fill_slice_cache()
@@ -86,6 +92,8 @@ class HICS():
         options["alpha"] = self.alphas_d[X.shape[1]]
         options["d"] = d or X.shape[1]
         options["boost"] = b
+        if self.params["weight_approach"] == "new":
+            options["X_complete"] = self.X_complete[X.columns]
         return get_slices(X, types, cache, **options)
 
     def get_cached_slices(self, subspace, use_cache=True):
@@ -103,8 +111,8 @@ class HICS():
         if self.params["approach"] in ["partial", "fuzzy"]:
             max_nans = int(np.floor(dim / 2))
             if self.params["approach"] == "fuzzy":
-                min_samples = 0
-                max_nans = dim - 1
+                #min_samples = 0
+                max_nans = dim
 
             nan_sums = np.sum(self.nans[subspace].values, axis=1)
             slices[:, nan_sums > max_nans] = False
