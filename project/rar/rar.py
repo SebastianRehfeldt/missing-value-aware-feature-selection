@@ -114,8 +114,5 @@ class RaR(RaRParams, RaRUtils):
 
         self._boost_values()
         if self.params["n_targets"] == 0:
-            self.get_sorted_relevances()
-
-        if self.params["redundancy_approach"] == "tom":
-            return self.get_ranking_tom(knowledgebase)
-        return self.get_ranking_arvind()
+            return self.get_sorted_relevances()
+        return self.get_final_ranking(knowledgebase)
