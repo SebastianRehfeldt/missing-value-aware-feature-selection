@@ -52,7 +52,7 @@ def _deduce_redundancy(samples, selected_features):
     return max_red
 
 
-def get_ranking_tom(relevances, redundancies, names, nan_correlation, a):
+def get_ranking_tom(relevances, redundancies, names, nan_corr, a):
     best = sorted(relevances.items(), key=lambda k_v: k_v[1], reverse=True)[0]
 
     ranking = {}
@@ -70,7 +70,7 @@ def get_ranking_tom(relevances, redundancies, names, nan_correlation, a):
         for f in open_features:
             red = _deduce_redundancy(redundancies[f], selected)
             score = _combine_scores(relevances[f], red)
-            corr = nan_correlation.loc[selected, f].max()
+            corr = nan_corr.loc[selected, f].max()
             score = (1 - a) * score + a * corr
             if score >= best_score:
                 best_score, best_feature = deepcopy(score), deepcopy(f)
@@ -92,7 +92,7 @@ def create_subspace(best_feature, selected):
     return subspace
 
 
-def get_ranking_arvind(hics, relevances, names, n_targets, nan_correlation, a):
+def get_ranking_arvind(hics, relevances, names, n_targets, nan_corr, a):
     best = sorted(relevances.items(), key=lambda k_v: k_v[1], reverse=True)[0]
     best_feature = best[0]
 
@@ -139,7 +139,7 @@ def get_ranking_arvind(hics, relevances, names, n_targets, nan_correlation, a):
             for i, f in enumerate(open_features)
         ])
 
-        corr = nan_correlation.loc[selected, open_features].max()
+        corr = nan_corr.loc[selected, open_features].max()
         combined_scores = (1 - a) * combined_scores + a * corr.values
 
         best_index = np.argmax(combined_scores)

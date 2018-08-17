@@ -11,105 +11,120 @@ class RaR(RaRParams):
         self.hics = None
         self.interactions = []
 
-    def _evaluate_subspace(self, subspace):
+    def _get_p_target(self, open_features, subspace):
+        p = None
+        if self.params["active_sampling"]:
+            p = np.ones(len(open_features))
+            if self.params.get("active_sampling_rel", False):
+                p += self.scores_1d[open_features].values * 5
+
+            if self.params.get("active_sampling_corr", False):
+                corr = self.nan_corr.loc[subspace, open_features].min()
+                p += (1 - corr) * 5
+            p /= np.sum(p)
+        return p
+
+    def _get_targets(self, subspace):
         targets = []
         if self.params["redundancy_approach"] == "tom":
             open_features = [n for n in self.names if n not in subspace]
             n_targets = min(len(open_features), self.params["n_targets"])
-
-            p = None
-            if self.params["active_sampling"]:
-                corr = self.nan_correlation.loc[subspace, open_features].min()
-                p = self.scores_1d[open_features].values * 5 + 1
-                p += (1 - corr) * 5
-                p /= np.sum(p)
+            p = self._get_p_target(open_features, subspace)
             targets = np.random.choice(open_features, n_targets, False, p)
+        return targets
 
-        results = self.hics.evaluate_subspace(subspace, targets)
-        rel, red_s, is_empty, deviation = results
+    def _evaluate_subspace(self, subspace):
+        targets = self._get_targets(subspace)
+        rel, red_s, is_empty = self.hics.evaluate_subspace(subspace, targets)
 
-        if len(subspace) == 1 and self.params["active_sampling"]:
+        if is_empty:
+            rel, red_s, targets = (0, [], [])
+
+        if len(subspace) == 1 and self.params["active_sampling_rel"]:
             if rel > self.scores_1d[subspace[0]]:
                 self.scores_1d[subspace[0]] = rel
 
-        if is_empty:
-            rel, red_s, targets, deviation = 0, [], [], 0
-
         return {
             "relevance": rel,
-            "deviation": deviation,
             "redundancies": red_s,
             "targets": targets,
         }
 
-    def _deduce_feature_importances(self, knowledgebase):
-        """
-        Deduce single feature importances based on subspace results
+    def _boost_values(self):
+        alpha = self.params["boost_value"]
+        if alpha > 0:
+            for key, value in self.relevances.items():
+                boost = self.hics.get_boost(key)[0]
+                self.relevances[key] = (1 - alpha) * value + alpha * boost
 
-        Arguments:
-            knowledgebase {list} -- List of subspace results
-        """
+    def _get_best_subsets(self):
+        sets = [d for d in self.score_map if len(d['features']) > 1]
+        n_subsets = int(0.1 * self.params["n_subspaces"])
+        n = max(20, min(100, n_subsets))
+        return sorted(sets, key=lambda k: k["score"]["relevance"])[-n:]
+
+    def _create_result(self, key):
+        return {
+            "features": [key],
+            "score": {
+                "relevance": self.scores_1d[key],
+                "redundancies": [0],
+                "targets": [],
+            }
+        }
+
+    def _collect_last_open(self, open_fs):
+        results = []
+        for key in open_fs:
+            res = self._evaluate_subspace([key])
+            self.scores_1d[key] = res["relevance"]
+            results.append({"features": [key], "score": res})
+        return results
+
+    def _collect_iteractions(self, d):
+        results, features = [], d["features"]
+        if self.params["boost_inter"] > 0:
+            cum_rel = np.sum(self.scores_1d[features])
+            if 1.5 * cum_rel <= d["score"]["relevance"]:
+                self.interactions.append(features)
+                d["score"]["relevance"] *= np.sqrt(len(features))
+                results.append(d)
+        return results
+
+    def _collect_active_samples(self):
+        results = []
         if self.params["active_sampling"]:
-            results = []
-            open_fs = set(self.scores_1d.index[(self.scores_1d == 0).values])
+            open_fs = self.scores_1d.index[(self.scores_1d == 0).values]
 
-            m = [d for d in self.score_map if len(d['features']) > 1]
-            n = int(0.1 * self.params["n_subspaces"])
-            n = max(20, min(100, n))
-            m = sorted(
-                m, key=lambda k: k["score"]["relevance"], reverse=True)[:n]
+            for d in self._get_best_subsets():
+                intersection = set(open_fs).intersection(set(d["features"]))
 
-            for d in m:
-                features = set(d["features"])
-                rel = d["score"]["relevance"]
-                intersection = list(open_fs.intersection(features))
-
+                # evaluate open features and add to results and 1d scores
                 for key in intersection:
                     self.scores_1d[key] = self.hics.evaluate_subspace([key])[0]
+                    results.append(self._create_result(key))
                     open_fs.remove(key)
 
-                if self.params["boost"] > 0:
-                    cum_rel = np.sum(self.scores_1d[features])
-                    if 1.5 * cum_rel <= rel:
-                        self.interactions.append(features)
-                        d["score"]["relevance"] *= np.sqrt(len(features))
-                        results.append(d)
+                # boost interactions
+                results.extend(self._collect_iteractions(d))
 
-                    for key in intersection:
-                        results.append({
-                            "features": [key],
-                            "score": {
-                                "relevance": self.scores_1d[key],
-                                "deviation": 0,
-                                "redundancies": [0],
-                                "targets": [],
-                            }
-                        })
+            # evaluate 10 or less open features (might be more)
+            results.extend(self._collect_last_open(open_fs[:10]))
+        return results
 
-            if 0 < len(open_fs) < 10:
-                for key in open_fs:
-                    res = self._evaluate_subspace([key])
-                    self.scores_1d[key] = res["relevance"]
-                    results.append({"features": [key], "score": res})
+    def _deduce_feature_importances(self, knowledgebase):
+        # apply active sampling and deduce feature relevances
+        kb = knowledgebase + self._collect_active_samples()
+        reg = self.params["regularization"]
+        self.relevances = deduce_relevances(self.names, kb, reg)
 
-            kb = knowledgebase + results
-            reg = self.params["regularization"]
-            relevances = deduce_relevances(self.names, kb, reg)
-        else:
-            reg = self.params["regularization"]
-            relevances = deduce_relevances(self.names, knowledgebase, reg)
-
-        if self.params["boost"] > 0:
-            for key, value in relevances.items():
-                alpha = self.params["boost"]
-                boost = self.hics.get_boost(key)
-                relevances[key] = (1 - alpha) * value + alpha * boost[0]
+        # boost values when they have high contrast in highest/lowest values
+        self._boost_values()
 
         # return ranking based on relevances only
-        n_targets = self.params["n_targets"]
-        if n_targets == 0:
+        if self.params["n_targets"] == 0:
             return sorted(
-                relevances.items(),
+                self.relevances.items(),
                 key=lambda k_v: k_v[1],
                 reverse=True,
             )
@@ -117,10 +132,10 @@ class RaR(RaRParams):
         # combine relevances with redundancies as done by tom or arvind
         if self.params["redundancy_approach"] == "tom":
             redundancies = sort_redundancies_by_target(knowledgebase)
-            return get_ranking_tom(relevances, redundancies, self.names,
-                                   self.nan_correlation,
+            return get_ranking_tom(self.relevances, redundancies, self.names,
+                                   self.nan_corr,
                                    self.params["nullity_corr_boost"])
 
-        return get_ranking_arvind(self.hics, relevances, self.names, n_targets,
-                                  self.nan_correlation,
+        return get_ranking_arvind(self.hics, self.relevances, self.names,
+                                  self.params["n_targets"], self.nan_corr,
                                   self.params["nullity_corr_boost"])
