@@ -140,7 +140,7 @@ class HICS():
 
         # RETURN IF TOO FEW SLICES
         if len(slices) <= self.params["min_slices"]:
-            return 0, [], True, 0
+            return 0, [], True
 
         # COMPUTE RELEVANCE AND REDUNDANCIES
         rels, deviations = self.get_relevance(slices, lengths)
