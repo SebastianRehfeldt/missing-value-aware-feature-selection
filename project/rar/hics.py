@@ -18,7 +18,8 @@ class HICS():
         if self.params["weight_approach"] == "new":
             from project.utils.imputer import Imputer
 
-            imputer = Imputer(self.data.f_types, "mice")
+            strategy = self.params["imputation_method"]
+            imputer = Imputer(self.data.f_types, strategy)
             self.X_complete = imputer._complete(self.data.X)
 
         if not self.params["approach"] == "imputation" and self.params["cache_enabled"]:
@@ -111,8 +112,9 @@ class HICS():
         if self.params["approach"] in ["partial", "fuzzy"]:
             max_nans = int(np.floor(dim / 2))
             if self.params["approach"] == "fuzzy":
-                #min_samples = 0
+                # min_samples = 0
                 max_nans = dim
+                #max_nans = dim - 1
 
             nan_sums = np.sum(self.nans[subspace].values, axis=1)
             slices[:, nan_sums > max_nans] = False

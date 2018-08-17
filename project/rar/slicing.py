@@ -57,19 +57,51 @@ def get_numerical_slices(X, cache, col, **options):
         end = min(start + n_select, non_nan_count - 1)
         idx = indices[start:end]
         if options["weight_approach"] == "new":
-            min_val, max_val = X[indices[start]], X[indices[end]]
-            center_val = (min_val + max_val) / 2
             weight_nans = options["n_select"] - n_select
+            #weight_nans = min(weight_nans, n_select)
 
-            X_complete = options["X_complete"].values[:, col]
-            noise = np.random.normal(0, 0.2, len(X_complete))
-            X_complete += np.clip(noise, -0.5, 0.5)
+            min_val, max_val = X[indices[start]], X[indices[end]]
+            radius = min(0.25, max(0.05, (max_val - min_val) / 2))
+            center_val = (min_val + max_val) / 2
+            #center_val = np.median(X[indices[start]:indices[end]])
+
+            n_dev = 0.01
+            dev = 0.1
+            X_complete = options["X_complete"].values[nans, col]
+            noise = np.random.normal(0, n_dev, len(X_complete))
+            #X_complete += np.clip(noise, -dev, dev)
             X_dist = np.abs(X_complete - center_val)
-            X_dist[~nans] = np.inf
 
-            a = 2
-            bla = np.argpartition(X_dist, weight_nans * a)[:weight_nans * a]
-            slices[i, bla] = 1 / a
+            try:
+                # TODO: distribute more equally and less weight to nans
+                a = 1
+                n = len(X_dist[X_dist <= radius])
+                a = 2 if weight_nans * 2 <= n else 1
+
+                # we need to select less than we have (we can pick the top or distribute equally)
+                if weight_nans * a <= n:
+                    m = weight_nans
+                    bla = np.argpartition(X_dist, m)[:m]
+                    nan_values = np.zeros(nan_count)
+                    nan_values[bla] = 1
+                    slices[i, nans] = nan_values
+                else:
+                    m = n
+                    w = min(1, ((weight_nans - n) / (nan_count - n)))
+                    slices[i, nans] = w
+
+                    bla = np.argpartition(X_dist, m)[:m]
+                    nan_values = np.zeros(nan_count)
+                    nan_values[bla] = 1
+                    slices[i, nans] = nan_values
+
+            except:
+                print("EXCEPT")
+                print(m)
+                print(X_dist, len(X_dist))
+                print(max_val - min_val)
+                print(options["n_select"], n_select, nan_count)
+                print(1 / 0)
 
         slices[i, idx] = True
         if options["weight_approach"] == "probabilistic":

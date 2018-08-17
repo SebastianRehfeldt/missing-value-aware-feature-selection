@@ -12,23 +12,11 @@ from project.base import Selector
 class Subspacing(Selector):
     @abstractmethod
     def _evaluate_subspace(self, subspace):
-        """
-        Evaluate a feature subspace and return results as dict
-
-        Arguments:
-            subspace {list(str)} -- List containing the selected feature names
-        """
         raise NotImplementedError(
             "subclasses must implement _evaluate_subspace")
 
     @abstractmethod
     def _deduce_feature_importances(self, score_map):
-        """
-        Deduce feature importances from subset evaluations
-
-        Arguments:
-            score_map {list} -- List of subspace evaluations
-        """
         raise NotImplementedError(
             "subclasses must implement _deduce_feature_importances")
 
@@ -50,39 +38,45 @@ class Subspacing(Selector):
 
     def _fit(self):
         subspaces = self._get_unique_subscapes()
-        score_map = self._evaluate_subspaces(subspaces)
-        self.score_map = score_map
-        importances = self._deduce_feature_importances(score_map)
-        self.feature_importances.update(importances)
+        self.score_map = self._evaluate_subspaces(subspaces)
+        scores = self._deduce_feature_importances(self.score_map)
+        self.feature_importances.update(scores)
+
+    def _get_p(self):
+        p = None
+        if self.params.get("active_sampling", False):
+            p = np.ones(self.data.shape[1])
+
+            if self.params.get("active_sampling_mr", False):
+                p += self.missing_rates.values * 2
+
+            if self.params.get("active_sampling_corr", False):
+                p += (1 - self.nan_correlation.mean().values) * 5
+
+            p /= np.sum(p)
+        return p
+
+    def _get_next(self, dim, p, subspaces, upper):
+        found_new, retries = False, 0
+        while not found_new and retries < 3:
+            f = sorted(np.random.choice(self.names, dim, False, p))
+            found_new = f not in subspaces
+            retries += 1
+            if dim == 1 and retries > 2:
+                dim = np.random.randint(2, upper + 1, 1)[0]
+        return f
 
     def _get_unique_subscapes(self):
-        """
-        Return unique feature subspaces
-        """
         size = self.params["subspace_size"]
         lower, upper = size if isinstance(size, tuple) else (1, size)
 
         n_subspaces = self.params["n_subspaces"]
         subspaces = [None] * n_subspaces
 
-        p = None
-        if self.params.get("active_sampling", False):
-            p = self.missing_rates.values * 2 + 1
-            p += (1 - self.nan_correlation.mean().values) * 5
-            p /= np.sum(p)
-
-        max_retries = 3
-        dimensions = np.random.randint(lower, upper + 1, n_subspaces)
+        p = self._get_p()
+        dims = np.random.randint(lower, upper + 1, n_subspaces)
         for i in range(n_subspaces):
-            found_new, retries = False, 0
-            while not found_new and retries < max_retries:
-                f = np.random.choice(self.names, dimensions[i], False, p=p)
-                f = sorted(f)
-                found_new = f not in subspaces
-                retries += 1
-                if dimensions[i] == 1 and retries > 2:
-                    dimensions[i] = np.random.randint(2, upper + 1, 1)[0]
-            subspaces[i] = f
+            subspaces[i] = self._get_next(dims[i], p, subspaces, upper)
 
         subspaces.sort(key=len)
         return subspaces
@@ -98,12 +92,6 @@ class Subspacing(Selector):
         return [l[i:i + n] for i in range(0, len(l), n)]
 
     def _evaluate_subspaces(self, subspaces):
-        """
-        Collect and return subset evaluations
-
-        Arguments:
-            subspaces {list} -- List of feature subspaces
-        """
         n_jobs = self.params["n_jobs"]
         if n_jobs == 1:
             return self._evaluate(subspaces)
