@@ -32,6 +32,7 @@ rar = RaR(
     boost=0.1,
     nullity_corr_boost=0.1,
     active_sampling=True,
+    redundancy_approach="tom",
     n_subspaces=50,
 )
 rar.fit(d.X, d.y)
