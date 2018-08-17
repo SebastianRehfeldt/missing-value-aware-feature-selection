@@ -3,14 +3,7 @@ from cython.parallel import parallel, prange
 cimport numpy as np
 import numpy as np
 
-def calculate_contrasts(cache):
-    return {
-        "numeric": _calculate_contrasts_ks,
-        "nominal": _calculate_contrasts_kld
-    }[cache["type"]](cache)
-
-
-def _calculate_contrasts_ks(cache):
+def calculate_ks_contrast(cache):
     cdef int n = len(cache["slices"]) 
     cdef int i = 0
 
@@ -46,22 +39,5 @@ cdef public double _calculate_max_dist(double[:] m, np.float_t[:] slice_, double
                 distance *= -1
             if distance > max_dist:
                 max_dist = distance
-    if max_dist > 1:
-        return 1
     return max_dist
     
-def _calculate_contrasts_kld(cache):
-    counts = cache["counts"]
-    slices = cache["slices"]
-
-    probs = counts / len(cache["sorted"])
-    cdfs = np.zeros((len(slices), len(probs)))
-
-    p = 0
-    for i, count in enumerate(counts):
-        cdfs[:, i] = np.sum(slices[:, p:p + count], axis=1)
-        p += count
-
-    cdfs += 1e-8
-    cdfs /= np.sum(cdfs, axis=1)[:, None]
-    return np.sum(cdfs * np.log2(cdfs / probs), axis=1)

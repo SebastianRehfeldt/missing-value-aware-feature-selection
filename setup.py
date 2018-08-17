@@ -8,7 +8,7 @@ setup(
 )
 
 setup(
-    name="calculate_contrast",
-    ext_modules=cythonize("project/rar/contrast.pyx"),
+    name="calculate_ks_contrast",
+    ext_modules=cythonize("project/rar/ks_test.pyx"),
     include_dirs=[numpy.get_include()],
 )
