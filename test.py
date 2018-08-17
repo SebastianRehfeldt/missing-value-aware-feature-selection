@@ -29,10 +29,11 @@ rar = RaR(
     d.shape,
     approach="deletion",
     #weight_approach="new",
-    boost_value=0.2,
+    boost_value=0.1,
     boost_corr=0.1,
     active_sampling=True,
     redundancy_approach="arvind",
+    n_subspaces=100,
 )
 rar.fit(d.X, d.y)
 ranking = [k for k, v in rar.get_ranking() if v > 1e-4]
