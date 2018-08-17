@@ -1,17 +1,16 @@
 import numpy as np
 from .rar_params import RaRParams
+from .rar_utils import RaRUtils
 from .optimizer import deduce_relevances
-from .rar_utils import sort_redundancies_by_target
-from .rar_utils import get_ranking_arvind, get_ranking_tom
 
 
-class RaR(RaRParams):
+class RaR(RaRParams, RaRUtils):
     def _init_parameters(self, **kwargs):
         super()._init_parameters(**kwargs)
         self.hics = None
         self.interactions = []
 
-    def _get_p_target(self, open_features, subspace):
+    def _get_p_for_target(self, open_features, subspace):
         p = None
         if self.params["active_sampling"]:
             p = np.ones(len(open_features))
@@ -29,7 +28,7 @@ class RaR(RaRParams):
         if self.params["redundancy_approach"] == "tom":
             open_features = [n for n in self.names if n not in subspace]
             n_targets = min(len(open_features), self.params["n_targets"])
-            p = self._get_p_target(open_features, subspace)
+            p = self._get_p_for_target(open_features, subspace)
             targets = np.random.choice(open_features, n_targets, False, p)
         return targets
 
@@ -94,21 +93,16 @@ class RaR(RaRParams):
     def _collect_active_samples(self):
         results = []
         if self.params["active_sampling"]:
-            open_fs = self.scores_1d.index[(self.scores_1d == 0).values]
-
+            open_fs = list(self.scores_1d.index[(self.scores_1d == 0).values])
             for d in self._get_best_subsets():
-                intersection = set(open_fs).intersection(set(d["features"]))
-
                 # evaluate open features and add to results and 1d scores
+                intersection = set(open_fs).intersection(set(d["features"]))
                 for key in intersection:
                     self.scores_1d[key] = self.hics.evaluate_subspace([key])[0]
                     results.append(self._create_result(key))
                     open_fs.remove(key)
 
-                # boost interactions
                 results.extend(self._collect_iteractions(d))
-
-            # evaluate 10 or less open features (might be more)
             results.extend(self._collect_last_open(open_fs[:10]))
         return results
 
@@ -118,24 +112,10 @@ class RaR(RaRParams):
         reg = self.params["regularization"]
         self.relevances = deduce_relevances(self.names, kb, reg)
 
-        # boost values when they have high contrast in highest/lowest values
         self._boost_values()
-
-        # return ranking based on relevances only
         if self.params["n_targets"] == 0:
-            return sorted(
-                self.relevances.items(),
-                key=lambda k_v: k_v[1],
-                reverse=True,
-            )
+            self.get_sorted_relevances()
 
-        # combine relevances with redundancies as done by tom or arvind
         if self.params["redundancy_approach"] == "tom":
-            redundancies = sort_redundancies_by_target(knowledgebase)
-            return get_ranking_tom(self.relevances, redundancies, self.names,
-                                   self.nan_corr,
-                                   self.params["nullity_corr_boost"])
-
-        return get_ranking_arvind(self.hics, self.relevances, self.names,
-                                  self.params["n_targets"], self.nan_corr,
-                                  self.params["nullity_corr_boost"])
+            return self.get_ranking_tom(knowledgebase)
+        return self.get_ranking_arvind()
