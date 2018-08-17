@@ -157,7 +157,7 @@ class HICS():
             rels = np.mean(resamples)
 
         reds = self.get_redundancies(slices, lengths, targets, T)
-        return rels, reds, False, deviations
+        return rels, reds, False
 
     def get_relevance(self, slices, lengths):
         y = self.data.y

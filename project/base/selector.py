@@ -87,9 +87,9 @@ class Selector(ABC):
                 nominal_nans = (self.data.X == "?")
                 self.nans = np.logical_or(self.nans, nominal_nans)
 
-            self.nan_correlation = self.nans.corr()
-            self.nan_correlation.fillna(0, inplace=True)
-            self.nan_correlation = 1 - (1 + self.nan_correlation) / 2
+            self.nan_corr = self.nans.corr()
+            self.nan_corr.fillna(0, inplace=True)
+            self.nan_corr = 1 - (1 + self.nan_corr) / 2
             self.missing_rates = self.nans.sum() / self.data.shape[0]
             self.scores_1d = pd.Series(
                 np.zeros(len(self.names)),
@@ -133,7 +133,8 @@ class Selector(ABC):
         return sorted(
             self.feature_importances.items(),
             key=lambda k_v: k_v[1],
-            reverse=True)
+            reverse=True,
+        )
 
     def get_selected_features(self, k=None):
         k = k or self.params["k"]

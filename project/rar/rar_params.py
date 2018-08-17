@@ -12,7 +12,8 @@ class RaRParams(Subspacing):
         # TODO: create RaR Params class and config
         alpha = kwargs.get("alpha", self._get_alpha())
         beta = kwargs.get("beta", 0.01)
-        boost = kwargs.get("boost", 0.1)
+        boost_value = kwargs.get("boost_value", 0.1)
+        boost_inter = kwargs.get("boost_inter", 0.1)
         n_targets = kwargs.get("n_targets", 1)
         weight = kwargs.get("weight", 1)
         weight_approach = kwargs.get("weight_approach", "alpha")
@@ -24,6 +25,7 @@ class RaRParams(Subspacing):
         active_sampling = kwargs.get("active_sampling", True)
         active_sampling_mr = kwargs.get("active_sampling_mr", True)
         active_sampling_corr = kwargs.get("active_sampling_corr", True)
+        active_sampling_rel = kwargs.get("active_sampling_rel", True)
         min_slices = kwargs.get("min_slices", 30)
         min_samples = kwargs.get("min_samples", 5)
         resamples = kwargs.get("resamples", 5)
@@ -37,7 +39,8 @@ class RaRParams(Subspacing):
         self.params.update({
             "alpha": alpha,
             "beta": beta,
-            "boost": boost,
+            "boost_value": boost_value,
+            "boost_inter": boost_inter,
             "n_targets": n_targets,
             "weight": weight,
             "weight_approach": weight_approach,
@@ -49,6 +52,7 @@ class RaRParams(Subspacing):
             "active_sampling": active_sampling,
             "active_sampling_mr": active_sampling_mr,
             "active_sampling_corr": active_sampling_corr,
+            "active_sampling_rel": active_sampling_rel,
             "min_slices": min_slices,
             "min_samples": min_samples,
             "resamples": resamples,

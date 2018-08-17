@@ -46,13 +46,11 @@ class Subspacing(Selector):
         p = None
         if self.params.get("active_sampling", False):
             p = np.ones(self.data.shape[1])
-
             if self.params.get("active_sampling_mr", False):
                 p += self.missing_rates.values * 2
 
             if self.params.get("active_sampling_corr", False):
-                p += (1 - self.nan_correlation.mean().values) * 5
-
+                p += (1 - self.nan_corr.mean().values) * 5
             p /= np.sum(p)
         return p
 
