@@ -17,26 +17,32 @@ data = data_loader.load_data(name, "arff")
 data = scale_data(data)
 print(data.shape, flush=True)
 
-imputer = Imputer(data.f_types, strategy="mice")
-data = introduce_missing_values(data, 0.8, seed=42)
-d = deepcopy(data)
+#imputer = Imputer(data.f_types, strategy="mice")
 #d = imputer.complete(data)
 
 # %%
+data = introduce_missing_values(data, 0.8)
+d = deepcopy(data)
 rar = RaR(
     d.f_types,
     d.l_type,
     d.shape,
     approach="fuzzy",
     weight_approach="new",
-    boost=0,
-    nullity_corr_boost=0,
-    active_sampling=False,
+    boost=0.1,
+    nullity_corr_boost=0.1,
+    active_sampling=True,
+    n_subspaces=50,
 )
 rar.fit(d.X, d.y)
 ranking = [k for k, v in rar.get_ranking() if v > 1e-4]
-print(calc_ndcg(relevance_vector, ranking, True))
+#print(calc_ndcg(relevance_vector, ranking, True))
+print(rar.hics.evaluate_subspace(["a05"]))
+print(rar.hics.evaluate_subspace(["a05", "a06"]))
 pprint(rar.get_ranking())
+
+# %%
+rar.get_params()
 
 # %%
 gold_ranking = [
@@ -78,11 +84,12 @@ zlst = list(zip(*gold_ranking))
 relevance_vector = pd.Series(zlst[1], index=zlst[0])
 
 # %%
-n_runs = 5
+n_runs = 3
 seeds = [42, 0, 113, 98, 234, 143, 1, 20432, 4357, 12]
+seeds = [0] * n_runs
 missing_rates = [0.1 * i for i in range(10)]
-missing_rates = [0.5]
-missing_rates = [0.2 * i for i in range(5)]
+missing_rates = [0.2]
+missing_rates = [0.2 * i for i in range(1, 5)]
 avgs = np.zeros(len(missing_rates))
 stds = np.zeros(len(missing_rates))
 sums = np.zeros(len(missing_rates))
@@ -98,29 +105,32 @@ for j, mr in enumerate(missing_rates):
         if is_synthetic:
             generator.set_seed(seeds[i])
             data_orig, relevance_vector = generator.create_dataset()
-            imputer = Imputer(data_orig.f_types, strategy="mice")
+            imputer = Imputer(data_orig.f_types, strategy="knn")
 
         data_copy = deepcopy(data_orig)
         data_copy = introduce_missing_values(data_copy, mr, seed=seeds[i])
-        # data_copy = imputer.complete(data_copy)
+        #data_copy = imputer.complete(data_copy)
 
         start = time()
         rar = RaR(
             data_copy.f_types,
             data_copy.l_type,
             data_copy.shape,
-            approach="fuzzy",
-            weight_approach="new",
-            random_state=seeds[j],
+            approach="deletion",
+            n_targets=0,
+            #weight_approach="alpha",
+            #random_state=seeds[j],
+            imputation_method="mice",
             boost=0,
             active_sampling=True,
+            min_samples=5,
         )
 
         rar.fit(data_copy.X, data_copy.y)
         # pprint(rar.get_ranking())
         # print(time() - start)
         ranking = [k for k, v in rar.get_ranking() if v > 1e-4]
-        ndcgs[i] = calc_ndcg(relevance_vector, ranking, True)
+        ndcgs[i] = calc_ndcg(relevance_vector, ranking, False)
         print(ndcgs[i])
 
     avgs[j] = np.mean(ndcgs)
@@ -134,9 +144,19 @@ rar_results["SUM"] = sums
 rar_results = rar_results.T
 rar_results.T
 # %%
-relevance_vector
 rar.hics.evaluate_subspace(["f1"])
+relevance_vector.sort_values(ascending=False)
 
+# %%
+rar.get_ranking()
+rar.interactions
+print(rar.hics.evaluate_subspace(["f7", "f8"]))
+print(rar.hics.evaluate_subspace(["f7"]))
+
+# %%
+rar.get_ranking()
+# %%
+generator.clusters
 # %%
 k = 4
 X_new = rar.transform(data_copy.X, k)
