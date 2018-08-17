@@ -21,19 +21,18 @@ print(data.shape, flush=True)
 #d = imputer.complete(data)
 
 # %%
-data = introduce_missing_values(data, 0.8)
+data = introduce_missing_values(data, 0.2)
 d = deepcopy(data)
 rar = RaR(
     d.f_types,
     d.l_type,
     d.shape,
-    approach="fuzzy",
-    weight_approach="new",
-    boost=0.1,
-    nullity_corr_boost=0.1,
+    approach="deletion",
+    #weight_approach="new",
+    boost_value=0.2,
+    boost_corr=0.1,
     active_sampling=True,
-    redundancy_approach="tom",
-    n_subspaces=50,
+    redundancy_approach="arvind",
 )
 rar.fit(d.X, d.y)
 ranking = [k for k, v in rar.get_ranking() if v > 1e-4]
