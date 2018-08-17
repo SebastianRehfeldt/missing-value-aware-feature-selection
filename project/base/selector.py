@@ -3,30 +3,17 @@
 """
 import sys
 import numpy as np
-import pandas as pd
 from abc import ABC, abstractmethod
 from project.utils import Data
 from project.utils import assert_df, assert_series, assert_l_type
-from project.rar.hics import HICS
 
 
 class Selector(ABC):
     @abstractmethod
     def _fit(self):
-        """
-        Fit data to data object
-        """
         raise NotImplementedError("subclasses must override _fit")
 
     def __init__(self, f_types, l_type, shape, **kwargs):
-        """
-        Base class for feature selection approaches
-
-        Arguments:
-            f_types {pd.Series} -- Series containing feature types
-            l_type {str} -- Type of label
-            shape {tuple} -- Tuple containing the shape of features
-        """
         self.f_types = assert_series(f_types)
         self.l_type = assert_l_type(l_type)
         self.shape = shape
@@ -36,12 +23,6 @@ class Selector(ABC):
         self.feature_importances = {name: -1 for name in self.names}
 
     def _init_parameters(self, **kwargs):
-        """
-        Initialize parameters for selector
-
-        Arguments:
-            kwargs {dict} -- Parameter dict
-        """
         self.params = {
             "knn_neighbors": kwargs.get("knn_neighbors", 3),
             "mi_neighbors": kwargs.get("mi_neighbors", 6),
@@ -54,13 +35,6 @@ class Selector(ABC):
         np.random.seed(self.params["seed"])
 
     def fit(self, X, y):
-        """
-        Fit a selector and store ranking
-
-        Keyword Arguments:
-            X {df} -- Feature matrix
-            y {pd.series} -- New label vector
-        """
         if self.is_fitted:
             print("Selector is already fitted")
             return self
@@ -76,30 +50,6 @@ class Selector(ABC):
 
         if self.params["eval_method"] == "mi":
             self.data = self.data.add_salt()
-
-        if self.params["eval_method"] == "rar":
-            self.nans = self.data.X.isnull()
-
-            if self.params["create_category"]:
-                mask = (self.data.X == "?")
-                self.data.X = self.data.X.where(~mask, other="MISSING")
-            else:
-                nominal_nans = (self.data.X == "?")
-                self.nans = np.logical_or(self.nans, nominal_nans)
-
-            self.nan_corr = self.nans.corr()
-            self.nan_corr.fillna(0, inplace=True)
-            self.nan_corr = 1 - (1 + self.nan_corr) / 2
-            self.missing_rates = self.nans.sum() / self.data.shape[0]
-            self.scores_1d = pd.Series(
-                np.zeros(len(self.names)),
-                index=self.names,
-            )
-            mr_boost = 1 + np.mean(self.missing_rates)
-            self.params["contrast_iterations"] = int(
-                self.params["contrast_iterations"] * mr_boost)
-            self.hics = HICS(self.data, self.nans, self.missing_rates,
-                             **self.params)
 
         self._fit()
         self.is_fitted = True

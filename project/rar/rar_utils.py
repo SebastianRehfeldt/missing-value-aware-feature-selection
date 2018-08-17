@@ -1,10 +1,9 @@
 import numpy as np
 from copy import deepcopy
 from collections import defaultdict
-from project.base import Subspacing
 
 
-class RaRUtils(Subspacing):
+class RaRUtils():
     def get_sorted_relevances(self):
         return sorted(
             self.relevances.items(),
@@ -120,7 +119,7 @@ class RaRUtils(Subspacing):
 
     def get_final_ranking(self, kb):
         ranking = {}
-        a = self.params["nullity_corr_boost"]
+        a = self.params["boost_corr"]
         best = self.get_sorted_relevances()[0]
         ranking[best[0]] = (1 - a) * self._combine_scores(best[1], 0) + a
 
