@@ -48,7 +48,7 @@ class HICSUtils(HICSParams):
         X_complete = imputer._complete(self.data.X[cols])
         return X_complete[subspace], X_complete[targets], types
 
-    def _create_cache(self, y, y_type, slices, lengths, cached_indices=None):
+    def _create_cache(self, y, y_type, slices, cached_indices=None):
         if cached_indices is None:
             sorted_indices = np.argsort(y.values)
         else:
@@ -57,7 +57,6 @@ class HICSUtils(HICSParams):
         sorted_y = y.values[sorted_indices]
         cache = {
             "type": y_type,
-            "lengths": lengths,
             "sorted": sorted_y,
             "slices": slices[:, sorted_indices],
         }
