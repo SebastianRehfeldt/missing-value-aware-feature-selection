@@ -9,6 +9,7 @@ class RaRParams(Subspacing):
         self._init_params(**kwargs)
         self.hics = None
         self.interactions = []
+        self.relevances = {}
 
     def _init_boosts(self):
         self.params.update({

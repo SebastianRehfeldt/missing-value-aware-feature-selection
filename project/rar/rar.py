@@ -1,40 +1,9 @@
 import numpy as np
-import pandas as pd
 from .rar_utils import RaRUtils
-from .hics import HICS
 from .optimizer import deduce_relevances
 
 
 class RaR(RaRUtils):
-    def _set_nans(self):
-        self.nans = self.data.X.isnull()
-        if self.params["create_category"]:
-            mask = (self.data.X == "?")
-            self.data.X = self.data.X.where(~mask, other="MISSING")
-        else:
-            nominal_nans = (self.data.X == "?")
-            self.nans = np.logical_or(self.nans, nominal_nans)
-
-    def _set_nan_corr(self):
-        self.nan_corr = self.nans.corr()
-        self.nan_corr.fillna(0, inplace=True)
-        self.nan_corr = 1 - (1 + self.nan_corr) / 2
-
-    def _increase_iterations(self):
-        mr_boost = 1 + np.mean(self.missing_rates)
-        n_iterations = int(self.params["contrast_iterations"] * mr_boost)
-        self.params["contrast_iterations"] = n_iterations
-
-    def _fit(self):
-        self._set_nans()
-        self._set_nan_corr()
-        self.missing_rates = self.nans.sum() / self.data.shape[0]
-        self._increase_iterations()
-        self.scores_1d = pd.Series(np.zeros(len(self.names)), index=self.names)
-        self.hics = HICS(self.data, self.nans, self.missing_rates,
-                         **self.params)
-        super()._fit()
-
     def _get_p_for_target(self, open_features, subspace):
         p = None
         if self.params["active_sampling"]:
