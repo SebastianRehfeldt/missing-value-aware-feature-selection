@@ -1,9 +1,10 @@
 import numpy as np
 from copy import deepcopy
 from collections import defaultdict
+from .rar_params import RaRParams
 
 
-class RaRUtils():
+class RaRUtils(RaRParams):
     def get_sorted_relevances(self):
         return sorted(
             self.relevances.items(),
@@ -87,8 +88,8 @@ class RaRUtils():
         reds = np.zeros((n, len(open_f)))
         for i in range(n):
             subspace = self.create_subspace(last_best, list(selected_f))
-            slices, lengths = self.hics.get_cached_slices(subspace)
-            reds[i, :] = self.hics.get_redundancies(slices, lengths, open_f)
+            slices = self.hics.get_cached_slices(subspace)
+            reds[i, :] = self.hics.get_redundancies(slices, open_f)
         return np.max(reds, axis=0)
 
     def _update_reds(self, redundancies, open_f):

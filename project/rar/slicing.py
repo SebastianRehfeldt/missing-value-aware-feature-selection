@@ -23,8 +23,8 @@ def prune_slices(slices, min_samples=3):
     sums = np.sum(slices, axis=1, dtype=float)
     indices = sums > min_samples
     if np.any(~indices):
-        return slices[indices], sums[indices]
-    return slices, sums
+        return slices[indices]
+    return slices
 
 
 def get_numerical_slices(X, cache, col, **options):

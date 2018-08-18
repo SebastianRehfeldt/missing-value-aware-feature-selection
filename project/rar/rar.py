@@ -1,12 +1,11 @@
 import numpy as np
 import pandas as pd
-from .rar_params import RaRParams
 from .rar_utils import RaRUtils
 from .hics import HICS
 from .optimizer import deduce_relevances
 
 
-class RaR(RaRParams, RaRUtils):
+class RaR(RaRUtils):
     def _set_nans(self):
         self.nans = self.data.X.isnull()
         if self.params["create_category"]:
