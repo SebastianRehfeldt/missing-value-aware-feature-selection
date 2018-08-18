@@ -7,6 +7,8 @@ class RaRParams(Subspacing):
     def _init_parameters(self, **kwargs):
         super()._init_parameters(**kwargs)
         self._init_params(**kwargs)
+        self.hics = None
+        self.interactions = []
 
     def _init_boosts(self):
         self.params.update({
