@@ -7,11 +7,6 @@ from .optimizer import deduce_relevances
 
 
 class RaR(RaRParams, RaRUtils):
-    def _init_parameters(self, **kwargs):
-        super()._init_parameters(**kwargs)
-        self.hics = None
-        self.interactions = []
-
     def _set_nans(self):
         self.nans = self.data.X.isnull()
         if self.params["create_category"]:

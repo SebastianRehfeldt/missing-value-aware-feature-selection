@@ -7,7 +7,7 @@ from pprint import pprint
 
 from project.rar.rar import RaR
 from project.utils.data import DataGenerator
-from project.utils.imputer import Imputer
+#from project.utils.imputer import Imputer
 from project.utils import DataLoader, introduce_missing_values, scale_data
 from experiments.metrics import calc_ndcg
 
@@ -33,7 +33,7 @@ rar = RaR(
     boost_corr=0.1,
     active_sampling=True,
     redundancy_approach="arvind",
-    n_subspaces=100,
+    n_subspaces=10,
 )
 rar.fit(d.X, d.y)
 ranking = [k for k, v in rar.get_ranking() if v > 1e-4]
@@ -85,12 +85,12 @@ zlst = list(zip(*gold_ranking))
 relevance_vector = pd.Series(zlst[1], index=zlst[0])
 
 # %%
-n_runs = 3
+n_runs = 1
 seeds = [42, 0, 113, 98, 234, 143, 1, 20432, 4357, 12]
 seeds = [0] * n_runs
 missing_rates = [0.1 * i for i in range(10)]
-missing_rates = [0.2]
 missing_rates = [0.2 * i for i in range(1, 5)]
+missing_rates = [0.0]
 avgs = np.zeros(len(missing_rates))
 stds = np.zeros(len(missing_rates))
 sums = np.zeros(len(missing_rates))
@@ -145,6 +145,7 @@ rar_results["SUM"] = sums
 rar_results = rar_results.T
 rar_results.T
 # %%
+print("\nRelevances:\n")
 rar.hics.evaluate_subspace(["f1"])
 relevance_vector.sort_values(ascending=False)
 
@@ -156,8 +157,20 @@ print(rar.hics.evaluate_subspace(["f7"]))
 
 # %%
 rar.get_ranking()
+
 # %%
+print("\n\nClusters:")
 generator.clusters
+
+# %%
+print("\n\nEvaluations:")
+features = [["f5"], ["f15"], ["f5", "f15"], ["f5", "f1"], ["f5", "f15", "f1"],
+            ["f1"], ["f1", "f2"]]
+
+for f in features:
+    print("Evaluated:", f)
+    print(rar.hics.evaluate_subspace(f))
+
 # %%
 k = 4
 X_new = rar.transform(data_copy.X, k)
