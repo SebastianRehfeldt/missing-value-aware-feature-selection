@@ -27,11 +27,8 @@ class HICSUtils(HICSParams):
             slices = self.get_slices(X, types)
 
         min_samples = self.params["min_samples"]
-        if self.params["approach"] in ["partial", "fuzzy"]:
+        if self.params["approach"] == "partial":
             max_nans = int(np.floor(dim / 2))
-            if self.params["approach"] == "fuzzy":
-                max_nans = dim
-
             nan_sums = np.sum(self.nans[subspace].values, axis=1)
             slices[:, nan_sums > max_nans] = False
         return prune_slices(slices, min_samples)
