@@ -29,7 +29,7 @@ rar = RaR(
     d.l_type,
     d.shape,
     approach="fuzzy",
-    weight_approach="probabilistic",
+    weight_approach="proba",
     boost_value=0.1,
     #boost_corr=0.1,
     active_sampling=True,
