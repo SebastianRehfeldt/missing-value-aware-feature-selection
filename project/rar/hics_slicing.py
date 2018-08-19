@@ -79,7 +79,7 @@ class HICSSlicing(HICSParams):
 
     def get_probs(self, min_val, max_val):
         prob = 0
-        if self.params["weight_approach"] == "probabilistic":
+        if self.params["weight_approach"] == "proba":
             prob = norm.cdf(max_val) - norm.cdf(min_val)
             prob += norm.pdf(min_val)
         return prob
@@ -96,7 +96,7 @@ class HICSSlicing(HICSParams):
             w = {
                 "new": weights,
                 "alpha": options["alpha"],
-                "probabilistic": probs,
+                "proba": probs,
             }.get(self.params["weight_approach"], options["alpha"])
             return w * factor
 
@@ -172,8 +172,8 @@ class HICSSlicing(HICSParams):
                 values = np.random.permutation(values)
                 for v in values:
                     # update probs and weights
-                    is_prob = self.params["weight_approach"] == "probabilistic"
-                    if is_prob and self.params["approach"] == "fuzzy":
+                    is_fuzzy = self.params["approach"] == "fuzzy"
+                    if is_fuzzy and self.params["weight_approach"] == "proba":
                         probs[i, :] += value_dict[v] / non_nan_sum
 
                     cumsum += value_dict[v]
