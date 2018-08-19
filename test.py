@@ -29,11 +29,11 @@ rar = RaR(
     d.l_type,
     d.shape,
     approach="fuzzy",
-    weight_approach="new",
-    #boost_value=0.1,
+    weight_approach="alpha",
+    boost_value=0.1,
     #boost_corr=0.1,
     active_sampling=True,
-    redundancy_approach="tom",
+    redundancy_approach="arvind",
     n_subspaces=10,
 )
 rar.fit(d.X, d.y)

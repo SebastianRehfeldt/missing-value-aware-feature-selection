@@ -30,114 +30,127 @@ class HICSSlicing(HICSParams):
             return slices[indices]
         return slices
 
-    def get_numerical_slices(self, X, cache, col, **options):
+    def get_start_pos(self, non_nan_count, n_select, boost):
         n_iterations = self.params["contrast_iterations"]
-        n_select = options["n_select"]
-
-        indices = cache["indices"] if cache is not None else np.argsort(X)
-        nans = self.nans[col]
-
-        nan_count = 0 if self.params["approach"] == "imputation" else np.sum(
-            nans)
-        mr = nan_count / X.shape[0]
-        n_select = max(5, int(np.ceil(n_select * (1 - mr))))
-
-        non_nan_count = X.shape[0] - nan_count
-        if options["boost"]:
+        if boost:
             max_start = min(10, non_nan_count - n_select)
             start_positions = list(np.arange(0, max_start, 2))
             min_start = max(non_nan_count - n_select - 10, 0)
             end_positions = list(
                 np.arange(min_start, non_nan_count - n_select, 2))
             start_positions = start_positions + end_positions
-            n_iterations = len(start_positions)
         else:
             max_start = non_nan_count - n_select
             start_positions = np.random.randint(0, max_start, n_iterations)
+        return start_positions
+
+    def get_X_dist(self, col, center, nans):
+        n_dev = 0.01
+        dev = 0.1
+        X_complete = self.X_complete[col].values[nans]
+        noise = np.random.normal(0, n_dev, len(X_complete))
+        X_complete += np.clip(noise, -dev, dev)
+        return np.abs(X_complete - center)
+
+    def get_weigth(self, X_dist, weight_nans, radius, nan_count):
+        try:
+            # TODO: distribute more equally and less weight to nans
+            a = 1
+            n = len(X_dist[X_dist <= radius])
+            a = 2 if weight_nans * 2 <= n else 1
+
+            # we need to select less than we have (we can pick the top or distribute equally)
+            if weight_nans * a <= n:
+                m = weight_nans
+                bla = np.argpartition(X_dist, m)[:m]
+                nan_values = np.zeros(nan_count)
+                nan_values[bla] = 1
+                return nan_values
+            else:
+                m = n
+                w = min(1, ((weight_nans - n) / (nan_count - n)))
+                nan_values = np.zeros(nan_count)
+                nan_values[:] = w
+
+                closest = np.argpartition(X_dist, m)[:m]
+                nan_values[closest] = 1
+                return nan_values
+
+        except:
+            print("EXCEPT")
+            print(m)
+            print(radius)
+            print(X_dist, len(X_dist))
+            print(1 / 0)
+
+    def get_probs(self, min_val, max_val):
+        prob = 0
+        if self.params["weight_approach"] == "probabilistic":
+            prob = norm.cdf(max_val) - norm.cdf(min_val)
+            prob += norm.pdf(min_val)
+        return prob
+
+    def update_nans(self, options, probs, weights):
+        if options["boost"]:
+            return 0
+
+        if self.params["approach"] == "partial":
+            return True
+
+        if self.params["approach"] == "fuzzy":
+            factor = self.params["weight"]**(1 / options["d"])
+            w = {
+                "new": weights,
+                "alpha": options["alpha"],
+                "probabilistic": probs,
+            }.get(self.params["weight_approach"], options["alpha"])
+            return w * factor
+
+    def get_numerical_slices(self, X, cache, col, **options):
+        # PREPARATION
+        indices = cache["indices"] if cache is not None else np.argsort(X)
+
+        nans = self.nans[col]
+        mr = self.missing_rates[col]
+        nan_count = self.nan_sums[col]
+        non_nan_count = X.shape[0] - nan_count
+        n_select = max(5, int(np.ceil(options["n_select"] * (1 - mr))))
+
+        starts = self.get_start_pos(non_nan_count, n_select, options["boost"])
+        n_iterations = len(starts)
 
         dtype = np.float16 if self.params["approach"] == "fuzzy" else bool
         slices = np.zeros((n_iterations, X.shape[0]), dtype=dtype)
-        if self.params["weight_approach"] == "probabilistic":
-            probs = np.zeros((n_iterations, nan_count))
-        for i, start in enumerate(start_positions):
+        probs = np.zeros((n_iterations, nan_count))
+        weights = np.zeros((n_iterations, nan_count))
+
+        # START LOOP
+        for i, start in enumerate(starts):
             end = min(start + n_select, non_nan_count - 1)
+            min_val, max_val = X[indices[start]], X[indices[end]]
+
+            # add fuzzy weights based on imputed values
+            uses_imputation = self.params["weight_approach"] == "new"
+            if self.params["approach"] == "fuzzy" and uses_imputation:
+                center = (min_val + max_val) / 2
+                X_dist = self.get_X_dist(col, center, nans)
+
+                weight = options["n_select"] - n_select
+                r = min(0.25, max(0.05, (max_val - min_val) / 2))
+                weights[i, :] = self.get_weigth(X_dist, weight, r, nan_count)
+
             idx = indices[start:end]
-            if self.params["weight_approach"] == "new" and self.params["approach"] == "fuzzy":
-                weight_nans = options["n_select"] - n_select
-                #weight_nans = min(weight_nans, n_select)
-
-                min_val, max_val = X[indices[start]], X[indices[end]]
-                radius = min(0.25, max(0.05, (max_val - min_val) / 2))
-                center_val = (min_val + max_val) / 2
-                #center_val = np.median(X[indices[start]:indices[end]])
-
-                n_dev = 0.01
-                dev = 0.1
-                X_complete = options["X_complete"][col].values[nans]
-                noise = np.random.normal(0, n_dev, len(X_complete))
-                #X_complete += np.clip(noise, -dev, dev)
-                X_dist = np.abs(X_complete - center_val)
-
-                try:
-                    # TODO: distribute more equally and less weight to nans
-                    a = 1
-                    n = len(X_dist[X_dist <= radius])
-                    a = 2 if weight_nans * 2 <= n else 1
-
-                    # we need to select less than we have (we can pick the top or distribute equally)
-                    if weight_nans * a <= n:
-                        m = weight_nans
-                        bla = np.argpartition(X_dist, m)[:m]
-                        nan_values = np.zeros(nan_count)
-                        nan_values[bla] = 1
-                        slices[i, nans] = nan_values
-                    else:
-                        m = n
-                        w = min(1, ((weight_nans - n) / (nan_count - n)))
-                        slices[i, nans] = w
-
-                        bla = np.argpartition(X_dist, m)[:m]
-                        nan_values = np.zeros(nan_count)
-                        nan_values[bla] = 1
-                        slices[i, nans] = nan_values
-
-                except:
-                    print("EXCEPT")
-                    print(m)
-                    print(X_dist, len(X_dist))
-                    print(max_val - min_val)
-                    print(options["n_select"], n_select, nan_count)
-                    print(1 / 0)
-
             slices[i, idx] = True
-            if self.params["weight_approach"] == "probabilistic":
-                min_val, max_val = X[indices[start]], X[indices[end]]
-                if True:
-                    count = ((X >= min_val) & (X <= max_val)).sum()
-                    probs[i, :] = count / non_nan_count
-                else:
-                    prob = norm.cdf(max_val) - norm.cdf(min_val)
-                    prob += norm.pdf(min_val)
-                    probs[i, :] = prob
+            probs[i, :] = self.get_probs(min_val, max_val)
 
-        if self.params["approach"] == "partial" and not options["boost"]:
-            slices[:, nans] = True
-        if self.params["approach"] == "fuzzy" and not self.params["weight_approach"] == "new":
-            factor = self.params["weight"]**(1 / options["d"])
-            if self.params["weight_approach"] == "probabilistic":
-                slices[:, nans] = probs * factor
-            else:
-                slices[:, nans] = options["alpha"] * factor
+        slices[:, nans] = self.update_nans(options, probs, weights)
         return slices
 
     def get_categorical_slices(self, X, cache, **options):
         n_iterations = self.params["contrast_iterations"]
-        n_select = options["n_select"]
 
-        if cache is not None:
-            values, counts = cache["values"], cache["counts"]
-        else:
-            values, counts = np.unique(X, return_counts=True)
+        values, counts = np.unique(
+            X, return_counts=True) if cache is None else cache["unique"]
 
         value_dict = dict(zip(values, counts))
         index_dict = {val: np.where(X == val)[0] for val in values}
@@ -145,7 +158,7 @@ class HICSSlicing(HICSParams):
         nan_count = value_dict.get("?", 0)
         non_nan_count = X.shape[0] - nan_count
         mr = nan_count / X.shape[0]
-        n_select = max(5, int(np.ceil(n_select * (1 - mr))))
+        n_select = max(5, int(np.ceil(options["n_select"] * (1 - mr))))
 
         contains_nans = "?" in value_dict
         if contains_nans:
