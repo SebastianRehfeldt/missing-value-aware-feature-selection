@@ -30,6 +30,14 @@ class HICSSlicing(HICSParams):
             return slices[indices]
         return slices
 
+    def get_params(self, col, options):
+        nans = self.nans[col]
+        mr = self.missing_rates[col]
+        nan_count = self.nan_sums[col]
+        non_nan_count = self.data.shape[0] - nan_count
+        n_select = max(5, int(np.ceil(options["n_select"] * (1 - mr))))
+        return nans, nan_count, non_nan_count, n_select
+
     def get_start_pos(self, non_nan_count, n_select, boost):
         n_iterations = self.params["contrast_iterations"]
         if boost:
@@ -53,35 +61,21 @@ class HICSSlicing(HICSParams):
         return np.abs(X_complete - center)
 
     def get_weigth(self, X_dist, weight_nans, radius, nan_count):
-        try:
-            # TODO: distribute more equally and less weight to nans
-            a = 1
-            n = len(X_dist[X_dist <= radius])
-            a = 2 if weight_nans * 2 <= n else 1
+        # TODO: distribute more equally and less weight to nans
+        a = 1
+        n = len(X_dist[X_dist <= radius])
+        a = 2 if weight_nans * 2 <= n else 1
 
-            # we need to select less than we have (we can pick the top or distribute equally)
-            if weight_nans * a <= n:
-                m = weight_nans
-                bla = np.argpartition(X_dist, m)[:m]
-                nan_values = np.zeros(nan_count)
-                nan_values[bla] = 1
-                return nan_values
-            else:
-                m = n
-                w = min(1, ((weight_nans - n) / (nan_count - n)))
-                nan_values = np.zeros(nan_count)
-                nan_values[:] = w
-
-                closest = np.argpartition(X_dist, m)[:m]
-                nan_values[closest] = 1
-                return nan_values
-
-        except:
-            print("EXCEPT")
-            print(m)
-            print(radius)
-            print(X_dist, len(X_dist))
-            print(1 / 0)
+        nan_values = np.zeros(nan_count)
+        if weight_nans * a <= n:
+            m = weight_nans
+            closest = np.argpartition(X_dist, m)[:m]
+        else:
+            w = min(1, ((weight_nans - n) / (nan_count - n)))
+            nan_values[:] = w
+            closest = np.argpartition(X_dist, n)[:n]
+        nan_values[closest] = 1
+        return nan_values
 
     def get_probs(self, min_val, max_val):
         prob = 0
@@ -109,107 +103,89 @@ class HICSSlicing(HICSParams):
     def get_numerical_slices(self, X, cache, col, **options):
         # PREPARATION
         indices = cache["indices"] if cache is not None else np.argsort(X)
+        nans, nan_sum, non_nan_sum, n_select = self.get_params(col, options)
 
-        nans = self.nans[col]
-        mr = self.missing_rates[col]
-        nan_count = self.nan_sums[col]
-        non_nan_count = X.shape[0] - nan_count
-        n_select = max(5, int(np.ceil(options["n_select"] * (1 - mr))))
-
-        starts = self.get_start_pos(non_nan_count, n_select, options["boost"])
+        starts = self.get_start_pos(non_nan_sum, n_select, options["boost"])
         n_iterations = len(starts)
 
         dtype = np.float16 if self.params["approach"] == "fuzzy" else bool
         slices = np.zeros((n_iterations, X.shape[0]), dtype=dtype)
-        probs = np.zeros((n_iterations, nan_count))
-        weights = np.zeros((n_iterations, nan_count))
+        probs = np.zeros((n_iterations, nan_sum))
+        weights = np.zeros((n_iterations, nan_sum))
 
         # START LOOP
         for i, start in enumerate(starts):
-            end = min(start + n_select, non_nan_count - 1)
+            end = min(start + n_select, non_nan_sum - 1)
             min_val, max_val = X[indices[start]], X[indices[end]]
 
-            # add fuzzy weights based on imputed values
-            uses_imputation = self.params["weight_approach"] == "new"
-            if self.params["approach"] == "fuzzy" and uses_imputation:
-                center = (min_val + max_val) / 2
-                X_dist = self.get_X_dist(col, center, nans)
+            # update weights based on imputed values and normal distribution
+            if not options["boost"] and self.params["approach"] == "fuzzy":
+                if self.params["weight_approach"] == "new":
+                    center = (min_val + max_val) / 2
+                    X_dist = self.get_X_dist(col, center, nans)
 
-                weight = options["n_select"] - n_select
-                r = min(0.25, max(0.05, (max_val - min_val) / 2))
-                weights[i, :] = self.get_weigth(X_dist, weight, r, nan_count)
+                    w = options["n_select"] - n_select
+                    r = min(0.25, max(0.05, (max_val - min_val) / 2))
+                    weights[i, :] = self.get_weigth(X_dist, w, r, nan_sum)
+                probs[i, :] = self.get_probs(min_val, max_val)
 
             idx = indices[start:end]
             slices[i, idx] = True
-            probs[i, :] = self.get_probs(min_val, max_val)
 
         slices[:, nans] = self.update_nans(options, probs, weights)
         return slices
 
-    def get_categorical_slices(self, X, cache, **options):
+    def remove_nans(self, values, value_dict):
+        if "?" in value_dict:
+            index = np.where(values == "?")[0]
+            return np.delete(values, index)
+        return values
+
+    def get_categorical_slices(self, X, cache, col, **options):
         n_iterations = self.params["contrast_iterations"]
+        nans, nan_sum, non_nan_sum, n_select = self.get_params(col, options)
 
         values, counts = np.unique(
             X, return_counts=True) if cache is None else cache["unique"]
 
         value_dict = dict(zip(values, counts))
         index_dict = {val: np.where(X == val)[0] for val in values}
+        values = self.remove_nans(values, value_dict)
 
-        nan_count = value_dict.get("?", 0)
-        non_nan_count = X.shape[0] - nan_count
-        mr = nan_count / X.shape[0]
-        n_select = max(5, int(np.ceil(options["n_select"] * (1 - mr))))
-
-        contains_nans = "?" in value_dict
-        if contains_nans:
-            index = np.where(values == "?")[0]
-            values = np.delete(values, index)
+        probs = np.zeros((n_iterations, nan_sum))
+        dtype = np.float16 if self.params["approach"] == "fuzzy" else bool
 
         if options["boost"]:
             s_per_class = 3 if len(values) < 10 else 1
             n_iterations = len(values) * s_per_class
-
-            if self.params["weight_approach"] == "probabilistic":
-                probs = np.zeros((n_iterations, nan_count))
-
-            dtype = np.float16 if self.params["approach"] == "fuzzy" else bool
             slices = np.zeros((n_iterations, X.shape[0]), dtype=dtype)
             for i, value in enumerate(values):
                 for j in range(s_per_class):
                     perm = np.random.permutation(value_dict[value])[:n_select]
-                    slices[i * s_per_class + j, index_dict[value][perm]] = True
-                    if self.params["weight_approach"] == "probabilistic":
-                        probs[i, :] += value_dict[value] / non_nan_count
+                    idx = index_dict[value][perm]
+                    slices[i * s_per_class + j, idx] = True
 
         else:
-            if self.params["weight_approach"] == "probabilistic":
-                probs = np.zeros((n_iterations, nan_count))
-            dtype = np.float16 if self.params["approach"] == "fuzzy" else bool
             slices = np.zeros((n_iterations, X.shape[0]), dtype=dtype)
             for i in range(n_iterations):
+                cumsum = 0
                 values = np.random.permutation(values)
-                current_sum = 0
-                for value in values:
-                    if self.params["weight_approach"] == "probabilistic":
-                        probs[i, :] += value_dict[value] / non_nan_count
-                    current_sum += value_dict[value]
-                    if current_sum >= n_select:
-                        n_missing = n_select - (
-                            current_sum - value_dict[value])
-                        perm = np.random.permutation(
-                            value_dict[value])[:n_missing]
-                        idx = index_dict[value][perm]
+                for v in values:
+                    # update probs and weights
+                    is_prob = self.params["weight_approach"] == "probabilistic"
+                    if is_prob and self.params["approach"] == "fuzzy":
+                        probs[i, :] += value_dict[v] / non_nan_sum
+
+                    cumsum += value_dict[v]
+                    if cumsum >= n_select:
+                        n_missing = n_select - (cumsum - value_dict[v])
+                        perm = np.random.permutation(value_dict[v])[:n_missing]
+                        idx = index_dict[v][perm]
                         slices[i, idx] = True
                         break
 
-                    slices[i, index_dict[value]] = True
+                    slices[i, index_dict[v]] = True
 
-        if self.params["approach"] == "partial" and contains_nans and not options["boost"]:
-            slices[:, index_dict["?"]] = True
-        if self.params["approach"] == "fuzzy" and contains_nans:
-            factor = self.params["weight"]**(1 / options["d"])
-            if self.params["weight_approach"] == "probabilistic":
-                slices[:, index_dict["?"]] = probs * factor
-            else:
-                slices[:, index_dict["?"]] = options["alpha"] * factor
+        # TODO: pass weights and implement for nominal (knn impute?)
+        slices[:, nans] = self.update_nans(options, probs, None)
         return slices

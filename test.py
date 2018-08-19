@@ -12,7 +12,7 @@ from project.utils import DataLoader, introduce_missing_values, scale_data
 from experiments.metrics import calc_ndcg
 
 data_loader = DataLoader(ignored_attributes=["molecule_name"])
-name = "ionosphere"
+name = "heart-c"
 data = data_loader.load_data(name, "arff")
 data = scale_data(data)
 print(data.shape, flush=True)
@@ -22,14 +22,14 @@ print(data.shape, flush=True)
 
 # %%
 t = time()
-data = introduce_missing_values(data)
+data = introduce_missing_values(data, missing_rate=0.6)
 d = deepcopy(data)
 rar = RaR(
     d.f_types,
     d.l_type,
     d.shape,
     approach="fuzzy",
-    weight_approach="alpha",
+    weight_approach="probabilistic",
     boost_value=0.1,
     #boost_corr=0.1,
     active_sampling=True,
@@ -39,8 +39,8 @@ rar = RaR(
 rar.fit(d.X, d.y)
 ranking = [k for k, v in rar.get_ranking() if v > 1e-4]
 # print(calc_ndcg(relevance_vector, ranking, True))
-print(rar.hics.evaluate_subspace(["a05"]))
-print(rar.hics.evaluate_subspace(["a05", "a06"]))
+#print(rar.hics.evaluate_subspace(["a05"]))
+#print(rar.hics.evaluate_subspace(["a05", "a06"]))
 pprint(rar.get_ranking())
 time() - t
 
