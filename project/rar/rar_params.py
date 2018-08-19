@@ -82,13 +82,13 @@ class RaRParams(Subspacing):
         # see thesis of tom at page 42
         beta = self.params["beta"]
         k = self.params["subspace_size"][1]
-        l = self.shape[1]
+        d = self.shape[1]
         s = min(3, k)
 
         def _choose(n, k):
             return factorial(n) // factorial(k) // factorial(n - k)
 
-        denominator = log(1 - _choose(l - s, k - s) / _choose(l, k))
+        denominator = log(1 - _choose(d - s, k - s) / _choose(d, k))
         return ceil(log(beta) / denominator)
 
     def _get_n_subspaces_linear(self):
