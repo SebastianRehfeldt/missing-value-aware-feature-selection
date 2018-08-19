@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 from .hics_utils import HICSUtils
 from .contrast import calculate_contrasts
 

@@ -11,8 +11,6 @@ class HICSUtils(HICSSlicing):
         options["alpha"] = self.alphas_d[len(subspace)]
         options["d"] = d or len(subspace)
         options["boost"] = b
-        if self.params["weight_approach"] == "new":
-            options["X_complete"] = self.X_complete[self.data.X.columns]
         return self.compute_slices(subspace, cache, X, **options)
 
     def get_cached_slices(self, subspace, use_cache=True):

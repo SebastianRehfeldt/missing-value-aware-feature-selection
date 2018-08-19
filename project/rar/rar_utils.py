@@ -30,11 +30,12 @@ class RaRUtils(RaRParams):
     def _fit(self):
         self._set_nans()
         self._set_nan_corr()
-        self.missing_rates = self.nans.sum() / self.data.shape[0]
+        self.nan_sums = self.nans.sum()
+        self.missing_rates = self.nan_sums / self.data.shape[0]
         self._increase_iterations()
         self.scores_1d = pd.Series(np.zeros(len(self.names)), index=self.names)
         self.hics = HICS(self.data, self.nans, self.missing_rates,
-                         **self.params)
+                         self.nan_sums, **self.params)
         super()._fit()
 
     def get_sorted_relevances(self):

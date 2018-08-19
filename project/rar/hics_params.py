@@ -1,11 +1,11 @@
 import numpy as np
-import pandas as pd
 
 
 class HICSParams():
-    def __init__(self, data, nans, missing_rates, **params):
+    def __init__(self, data, nans, missing_rates, nan_sums, **params):
         self.data = data
         self.nans = nans
+        self.nan_sums = nan_sums
         self.missing_rates = missing_rates
         self.params = params
         self._initialize()
@@ -71,12 +71,8 @@ class HICSParams():
 
     def get_feature_cache(self, col):
         if self.data.f_types[col] == "nominal":
-            values, counts = np.unique(self.data.X[col], return_counts=True)
-            return {
-                "values": values,
-                "counts": counts,
-            }
+            unique = np.unique(self.data.X[col], return_counts=True)
+            return {"unique": unique}
         else:
-            return {
-                "indices": np.argsort(self.data.X[col].values),
-            }
+            sorted_indices = np.argsort(self.data.X[col].values)
+            return {"indices": sorted_indices}
