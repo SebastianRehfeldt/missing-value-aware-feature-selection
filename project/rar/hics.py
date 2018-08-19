@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 from .hics_utils import HICSUtils
 from .contrast import calculate_contrasts
-from .slicing import prune_slices
 
 
 class HICS(HICSUtils):
@@ -33,7 +32,7 @@ class HICS(HICSUtils):
 
                     min_samples = self.params["min_samples"]
                     t_slices = slices[:, ~t_nans]
-                    t_slices = prune_slices(t_slices, min_samples)
+                    t_slices = self.prune_slices(t_slices, min_samples)
                 else:
                     t = self.data.X[target]
                     t_slices = slices
@@ -50,9 +49,9 @@ class HICS(HICSUtils):
         # GET SLICES
         T = None
         if self.params["approach"] == "imputation":
-            X, T, types = self._apply_imputation(subspace, targets)
-            slices = self.get_slices(X, types)
-            slices = prune_slices(slices, self.params["min_samples"])
+            X, T = self._apply_imputation(subspace, targets)
+            slices = self.get_slices(subspace, X=X)
+            slices = self.prune_slices(slices, self.params["min_samples"])
         else:
             slices = self.get_cached_slices(subspace)
 
@@ -77,7 +76,5 @@ class HICS(HICSUtils):
         return rels, reds, False
 
     def get_boost(self, feature):
-        X = self.data.X[feature].to_frame()
-        types = pd.Series(self.data.f_types[feature], [feature])
-        slices = self.get_slices(X, types, n=10, b=True)
+        slices = self.get_slices([feature], n=10, b=True)
         return self.get_relevance(slices)

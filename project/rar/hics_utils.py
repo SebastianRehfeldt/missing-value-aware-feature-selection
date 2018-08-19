@@ -1,37 +1,35 @@
 import numpy as np
 import pandas as pd
-from .hics_params import HICSParams
-from .slicing import get_slices, combine_slices, prune_slices
+from .hics_slicing import HICSSlicing
 
 
-class HICSUtils(HICSParams):
-    def get_slices(self, X, types, cache=None, n=None, d=None, b=False):
-        options = self.slice_options.copy()
-        options["n_select"] = n or self.n_select_d[X.shape[1]]
-        options["alpha"] = self.alphas_d[X.shape[1]]
-        options["d"] = d or X.shape[1]
+class HICSUtils(HICSSlicing):
+    def get_slices(self, subspace, cache=None, n=None, d=None, b=False,
+                   X=None):
+        options = {}
+        options["n_select"] = n or self.n_select_d[len(subspace)]
+        options["alpha"] = self.alphas_d[len(subspace)]
+        options["d"] = d or len(subspace)
         options["boost"] = b
         if self.params["weight_approach"] == "new":
-            options["X_complete"] = self.X_complete[X.columns]
-        return get_slices(X, types, cache, **options)
+            options["X_complete"] = self.X_complete[self.data.X.columns]
+        return self.compute_slices(subspace, cache, X, **options)
 
     def get_cached_slices(self, subspace, use_cache=True):
         dim = len(subspace)
 
         if self.params["cache_enabled"] and use_cache:
             slices = [self.slices[subspace[i]][dim] for i in range(dim)]
-            slices = combine_slices(slices).copy()
+            slices = self.combine_slices(slices).copy()
         else:
-            X = self.data.X[subspace]
-            types = self.data.f_types[subspace]
-            slices = self.get_slices(X, types)
+            slices = self.get_slices(subspace)
 
         min_samples = self.params["min_samples"]
         if self.params["approach"] == "partial":
             max_nans = int(np.floor(dim / 2))
             nan_sums = np.sum(self.nans[subspace].values, axis=1)
             slices[:, nan_sums > max_nans] = False
-        return prune_slices(slices, min_samples)
+        return self.prune_slices(slices, min_samples)
 
     def _apply_imputation(self, subspace, targets):
         from project.utils.imputer import Imputer
@@ -43,7 +41,7 @@ class HICSUtils(HICSParams):
 
         imputer = Imputer(all_types, self.params["imputation_method"])
         X_complete = imputer._complete(self.data.X[cols])
-        return X_complete[subspace], X_complete[targets], types
+        return X_complete[subspace], X_complete[targets]
 
     def _create_cache(self, y, y_type, slices, cached_indices=None):
         if cached_indices is None:

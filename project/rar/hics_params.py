@@ -14,7 +14,6 @@ class HICSParams():
         self._init_alphas()
         self._init_n_selects()
         self._init_X_complete()
-        self._init_slice_options()
         self._init_cache()
 
     def _init_alphas(self):
@@ -42,15 +41,6 @@ class HICSParams():
             imputer = Imputer(self.data.f_types, strategy)
             self.X_complete = imputer._complete(self.data.X)
 
-    def _init_slice_options(self):
-        self.slice_options = {
-            "n_iterations": self.params["contrast_iterations"],
-            "min_samples": self.params["min_samples"],
-            "approach": self.params["approach"],
-            "weight": self.params["weight"],
-            "weight_approach": self.params["weight_approach"],
-        }
-
     def _init_cache(self):
         self.label_indices = np.argsort(self.data.y.values)
         self.label_cache = np.unique(self.data.y.values, return_counts=True)
@@ -73,23 +63,20 @@ class HICSParams():
 
     def _fill_slice_cache(self):
         for col in self.data.X:
-            X = self.data.X[col].to_frame()
-            types = pd.Series(self.data.f_types[col], [col])
-            f_cache = self.get_feature_cache(X, types, col)
+            f_cache = self.get_feature_cache(col)
 
             for i in range(1, self.params["subspace_size"][1] + 1):
                 n = self.n_select_d[i]
-                self.slices[col][i] = self.get_slices(X, types, f_cache, n, i)
+                self.slices[col][i] = self.get_slices([col], f_cache, n, i)
 
-    def get_feature_cache(self, X, types, col):
-        if types[col] == "nominal":
-            values, counts = np.unique(X, return_counts=True)
+    def get_feature_cache(self, col):
+        if self.data.f_types[col] == "nominal":
+            values, counts = np.unique(self.data.X[col], return_counts=True)
             return {
                 "values": values,
                 "counts": counts,
             }
         else:
             return {
-                "nans": self.nans[col],
                 "indices": np.argsort(self.data.X[col].values),
             }
