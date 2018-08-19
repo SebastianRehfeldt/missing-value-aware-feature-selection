@@ -102,13 +102,14 @@ class HICSSlicing(HICSParams):
 
     def get_numerical_slices(self, X, cache, col, **options):
         # PREPARATION
+        is_fuzzy = self.params["approach"] == "fuzzy"
         indices = cache["indices"] if cache is not None else np.argsort(X)
         nans, nan_sum, non_nan_sum, n_select = self.get_params(col, options)
 
         starts = self.get_start_pos(non_nan_sum, n_select, options["boost"])
         n_iterations = len(starts)
 
-        dtype = np.float16 if self.params["approach"] == "fuzzy" else bool
+        dtype = np.float16 if is_fuzzy else bool
         slices = np.zeros((n_iterations, X.shape[0]), dtype=dtype)
         probs = np.zeros((n_iterations, nan_sum))
         weights = np.zeros((n_iterations, nan_sum))
@@ -119,7 +120,7 @@ class HICSSlicing(HICSParams):
             min_val, max_val = X[indices[start]], X[indices[end]]
 
             # update weights based on imputed values and normal distribution
-            if not options["boost"] and self.params["approach"] == "fuzzy":
+            if not options["boost"] and is_fuzzy:
                 if self.params["weight_approach"] == "new":
                     center = (min_val + max_val) / 2
                     X_dist = self.get_X_dist(col, center, nans)
@@ -142,6 +143,7 @@ class HICSSlicing(HICSParams):
         return values
 
     def get_categorical_slices(self, X, cache, col, **options):
+        is_fuzzy = self.params["approach"] == "fuzzy"
         n_iterations = self.params["contrast_iterations"]
         nans, nan_sum, non_nan_sum, n_select = self.get_params(col, options)
 
@@ -153,7 +155,7 @@ class HICSSlicing(HICSParams):
         values = self.remove_nans(values, value_dict)
 
         probs = np.zeros((n_iterations, nan_sum))
-        dtype = np.float16 if self.params["approach"] == "fuzzy" else bool
+        dtype = np.float16 if is_fuzzy else bool
 
         if options["boost"]:
             s_per_class = 3 if len(values) < 10 else 1
@@ -172,7 +174,6 @@ class HICSSlicing(HICSParams):
                 values = np.random.permutation(values)
                 for v in values:
                     # update probs and weights
-                    is_fuzzy = self.params["approach"] == "fuzzy"
                     if is_fuzzy and self.params["weight_approach"] == "proba":
                         probs[i, :] += value_dict[v] / non_nan_sum
 
