@@ -1,7 +1,6 @@
-"""
-    Wrapper class for fancy impute to match sklearn requirements
-"""
+import numpy as np
 import pandas as pd
+from sklearn.preprocessing import LabelEncoder, StandardScaler
 
 from fancyimpute import KNN, MICE, MatrixFactorization, SimpleFill, SoftImpute
 from project.utils import assert_data
@@ -9,105 +8,87 @@ from project.utils import assert_data
 
 class Imputer():
     def __init__(self, f_types, strategy="knn"):
-        """
-        Imputer class for filling missing values
-
-        Arguments:
-            f_types {pd.Series} -- Series containing the feature types
-        Keyword Arguments:
-            strategy {str} -- Imputation technique (default: {"knn"})
-        """
         self.f_types = f_types
         self.strategy = strategy
 
     def fit(self, X=None, y=None):
-        """
-        Fit method which is neccessary for sklearn, data is set in init
-
-        Keyword Arguments:
-            X {df} -- Feature matrix (default: {None})
-            y {pd.series} -- Label vector (default: {None})
-        """
         return self
 
     def transform(self, X, y=None):
-        """
-        Transform features by filling empty spots
-
-        Arguments:
-            X {df} -- Feature Matrix
-
-        Keyword Arguments:
-            y {pd.series} -- Label vector (default: {None})
-        """
         cols = self.f_types[X.columns].index.tolist()
         return self._complete(pd.DataFrame(X, columns=cols), cols)
 
     def fit_transform(self, X, y=None):
-        """
-        Fit imputer and complete data
-
-        Arguments:
-            X {df} -- Feature Matrix
-
-        Keyword Arguments:
-            y {pd.series} -- Label vector (default: {None})
-        """
         self.fit()
         return self.transform(X, y)
 
     def get_params(self, deep=False):
-        """
-        Return params needed to copy objects in sklearn
-
-        Keyword Arguments:
-            deep {bool} -- Deep copy (default: {False})
-        """
         return {
             "f_types": self.f_types,
             "strategy": self.strategy,
         }
 
-    def _complete(self, X, cols=None):
-        """
-        Complete numeric features
+    def _encode(self, X, nom_cols, nans):
+        self.encoders, self.modes = {}, {}
+        for col in nom_cols:
+            # replace "?" with mode so that labelencoder does not fills with ?
+            elements = X[col].value_counts()
+            mode = elements.index[0]
+            if mode == "?":
+                mode = elements.index[1]
+            X[col] = X[col].where(X[col] != "?", mode)
+            self.modes[col] = mode
 
-        Arguments:
-            X {df} -- Feature matrix which should be filled
-        """
-        if cols is None:
-            cols = self.f_types.loc[self.f_types == "numeric"].index
-        else:
-            cols = self.f_types[cols].loc[self.f_types == "numeric"].index
+            # encode
+            le = LabelEncoder().fit(X[col])
+            X[col] = le.transform(X[col])
+            self.encoders[col] = le
+
+        self.scaler = StandardScaler().fit(X[nom_cols])
+        X[nom_cols] = self.scaler.transform(X[nom_cols])
+        X[nom_cols] += 1e-8
+        X[nans] = np.nan
+        return X
+
+    def _decode(self, X, nom_cols, nans):
+        failed = X[nom_cols] == 0
+        X[nom_cols] = self.scaler.inverse_transform(X[nom_cols])
+        X[nans] = np.round(X[nans], 0)
+        X[nom_cols] = X[nom_cols].astype(int)
+        for col in nom_cols:
+            X[col] = self.encoders[col].inverse_transform(X[col])
+            X[col].values[failed[col]] = self.modes[col]
+        return X
+
+    def _complete(self, X, cols=None):
+        types = self.f_types if cols is None else self.f_types[cols]
+        num_cols = types.loc[self.f_types == "numeric"].index
+        nom_cols = types.loc[self.f_types == "nominal"].index
+
+        has_nominal_nans = False
+        if len(nom_cols) > 0:
+            nans = X == "?"
+            has_nominal_nans = nans.values.any()
+
+        if not has_nominal_nans and X[num_cols].notnull().values.all():
+            return X
 
         X_copy = X.copy()
-        if X[cols].isnull().values.any():
-            X_copy[cols] = self._get_imputer().complete(X_copy[cols])
+        if len(nom_cols) > 0:
+            X_copy = self._encode(X_copy, nom_cols, nans)
 
-        for col in X_copy:
-            if self.f_types[col] == "nominal":
-                elements = X_copy[col].value_counts()
-                mode = elements.index[0]
-                if mode == "?":
-                    mode = elements.index[1]
+        X_copy[:] = self._get_imputer().complete(X_copy)
 
-                indices = X_copy[col] == "?"
-                X_copy[col][indices] = mode
-
+        if len(nom_cols) > 0:
+            X_copy = self._decode(X_copy, nom_cols, nans)
         return X_copy
 
     def complete(self, data):
-        """
-        Complete features
-        """
         data = assert_data(data)
         complete_features = self._complete(data.X)
         return data.replace(copy=True, X=complete_features)
 
     def _get_imputer(self):
-        """
-        Get imputer for strategy
-        """
         if self.strategy == "simple":
             return SimpleFill()
 
