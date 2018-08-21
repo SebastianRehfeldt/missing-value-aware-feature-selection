@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder, StandardScaler
@@ -55,6 +56,8 @@ class Imputer():
         X[nom_cols] = self.scaler.inverse_transform(X[nom_cols])
         X[nans] = np.round(X[nans], 0)
         X[nom_cols] = X[nom_cols].astype(int)
+        warnings.filterwarnings(
+            module='sklearn*', action='ignore', category=DeprecationWarning)
         for col in nom_cols:
             X[col] = self.encoders[col].inverse_transform(X[col])
             X[col].values[failed[col]] = self.modes[col]
