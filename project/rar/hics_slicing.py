@@ -72,7 +72,14 @@ class HICSSlicing(HICSParams):
         return np.abs(X_complete - center)
 
     def get_weight(self, X_dist, weight_nans, radius, nan_count):
-        # TODO: distribute more equally and less weight to nans
+        if self.params["dist_method"] == "distance":
+            weights = (1 - (X_dist / np.max(X_dist)))
+            weights = (weights / np.sum(weights)) * weight_nans
+            if (np.max(weights) > 1):
+                print("TOO HIGH WEIGHT FOR FUZZY DIST")
+                print(weights)
+            return np.clip(weights, 0, 1)
+
         a = 1
         n = len(X_dist[X_dist <= radius])
         a = 2 if weight_nans * 2 <= n else 1
@@ -211,7 +218,7 @@ class HICSSlicing(HICSParams):
 
                 if is_fuzzy and self.params["weight_approach"] == "imputed":
                     X_dist = self.get_nom_dist(col, selected)
-                    weights[i, :] = self.get_weight(X_dist, w, 0.02, nan_sum)
+                    weights[i, :] = self.get_weight(X_dist, w, 0.1, nan_sum)
 
         slices[:, nans] = self.update_nans(options, probs, weights)
         return slices

@@ -28,6 +28,7 @@ class RaRParams(Subspacing):
             "approach": "deletion",
             "create_category": False,
             "weight_approach": "alpha",
+            "dist_method": "distance",
             "imputation_method": "knn",
             "subspace_method": "adaptive",
             "redundancy_approach": "arvind",
