@@ -4,17 +4,27 @@ from .hics_params import HICSParams
 
 
 class HICSSlicing(HICSParams):
-    def compute_slices(self, subspace, cache, X, **options):
+    def get_slices(self, subspace, n=None, boost=False, X=None):
+        options = {
+            "boost": boost,
+            "d": len(subspace),
+            "alpha": self.alphas_d[len(subspace)],
+            "n_select": n or self.n_select_d[len(subspace)],
+        }
+        return self.compute_slices(subspace, X, **options)
+
+    def compute_slices(self, subspace, X, **options):
         slices = [None] * len(subspace)
         X = self.data.X if X is None else X
         for i, col in enumerate(self.data.X[subspace]):
             x = X[col].values
             t = self.data.f_types[col]
+            f_cache = self.feature_cache.get(col)
 
             slices[i] = {
                 "nominal": self.get_categorical_slices,
                 "numeric": self.get_numerical_slices
-            }[t](x, cache, col, **options)
+            }[t](x, f_cache, col, **options)
 
         return self.combine_slices(slices)
 
@@ -23,7 +33,8 @@ class HICSSlicing(HICSParams):
             return slices[0]
         return np.multiply.reduce(slices, 0, dtype=slices[0].dtype)
 
-    def prune_slices(self, slices, min_samples=3):
+    def prune_slices(self, slices, min_samples=None):
+        min_samples = min_samples or self.params["min_samples"]
         sums = np.sum(slices, axis=1, dtype=float)
         indices = sums > min_samples
         if np.any(~indices):
@@ -60,7 +71,7 @@ class HICSSlicing(HICSParams):
         X_complete += np.clip(noise, -dev, dev)
         return np.abs(X_complete - center)
 
-    def get_weigth(self, X_dist, weight_nans, radius, nan_count):
+    def get_weight(self, X_dist, weight_nans, radius, nan_count):
         # TODO: distribute more equally and less weight to nans
         a = 1
         n = len(X_dist[X_dist <= radius])
@@ -94,7 +105,7 @@ class HICSSlicing(HICSParams):
         if self.params["approach"] == "fuzzy":
             factor = self.params["weight"]**(1 / options["d"])
             w = {
-                "new": weights,
+                "imputed": weights,
                 "alpha": options["alpha"],
                 "proba": probs,
             }.get(self.params["weight_approach"], options["alpha"])
@@ -120,14 +131,14 @@ class HICSSlicing(HICSParams):
             min_val, max_val = X[indices[start]], X[indices[end]]
 
             # update weights based on imputed values and normal distribution
-            if not options["boost"] and is_fuzzy:
-                if self.params["weight_approach"] == "new":
+            if is_fuzzy and not options["boost"]:
+                if self.params["weight_approach"] == "imputed":
                     center = (min_val + max_val) / 2
                     X_dist = self.get_X_dist(col, center, nans)
 
                     w = options["n_select"] - n_select
                     r = min(0.25, max(0.05, (max_val - min_val) / 2))
-                    weights[i, :] = self.get_weigth(X_dist, w, r, nan_sum)
+                    weights[i, :] = self.get_weight(X_dist, w, r, nan_sum)
                 probs[i, :] = self.get_probs(min_val, max_val)
 
             idx = indices[start:end]
