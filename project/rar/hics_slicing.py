@@ -153,6 +153,15 @@ class HICSSlicing(HICSParams):
             return np.delete(values, index)
         return values
 
+    def get_nom_dist(self, col, selected):
+        nans = self.nans[col]
+        X = self.X_complete[col].values[nans]
+        X_dist = np.isin(X, selected).astype(float)
+        n_dev, dev = 0.01, 0.1
+        noise = np.random.normal(0, n_dev, len(X))
+        X_dist += np.clip(noise, -dev, dev)
+        return X_dist
+
     def get_categorical_slices(self, X, cache, col, **options):
         is_fuzzy = self.params["approach"] == "fuzzy"
         n_iterations = self.params["contrast_iterations"]
@@ -166,6 +175,7 @@ class HICSSlicing(HICSParams):
         values = self.remove_nans(values, value_dict)
 
         probs = np.zeros((n_iterations, nan_sum))
+        weights = np.zeros((n_iterations, nan_sum))
         dtype = np.float16 if is_fuzzy else bool
 
         if options["boost"]:
@@ -180,10 +190,12 @@ class HICSSlicing(HICSParams):
 
         else:
             slices = np.zeros((n_iterations, X.shape[0]), dtype=dtype)
+            w = options["n_select"] - n_select
             for i in range(n_iterations):
-                cumsum = 0
+                selected, cumsum = [], 0
                 values = np.random.permutation(values)
                 for v in values:
+                    selected.append(v)
                     # update probs and weights
                     if is_fuzzy and self.params["weight_approach"] == "proba":
                         probs[i, :] += value_dict[v] / non_nan_sum
@@ -195,9 +207,11 @@ class HICSSlicing(HICSParams):
                         idx = index_dict[v][perm]
                         slices[i, idx] = True
                         break
-
                     slices[i, index_dict[v]] = True
 
-        # TODO: pass weights and implement for nominal (knn impute?)
-        slices[:, nans] = self.update_nans(options, probs, None)
+                if is_fuzzy and self.params["weight_approach"] == "imputed":
+                    X_dist = self.get_nom_dist(col, selected)
+                    weights[i, :] = self.get_weight(X_dist, w, 0.02, nan_sum)
+
+        slices[:, nans] = self.update_nans(options, probs, weights)
         return slices
