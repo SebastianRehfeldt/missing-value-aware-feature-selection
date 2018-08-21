@@ -3114,7 +3114,6 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
  *             if distance > max_dist:
  *                 max_dist = distance             # <<<<<<<<<<<<<<
  *     return max_dist
- * 
  */
         __pyx_v_max_dist = __pyx_v_distance;
 
@@ -3141,7 +3140,6 @@ double _calculate_max_dist(__Pyx_memviewslice __pyx_v_m, __Pyx_memviewslice __py
  *             if distance > max_dist:
  *                 max_dist = distance
  *     return max_dist             # <<<<<<<<<<<<<<
- * 
  */
   __pyx_r = __pyx_v_max_dist;
   goto __pyx_L0;

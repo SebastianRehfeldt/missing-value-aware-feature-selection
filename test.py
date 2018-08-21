@@ -26,14 +26,14 @@ n_runs = 5
 seeds = [42, 0, 113, 98, 234, 143, 1, 20432, 4357, 12]
 seeds = [0] * n_runs
 missing_rates = [0.2 * i for i in range(0, 5)]
-missing_rates = [0]
+missing_rates = [0.2]
 avgs = np.zeros(len(missing_rates))
 stds = np.zeros(len(missing_rates))
 sums = np.zeros(len(missing_rates))
 data_orig = deepcopy(data)
 
 is_synthetic = True
-generator = DataGenerator(n_samples=400)
+generator = DataGenerator(n_samples=500)
 
 for j, mr in enumerate(missing_rates):
     print("======== {:.2f} ========".format(mr))
@@ -42,11 +42,11 @@ for j, mr in enumerate(missing_rates):
         if is_synthetic:
             generator.set_seed(seeds[i])
             data_orig, relevance_vector = generator.create_dataset()
-            imputer = Imputer(data_orig.f_types, strategy="knn")
+            imputer = Imputer(data_orig.f_types, strategy="mice")
 
         data_copy = deepcopy(data_orig)
         data_copy = introduce_missing_values(data_copy, mr, seed=seeds[i])
-        # data_copy = imputer.complete(data_copy)
+        data_copy = imputer.complete(data_copy)
 
         start = time()
         selector = RaR(
@@ -54,12 +54,10 @@ for j, mr in enumerate(missing_rates):
             data_copy.l_type,
             data_copy.shape,
             approach="deletion",
+            #weight_approach="imputed",
             # random_state=seeds[j],
-            boost_val=0,
-            boost_corr=0,
-            boost_inter=0,
-            resamples=10,
-            n_targets=0,
+            cache_enabled=True,
+            dist_method="bla",
         )
         """
         selector = Ranking(
@@ -73,7 +71,7 @@ for j, mr in enumerate(missing_rates):
         # pprint(rar.get_ranking())
         # print(time() - start)
         ranking = [k for k, v in selector.get_ranking() if v > 1e-4]
-        ndcgs[i] = calc_ndcg(relevance_vector, ranking, True)
+        ndcgs[i] = calc_ndcg(relevance_vector, ranking, False)
         print(ndcgs[i])
 
     avgs[j] = np.mean(ndcgs)

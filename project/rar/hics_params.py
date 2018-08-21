@@ -76,4 +76,4 @@ class HICSParams():
     def _fill_slice_cache(self):
         for col in self.data.X:
             for i in range(1, self.params["subspace_size"][1] + 1):
-                self.slices[col][i] = self.get_slices([col])
+                self.slices[col][i] = self.get_slices([col], d=i)

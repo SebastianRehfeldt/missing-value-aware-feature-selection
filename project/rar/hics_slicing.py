@@ -4,12 +4,13 @@ from .hics_params import HICSParams
 
 
 class HICSSlicing(HICSParams):
-    def get_slices(self, subspace, n=None, boost=False, X=None):
+    def get_slices(self, subspace, n=None, d=None, boost=False, X=None):
+        d = d or len(subspace)
         options = {
             "boost": boost,
-            "d": len(subspace),
-            "alpha": self.alphas_d[len(subspace)],
-            "n_select": n or self.n_select_d[len(subspace)],
+            "d": d,
+            "alpha": self.alphas_d[d],
+            "n_select": n or self.n_select_d[d],
         }
         return self.compute_slices(subspace, X, **options)
 
