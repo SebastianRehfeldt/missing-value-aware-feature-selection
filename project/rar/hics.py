@@ -36,7 +36,7 @@ class HICS(HICSUtils):
             else:
                 # remove samples with nans in target
                 t_nans = self.nans[target]
-                if np.sum(t_nans.values) > 0:
+                if self.nan_sums[target] > 0:
                     t = self.data.X[target][~t_nans]
                     t_slices = slices[:, ~t_nans]
                     t_slices = self.prune_slices(t_slices)
