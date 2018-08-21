@@ -7,12 +7,12 @@ from pprint import pprint
 
 from project.rar.rar import RaR
 from project.utils.data import DataGenerator
-from project.utils.imputer import Imputer
+#from project.utils.imputer import Imputer
 from project.utils import DataLoader, introduce_missing_values, scale_data
 from experiments.metrics import calc_ndcg
 
 data_loader = DataLoader(ignored_attributes=["molecule_name"])
-name = "heart-c"
+name = "ionosphere"
 data = data_loader.load_data(name, "arff")
 data = scale_data(data)
 print(data.shape, flush=True)
@@ -22,19 +22,20 @@ print(data.shape, flush=True)
 
 # %%
 t = time()
-data = introduce_missing_values(data, missing_rate=0.6)
+data = introduce_missing_values(data, missing_rate=0.2)
 d = deepcopy(data)
 rar = RaR(
     d.f_types,
     d.l_type,
     d.shape,
     approach="fuzzy",
-    weight_approach="proba",
+    weight_approach="alpha",
     boost_value=0.1,
+    cache_enabled=True,
     #boost_corr=0.1,
     active_sampling=True,
     redundancy_approach="arvind",
-    n_subspaces=10,
+    n_subspaces=500,
 )
 rar.fit(d.X, d.y)
 ranking = [k for k, v in rar.get_ranking() if v > 1e-4]
