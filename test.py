@@ -21,12 +21,14 @@ print(data.shape, flush=True)
 
 # %%
 from project.feature_selection.ranking import Ranking
+from project.feature_selection.embedded import Embedded
+from project.feature_selection.orange import Orange
 
 n_runs = 5
-seeds = [42, 0, 113, 98, 234, 143, 1, 20432, 4357, 12]
 seeds = [0] * n_runs
+seeds = [42, 0, 113, 98, 234, 143, 1, 20432, 4357, 12]
 missing_rates = [0.2 * i for i in range(0, 5)]
-missing_rates = [0.2]
+missing_rates = [0]
 avgs = np.zeros(len(missing_rates))
 stds = np.zeros(len(missing_rates))
 sums = np.zeros(len(missing_rates))
@@ -42,35 +44,39 @@ for j, mr in enumerate(missing_rates):
         if is_synthetic:
             generator.set_seed(seeds[i])
             data_orig, relevance_vector = generator.create_dataset()
-            imputer = Imputer(data_orig.f_types, strategy="mice")
+            imputer = Imputer(data_orig.f_types, strategy="soft")
 
         data_copy = deepcopy(data_orig)
         data_copy = introduce_missing_values(data_copy, mr, seed=seeds[i])
-        data_copy = imputer.complete(data_copy)
+        # data_copy = imputer.complete(data_copy)
 
         start = time()
         selector = RaR(
             data_copy.f_types,
             data_copy.l_type,
             data_copy.shape,
-            approach="deletion",
-            #weight_approach="imputed",
+            approach="fuzzy",
+            weight_approach="imputed",
+            boost_value=0,
+            boost_inter=0.1,
+            boost_corr=0,
             # random_state=seeds[j],
             cache_enabled=True,
-            dist_method="bla",
+            dist_method="distance",
+            imputation_method="soft",
         )
-        """
-        selector = Ranking(
-            data_copy.f_types,
-            data_copy.l_type,
-            data_copy.shape,
-            eval_method="myrelief")
-        """
+
+        if False:
+            selector = Ranking(
+                data_copy.f_types,
+                data_copy.l_type,
+                data_copy.shape,
+                eval_method="myrelief")
 
         selector.fit(data_copy.X, data_copy.y)
         # pprint(rar.get_ranking())
         # print(time() - start)
-        ranking = [k for k, v in selector.get_ranking() if v > 1e-4]
+        ranking = [k for k, v in selector.get_ranking() if v > 1e-8]
         ndcgs[i] = calc_ndcg(relevance_vector, ranking, False)
         print(ndcgs[i])
 
@@ -84,6 +90,9 @@ rar_results["STD"] = stds
 rar_results["SUM"] = sums
 rar_results = rar_results.T
 rar_results.T
+
+# %%
+selector.get_params()
 
 # %%
 relevance_vector.sort_values(ascending=False)
