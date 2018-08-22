@@ -74,7 +74,7 @@ def _remove_with_nmar(data, missing_rate, features):
         if np.random.choice(range(2), 1)[0] == 0:
             X[col].iloc[indices[:n_removals]] = np.nan
         else:
-            X[col].iloc[indices[-n_removals:]] = np.nan
+            X[col].iloc[indices[X.shape[0] - n_removals:]] = np.nan
 
     if features is not None:
         X_orig[features] = X
