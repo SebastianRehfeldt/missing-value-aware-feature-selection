@@ -1,11 +1,13 @@
 # %%
 import os
+from time import time
 from project import EXPERIMENTS_PATH
 from experiments.utils import write_config
 from experiments.ranking import get_rankings, calc_mean_ranking
 from experiments.synthethic import CONFIG, DATASET_CONFIG, ALGORITHMS
 
-ID = "0"
+t = time()
+ID = "mixed_many"
 NAME = "synthethic"
 FOLDER = os.path.join(EXPERIMENTS_PATH, NAME, "EXP_" + ID)
 if os.path.isdir(FOLDER):
@@ -43,3 +45,4 @@ plot_scores(FOLDER, sses, "SSE")
 plot_scores(FOLDER, mses, "MSE")
 plot_cgs(FOLDER, cgs, "CG")
 plot_cgs(FOLDER, cgs_pos, "CG_POS")
+print(time() - t)

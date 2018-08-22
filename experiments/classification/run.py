@@ -15,7 +15,7 @@ from experiments.classification.utils import get_selectors, get_classifiers
 from experiments.plots import plot_mean_durations
 
 # LOAD DATA AND DEFINE SELECTORS AND CLASSIFIERS
-name = "ionosphere"
+name = "heart-c"
 FOLDER = os.path.join(EXPERIMENTS_PATH, "classification", "incomplete", name)
 CSV_FOLDER = os.path.join(FOLDER, "csv")
 os.makedirs(FOLDER)
@@ -27,15 +27,15 @@ data = scale_data(data)
 data.shuffle_rows(seed=42)
 
 names = [
-    "rar", "rknn", "sfs", "mi", "mrmr", "cfs", "relief_o", "fcbf_o", "rf",
-    "xgb"
+    "rar_del", "rar_fuz", "rknn", "sfs", "mi", "mrmr", "cfs", "relief_o",
+    "fcbf_o", "rf", "xgb"
 ]
 
-seeds = [42, 0, 13]
+seeds = [17, 12, 132, 4, 7]
 n_runs = 3 if len(seeds) >= 3 else len(seeds)
 n_insertions = 3 if len(seeds) >= 3 else len(seeds)
 classifiers = ["knn", "tree", "gnb", "svm"]
-k_s = [i + 1 for i in range(15)]
+k_s = [i + 1 for i in range(7)]
 missing_rates = [0.1 * i for i in range(10)]
 
 times = {mr: defaultdict(list) for mr in missing_rates}

@@ -15,7 +15,8 @@ def get_selectors(data, names, max_k=None):
     max_k = data.shape[1] if max_k is None else max_k
 
     selectors = {
-        "rar": RaR(*d, alpha=0.02, contrast_iterations=250, n_subspace=800),
+        "rar_del": RaR(*d, approach="deletion"),
+        "rar_fuz": RaR(*d, approach="fuzzy", weight_approach="imputed"),
         "rknn": RKNN(*d),
         "sfs": SFS(*d, k=max_k, do_stop=True, eval_method="tree"),
         "mi": Filter(*d),
