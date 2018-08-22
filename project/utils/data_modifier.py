@@ -16,19 +16,23 @@ def introduce_missing_values(data,
     np.random.seed(seed)
 
     if missing_type == "MCAR":
-        X = _remove_with_mcar(data.X, data.f_types, missing_rate, features)
-        return data.replace(X=X)
+        X = _remove_with_mcar(data.X, missing_rate, features)
     elif missing_type == "predictive":
-        return _remove_by_class(data, missing_rate, features)
+        X = _remove_by_class(data, missing_rate, features)
     elif missing_type == "NMAR":
-        return _remove_with_nmar(data, missing_rate, features)
+        X = _remove_with_nmar(data, missing_rate, features)
     elif missing_type == "correlated":
-        return _remove_with_correlation(data, missing_rate, features)
+        X = _remove_with_correlation(data, missing_rate, features)
     else:
         raise NotImplementedError
 
+    for col in X:
+        if data.f_types[col] == "nominal":
+            X[col].fillna("?", inplace=True)
+    return data.replace(X=X)
 
-def _remove_with_mcar(X, f_types, missing_rate, features):
+
+def _remove_with_mcar(X, missing_rate, features):
     # Create mask where values should be inserted
     if features is not None:
         X_orig = deepcopy(X)
@@ -41,9 +45,6 @@ def _remove_with_mcar(X, f_types, missing_rate, features):
 
     # Values in df with mask == True will be NaN
     new_X = X.where(mask == False)
-    for col in X:
-        if f_types[col] == "nominal":
-            new_X[col].fillna("?", inplace=True)
 
     if features is not None:
         X_orig[features] = new_X
@@ -54,10 +55,9 @@ def _remove_with_mcar(X, f_types, missing_rate, features):
 def _remove_by_class(data, missing_rate, features):
     complete_X = data.X
     idx = np.where(data.y == mode(data.y).mode[0])[0]
-    X = _remove_with_mcar(data.X.iloc[idx, :], data.f_types, missing_rate,
-                          features)
+    X = _remove_with_mcar(data.X.iloc[idx, :], missing_rate, features)
     complete_X.iloc[idx, :] = X
-    return data.replace(X=complete_X)
+    return complete_X
 
 
 def _remove_with_nmar(data, missing_rate, features):
@@ -79,7 +79,7 @@ def _remove_with_nmar(data, missing_rate, features):
     if features is not None:
         X_orig[features] = X
         X = X_orig
-    return data.replace(X=X)
+    return X
 
 
 def _remove_with_correlation(data, missing_rate, features):
@@ -121,4 +121,4 @@ def _remove_with_correlation(data, missing_rate, features):
     if features is not None:
         X_orig[features] = X
         X = X_orig
-    return data.replace(X=X)
+    return X
