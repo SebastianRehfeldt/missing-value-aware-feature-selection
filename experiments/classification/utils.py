@@ -54,14 +54,14 @@ def swap_pipeline_steps(pipe):
     pipe.steps[1] = temp_step
 
 
-def get_pipelines(data, k, names, classifier):
+def get_pipelines(data, complete, k, names, classifier):
     d = [data.f_types, data.l_type, data.shape]
+    d2 = [complete.f_types, complete.l_type, complete.shape]
 
     selectors = {
-        "rar": RaR(
-            *d, k=k, alpha=0.02, contrast_iterations=250, n_subspace=800),
+        "rar": RaR(*d, k=k),
         "rknn": RKNN(*d, k=k),
-        "sfs": SFS(*d, k=k, do_stop=True, eval_method="tree"),
+        "sfs": SFS(*d2, k=k, do_stop=True, eval_method="tree"),
         "mi": Filter(*d, k=k),
         "relief_sk": Ranking(*d, k=k, eval_method="myrelief"),
         "fcbf_sk": Ranking(*d, k=k, eval_method="fcbf"),
@@ -73,7 +73,7 @@ def get_pipelines(data, k, names, classifier):
         "xgb": Embedded(*d, k=k),
     }
 
-    clf = get_classifiers(data, [classifier])[0]
+    clf = get_classifiers(data, complete, [classifier])[0]
 
     # DEFINE PIEPLINES
     pipelines = []
