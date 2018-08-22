@@ -16,7 +16,8 @@ from experiments.plots import plot_mean_durations
 
 # LOAD DATA AND DEFINE SELECTORS AND CLASSIFIERS
 name = "heart-c"
-FOLDER = os.path.join(EXPERIMENTS_PATH, "classification", "incomplete", name)
+FOLDER = os.path.join(EXPERIMENTS_PATH, "classification", "incomplete",
+                      name + "2")
 CSV_FOLDER = os.path.join(FOLDER, "csv")
 os.makedirs(FOLDER)
 os.makedirs(CSV_FOLDER)
@@ -52,7 +53,7 @@ for mr in missing_rates:
         splits = d.split(n_repeats=n_runs)
         for i_split, (train, test) in enumerate(splits):
             # EVALUATE COMPLETE SET
-            clfs = get_classifiers(train, classifiers)
+            clfs = get_classifiers(train, d, classifiers)
             for i_c, clf in enumerate(clfs):
                 clf.fit(train.X, train.y)
                 y_pred = clf.predict(test.X)
@@ -60,7 +61,7 @@ for mr in missing_rates:
                 complete_scores[mr][classifiers[i_c]].append(f1)
 
             # EVALUATE SELECTORS
-            selectors = get_selectors(train, names, max(k_s))
+            selectors = get_selectors(train, d, names, max(k_s))
             for i_s, selector in enumerate(selectors):
                 start = time()
 
@@ -79,7 +80,7 @@ for mr in missing_rates:
                     transformed_data = Data(X_train, train.y, f_types,
                                             train.l_type, X_train.shape)
 
-                    clfs = get_classifiers(transformed_data, classifiers)
+                    clfs = get_classifiers(transformed_data, d, classifiers)
                     for i_c, clf in enumerate(clfs):
                         clf.fit(X_train, train.y.reset_index(drop=True))
                         y_pred = clf.predict(X_test)
