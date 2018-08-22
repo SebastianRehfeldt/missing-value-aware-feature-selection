@@ -69,11 +69,11 @@ class HICSSlicing(HICSParams):
         dev = 0.1
         X_complete = self.X_complete[col].values[nans]
         noise = np.random.normal(0, n_dev, len(X_complete))
-        X_complete += np.clip(noise, -dev, dev)
+        #X_complete += np.clip(noise, -dev, dev)
         return np.abs(X_complete - center)
 
     def get_weight(self, X_dist, weight_nans, radius, nan_count):
-        if self.params["dist_method"] == "distance":
+        if self.params["dist_method"] == "distance" and len(X_dist) > 0:
             weights = (1 - (X_dist / np.max(X_dist)))
             weights = (weights / np.sum(weights)) * weight_nans
             if (np.max(weights) > 1):
