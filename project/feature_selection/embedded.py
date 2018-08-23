@@ -1,3 +1,4 @@
+import numpy as np
 from project.base import Selector
 from project.classifier import SKClassifier
 
@@ -10,4 +11,4 @@ class Embedded(Selector):
         scores = classifier.clf.feature_importances_
         for i in range(len(scores)):
             name = self.names[i]
-            self.feature_importances[name] = scores[i]
+            self.feature_importances[name] = scores[i].astype(np.float64)

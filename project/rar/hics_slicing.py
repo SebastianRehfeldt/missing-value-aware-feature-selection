@@ -76,9 +76,6 @@ class HICSSlicing(HICSParams):
         if self.params["dist_method"] == "distance" and len(X_dist) > 0:
             weights = (1 - (X_dist / np.max(X_dist)))
             weights = (weights / np.sum(weights)) * weight_nans
-            if (np.max(weights) > 1):
-                print("TOO HIGH WEIGHT FOR FUZZY DIST")
-                print(weights)
             return np.clip(weights, 0, 1)
 
         a = 1
