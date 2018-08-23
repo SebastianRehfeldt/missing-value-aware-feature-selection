@@ -30,11 +30,13 @@ class HICSParams():
         }
 
     def _init_X_complete(self):
+        approach = self.params["approach"]
         used_for_weights = self.params["weight_approach"] == "imputed"
-        uses_imputation = self.params["approach"] == "imputation"
-        used_for_redundancy = self.params["redundancy_approach"] == "arvind"
+        cond1 = (used_for_weights and approach == "fuzzy")
 
-        if used_for_weights or (used_for_redundancy and uses_imputation):
+        used_for_redundancy = self.params["redundancy_approach"] == "arvind"
+        cond2 = (used_for_redundancy and approach == "imputation")
+        if cond1 or cond2:
             from project.utils.imputer import Imputer
 
             strategy = self.params["imputation_method"]

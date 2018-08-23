@@ -12,7 +12,7 @@ from project.utils import DataLoader, introduce_missing_values, scale_data
 from experiments.metrics import calc_ndcg
 
 data_loader = DataLoader(ignored_attributes=["molecule_name"])
-name = "ionosphere"
+name = "heart-c"
 data = data_loader.load_data(name, "arff")
 data = scale_data(data)
 
@@ -24,18 +24,18 @@ from project.feature_selection.ranking import Ranking
 from project.feature_selection.embedded import Embedded
 from project.feature_selection.orange import Orange
 
-n_runs = 5
+n_runs = 1
 seeds = [0] * n_runs
 seeds = [42, 0, 113, 98, 234, 143, 1, 20432, 4357, 12]
+missing_rates = [0.1]
 missing_rates = [0.2 * i for i in range(0, 5)]
-missing_rates = [0]
 avgs = np.zeros(len(missing_rates))
 stds = np.zeros(len(missing_rates))
 sums = np.zeros(len(missing_rates))
 data_orig = deepcopy(data)
 
 is_synthetic = True
-generator = DataGenerator(n_samples=500)
+generator = DataGenerator(n_samples=500, n_relevant=3, n_clusters=0)
 
 for j, mr in enumerate(missing_rates):
     print("======== {:.2f} ========".format(mr))
@@ -55,28 +55,29 @@ for j, mr in enumerate(missing_rates):
             data_copy.f_types,
             data_copy.l_type,
             data_copy.shape,
-            approach="fuzzy",
+            approach="deletion",
             weight_approach="imputed",
             boost_value=0,
             boost_inter=0.1,
             boost_corr=0,
             # random_state=seeds[j],
             cache_enabled=True,
-            dist_method="distance",
+            dist_method="radius",
             imputation_method="soft",
         )
 
-        if False:
+        if True:
             selector = Ranking(
                 data_copy.f_types,
                 data_copy.l_type,
                 data_copy.shape,
-                eval_method="myrelief")
+                eval_method="cfs",
+            )
 
         selector.fit(data_copy.X, data_copy.y)
-        # pprint(rar.get_ranking())
+        pprint(selector.get_ranking())
         # print(time() - start)
-        ranking = [k for k, v in selector.get_ranking() if v > 1e-8]
+        ranking = [k for k, v in selector.get_ranking()]
         ndcgs[i] = calc_ndcg(relevance_vector, ranking, False)
         print(ndcgs[i])
 
@@ -92,14 +93,13 @@ rar_results = rar_results.T
 rar_results.T
 
 # %%
-selector.get_params()
+data_copy.X.head().T
 
 # %%
 relevance_vector.sort_values(ascending=False)
 
 # %%
-print(selector.interactions)
-selector.get_ranking()
+ranking
 
 # %%
 selector.get_params()

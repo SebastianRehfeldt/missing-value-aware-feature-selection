@@ -1,3 +1,4 @@
+import numpy as np
 from project.base import Selector
 from skfeature.function.similarity_based.reliefF import reliefF
 from skfeature.function.information_theoretical_based.MRMR import mrmr
@@ -20,6 +21,9 @@ class Ranking(Selector):
     def _fit(self):
         method = self.params["eval_method"]
         X, y, d = self.data.X.values, self.data.y.values, self.shape[1]
+        X = np.nan_to_num(X)
+        X = np.round(X, 2)
+
         if method == "mrmr":
             sorted_indices = mrmr(X, y, mode="index", n_selected_features=d)
         elif method == "myrelief":
