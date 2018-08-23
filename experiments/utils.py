@@ -54,7 +54,8 @@ def write_results(FOLDER, relevances, durations, rankings):
 
 def read_results(FOLDER):
     path = os.path.join(FOLDER, "relevances.csv")
-    relevances = pd.DataFrame.from_csv(path) if os.path.exists(path) else None
+    relevances = pd.read_csv(
+        path, index_col=0) if os.path.exists(path) else None
     path = os.path.join(FOLDER, "runtimes.json")
     durations = read_json(path)
     path = os.path.join(FOLDER, "rankings.json")

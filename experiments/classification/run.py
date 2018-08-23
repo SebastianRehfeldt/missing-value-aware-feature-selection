@@ -15,8 +15,9 @@ from experiments.classification.utils import get_selectors, get_classifiers
 from experiments.plots import plot_mean_durations
 
 # LOAD DATA AND DEFINE SELECTORS AND CLASSIFIERS
-name = "ionosphere"
-FOLDER = os.path.join(EXPERIMENTS_PATH, "classification", "incomplete", name)
+name = "heart-c"
+FOLDER = os.path.join(EXPERIMENTS_PATH, "classification", "incomplete",
+                      name + "_nmar")
 CSV_FOLDER = os.path.join(FOLDER, "csv")
 os.makedirs(FOLDER)
 os.makedirs(CSV_FOLDER)
@@ -27,15 +28,15 @@ data = scale_data(data)
 data.shuffle_rows(seed=42)
 
 names = [
-    "rar", "rknn", "sfs", "mi", "mrmr", "cfs", "relief_o", "fcbf_o", "rf",
-    "xgb"
+    "rar_del", "rar_fuz", "rknn", "sfs", "mi", "mrmr", "cfs", "relief_o",
+    "fcbf_o", "rf", "xgb"
 ]
 
-seeds = [42, 0, 13]
+seeds = [17, 12, 132, 4, 7]
 n_runs = 3 if len(seeds) >= 3 else len(seeds)
 n_insertions = 3 if len(seeds) >= 3 else len(seeds)
 classifiers = ["knn", "tree", "gnb", "svm"]
-k_s = [i + 1 for i in range(15)]
+k_s = [i + 1 for i in range(7)]
 missing_rates = [0.1 * i for i in range(10)]
 
 times = {mr: defaultdict(list) for mr in missing_rates}
@@ -47,12 +48,13 @@ for mr in missing_rates:
 
     for j in range(n_insertions):
         d = deepcopy(data)
-        d = introduce_missing_values(d, missing_rate=mr, seed=seeds[j])
+        d = introduce_missing_values(
+            d, missing_rate=mr, missing_type="NMAR", seed=seeds[j])
 
         splits = d.split(n_repeats=n_runs)
         for i_split, (train, test) in enumerate(splits):
             # EVALUATE COMPLETE SET
-            clfs = get_classifiers(train, classifiers)
+            clfs = get_classifiers(train, d, classifiers)
             for i_c, clf in enumerate(clfs):
                 clf.fit(train.X, train.y)
                 y_pred = clf.predict(test.X)
@@ -60,7 +62,7 @@ for mr in missing_rates:
                 complete_scores[mr][classifiers[i_c]].append(f1)
 
             # EVALUATE SELECTORS
-            selectors = get_selectors(train, names, max(k_s))
+            selectors = get_selectors(train, d, names, max(k_s))
             for i_s, selector in enumerate(selectors):
                 start = time()
 
@@ -79,7 +81,7 @@ for mr in missing_rates:
                     transformed_data = Data(X_train, train.y, f_types,
                                             train.l_type, X_train.shape)
 
-                    clfs = get_classifiers(transformed_data, classifiers)
+                    clfs = get_classifiers(transformed_data, d, classifiers)
                     for i_c, clf in enumerate(clfs):
                         clf.fit(X_train, train.y.reset_index(drop=True))
                         y_pred = clf.predict(X_test)
@@ -107,10 +109,10 @@ std_scores = pd.DataFrame(complete_scores).applymap(np.std).T
 std_scores.to_csv(os.path.join(CSV_FOLDER, "std_scores.csv"))
 
 # PLOT TIMES
-times = pd.DataFrame.from_csv(os.path.join(CSV_FOLDER, "mean_times.csv"))
+times = pd.read_csv(os.path.join(CSV_FOLDER, "mean_times.csv"))
 plot_mean_durations(FOLDER, times)
 
-times = pd.DataFrame.from_csv(os.path.join(CSV_FOLDER, "std_times.csv"))
+times = pd.read_csv(os.path.join(CSV_FOLDER, "std_times.csv"))
 ax = times.plot(kind="line", title="Fitting time over missing rates")
 fig = ax.get_figure()
 fig.savefig(os.path.join(FOLDER, "runtimes_deviations.png"))
@@ -120,9 +122,8 @@ times = pd.DataFrame()
 k = 5
 file_prefixes = ["mean_", "std_"]
 
-mean_scores = pd.DataFrame.from_csv(
-    os.path.join(CSV_FOLDER, "mean_scores.csv"))
-std_scores = pd.DataFrame.from_csv(os.path.join(CSV_FOLDER, "std_scores.csv"))
+mean_scores = pd.read_csv(os.path.join(CSV_FOLDER, "mean_scores.csv"))
+std_scores = pd.read_csv(os.path.join(CSV_FOLDER, "std_scores.csv"))
 
 for clf in classifiers:
     for p in file_prefixes:
@@ -130,7 +131,7 @@ for clf in classifiers:
         filepaths = glob(os.path.join(CSV_FOLDER, search_string))
 
         for i, f in enumerate(filepaths):
-            df = pd.DataFrame.from_csv(f)
+            df = pd.read_csv(f)
             if i == 0:
                 scores = pd.DataFrame(
                     np.zeros((len(missing_rates), len(df.columns) + 1)),
@@ -159,7 +160,7 @@ for clf in clfs:
         for kind in kinds:
             path = os.path.join(CSV_FOLDER, "{:s}_{:s}_{:.2f}.csv".format(
                 kind, clf, mr))
-            df = pd.DataFrame.from_csv(path)
+            df = pd.read_csv(path)
 
             if kind == "mean":
                 df["complete"] = mean_scores[clf][mr]

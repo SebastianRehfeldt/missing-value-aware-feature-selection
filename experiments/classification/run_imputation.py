@@ -15,7 +15,7 @@ from experiments.classification.utils import get_pipelines, swap_pipeline_steps
 from experiments.plots import plot_mean_durations
 
 # LOAD DATA AND DEFINE SELECTORS AND CLASSIFIERS
-name = "ionosphere"
+name = "heart-c"
 FOLDER = os.path.join(EXPERIMENTS_PATH, "classification", "imputation", name)
 os.makedirs(FOLDER)
 
@@ -32,11 +32,11 @@ names = [
     "mice impute ++ rar",
 ]
 
-k_s = [2, 5]
+k_s = [i + 1 for i in range(10)]
 seeds = [42, 0, 13]
 n_runs = 3 if len(seeds) >= 3 else len(seeds)
 n_insertions = 3 if len(seeds) >= 3 else len(seeds)
-missing_rates = [0.1 * i for i in range(10)]
+missing_rates = [0.2 * i for i in range(5)]
 classifiers = ["knn", "tree", "gnb", "svm"]
 
 # MISSING RATES
@@ -61,7 +61,7 @@ for mr in missing_rates:
                 for k in k_s:
 
                     # PIPELINES
-                    pipelines = get_pipelines(train_data, k, names, clf)
+                    pipelines = get_pipelines(train_data, d, k, names, clf)
                     for i, pipe in enumerate(pipelines):
                         # GET RESULTS
                         robust = clf not in ["gnb"] or "impute" in names[i]
@@ -108,7 +108,7 @@ paths = glob(FOLDER + "/*.csv")
 results, missing_rates = [], []
 
 for path in paths:
-    results.append(pd.DataFrame.from_csv(path))
+    results.append(pd.read_csv(path))
     missing_rates.append(path.split("_")[-1].split(".csv")[0])
 
 # PLOT TIME
