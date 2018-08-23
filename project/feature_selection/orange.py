@@ -14,10 +14,10 @@ class Orange(Selector):
         """
         super()._init_parameters(**kwargs)
         self.params["eval_method"] = kwargs.get("eval_method", "relief")
-        warnings.filterwarnings(
-            module='Orange*', action='ignore', category=DeprecationWarning)
 
     def _fit(self):
+        warnings.filterwarnings(
+            module='orange*', action='ignore', category=DeprecationWarning)
         table = self.data.to_table()
         if self.params["eval_method"] == "relief":
             scores = ReliefF(table, n_iterations=100)
