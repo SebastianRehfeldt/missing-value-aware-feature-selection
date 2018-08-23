@@ -4,8 +4,6 @@ data/**/*.csv
 data/**/*.txt
 data/**/*.json
 data/**/*.arff
-data/statistics
-data/plots
 experiments/grid/*/*
 experiments/classification/*/*
 **/EXP_*
