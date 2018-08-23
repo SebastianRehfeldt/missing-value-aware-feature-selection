@@ -16,8 +16,7 @@ class Orange(Selector):
         self.params["eval_method"] = kwargs.get("eval_method", "relief")
 
     def _fit(self):
-        warnings.filterwarnings(
-            module='orange*', action='ignore', category=DeprecationWarning)
+        warnings.simplefilter(action='ignore')
         table = self.data.to_table()
         if self.params["eval_method"] == "relief":
             scores = ReliefF(table, n_iterations=100)

@@ -49,6 +49,8 @@ def reliefF(X, y, dist_params, mode="rank", **kwargs):
 
     # calculate pairwise distances between instances
     distance = cdist(X, X, metric=partial_distance, **dist_params)
+    distance = np.clip(distance, 0, X.shape[1])
+    X = np.nan_to_num(X)
 
     score = np.zeros(n_features)
 
