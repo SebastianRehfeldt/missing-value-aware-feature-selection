@@ -1,2 +1,16 @@
-skfeature-chappers
+numpy
+scipy
+pandas
+sklearn
+pprint
+jupyter
+matplotlib
 missingno
+skfeature-chappers
+pyswarm
+joblib
+requests
+xgboost
+gurobipy
+orange3
+fancyimpute
