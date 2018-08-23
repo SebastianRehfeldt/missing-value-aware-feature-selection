@@ -4,7 +4,7 @@ Missing values can be frequently observed in datasets and hinder many approaches
 This repository collects different approaches for feature selection and classification on these datasets and further comes with utilities to create synthetic datasets and simulate different missing mechanisms.
 
 It was developed during my Master's thesis and has the aim to check whether the traditional approaches - imputation or deletion - are inferior to approaches which handle missing values internally.
-Further, the repository includes a version of the RaR algorithm which was extended by handling missing values internally and by intooducing active sampling of subspaces rather than random subsampling.
+Further, the repository includes a version of the RaR algorithm which was extended by handling missing values internally and by introducing active sampling of subspaces rather than random subsampling.
 
 # Datasets
 
@@ -12,7 +12,7 @@ Datasets can be downloaded directly either from UCI (as csv) or from openml (as 
 
 # Evaluation
 
-To try and test the algorithms, there is a jupyter script at the top-level which is called test.py (can be executed in vscode or atom using jupyter and hydrogen extension, can also run as script but without breakpoints). 
+To try and test the algorithms, there is a jupyter script at the top-level which is called test.py (can be executed in vscode or atom using jupyter and hydrogen extension, can also be run as a script but without breakpoints). 
 
 It shows how to load data, introduce missing values and how to run the developed algorithm on it.
 
@@ -24,8 +24,8 @@ Required installations
     - https://visualstudio.microsoft.com/de/vs/community/
     - Tools für Visual Studio 2017 > Download Build Tools für Visual Studio 2017 (including Windows SDK)
 - Gurobi optimizer (https://www.gurobi.com/downloads/gurobi-optimizer)
-    - Get licence, install and run "grbgetkey <key>" in run and start menu (win+r)
-    - Run python setup.py install in gurobi folder
+    - Get licence, install and run "grbgetkey \<key\>" in run and start menu (win+r)
+    - Run "python setup.py install" in gurobi folder
 
 Steps:
 - Install requirements using pip (virtual environment is recommended)
