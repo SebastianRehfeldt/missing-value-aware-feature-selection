@@ -108,7 +108,7 @@ paths = glob(FOLDER + "/*.csv")
 results, missing_rates = [], []
 
 for path in paths:
-    results.append(pd.DataFrame.from_csv(path))
+    results.append(pd.read_csv(path))
     missing_rates.append(path.split("_")[-1].split(".csv")[0])
 
 # PLOT TIME

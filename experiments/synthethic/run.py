@@ -7,7 +7,7 @@ from experiments.ranking import get_rankings, calc_mean_ranking
 from experiments.synthethic import CONFIG, DATASET_CONFIG, ALGORITHMS
 
 t = time()
-ID = "mixed_many"
+ID = "cluster_many_large2"
 NAME = "synthethic"
 FOLDER = os.path.join(EXPERIMENTS_PATH, NAME, "EXP_" + ID)
 if os.path.isdir(FOLDER):

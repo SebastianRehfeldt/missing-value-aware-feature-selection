@@ -1,3 +1,4 @@
+import warnings
 from project.base import Selector
 from Orange.preprocess.score import ReliefF, FCBF
 from Orange.classification import RandomForestLearner
@@ -13,6 +14,8 @@ class Orange(Selector):
         """
         super()._init_parameters(**kwargs)
         self.params["eval_method"] = kwargs.get("eval_method", "relief")
+        warnings.filterwarnings(
+            module='Orange*', action='ignore', category=DeprecationWarning)
 
     def _fit(self):
         table = self.data.to_table()
