@@ -6,8 +6,7 @@ from experiments.ranking import get_rankings, calc_mean_ranking
 from experiments.uci import CONFIG, DATASET_CONFIG, ALGORITHMS
 
 ID = DATASET_CONFIG["name"]
-NAME = "uci"
-FOLDER = os.path.join(EXPERIMENTS_PATH, NAME, "EXP_" + ID + "2")
+FOLDER = os.path.join(EXPERIMENTS_PATH, "uci", "EXP_" + ID)
 
 if os.path.isdir(FOLDER):
     raise Exception("Set experiment id to run new experiment")
@@ -18,22 +17,20 @@ write_config(FOLDER, CONFIG, DATASET_CONFIG, ALGORITHMS)
 res = get_rankings(CONFIG, DATASET_CONFIG, ALGORITHMS)
 rankings, durations, relevances = res
 
-# %%
 # STORE AND READ RAW RESULTS
 from experiments.utils import write_results, read_results
 
 write_results(FOLDER, relevances, durations, rankings)
 relevances, durations, rankings = read_results(FOLDER)
-relevances = calc_mean_ranking(rankings)
+mean_scores = calc_mean_ranking(rankings)
 
-# %%
 # CALC ADDITIONAL STATISTICS (MEAN_DURCATIONS; CG; NDCG; SSE; MSE)
 from experiments.utils import get_mean_durations
 from experiments.metrics import compute_statistics
 
 mean_durations = get_mean_durations(durations)
-statistics = compute_statistics(rankings, relevances)
-cgs, ndcgs, cgs_pos, ndcgs_pos, sses, mses = statistics
+statistics = compute_statistics(rankings, mean_scores, mean_scores)
+cgs, cgs_at, ndcgs, cgs_pos, ndcgs_pos, sses, mses = statistics
 
 # PLOT RESULTS
 from experiments.plots import plot_mean_durations, plot_cgs, plot_scores

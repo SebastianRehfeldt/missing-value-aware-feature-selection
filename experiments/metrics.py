@@ -66,11 +66,6 @@ def compute_statistics(rankings, relevances, mean_scores, run_i=None):
     ndcg_means_pos, ndcg_deviations_pos = d.copy(), d.copy()
     sse_means, sse_deviations = d.copy(), d.copy()
 
-    if isinstance(relevances, pd.DataFrame):
-        print("synthetic")
-    else:
-        print("uci")
-
     for missing_rate in rankings.keys():
         for key in rankings[missing_rate].keys():
             ranking = rankings[missing_rate][key]
@@ -90,15 +85,11 @@ def compute_statistics(rankings, relevances, mean_scores, run_i=None):
                     else:
                         # use ranking on complete data as gold ranking for uci
                         gold_scores = complete_scores / complete_scores.sum()
-                        #gold_scores.dropna(inplace=True)
-                        #print(complete_scores)
-                        #print(gold_scores)
-                        #print(1 / 0)
 
                     # CG and NDCG
                     scores = [k for k, v in ranking[run][i].items()]
 
-                    n_relevant = np.count_nonzero(gold_scores.values)
+                    n_relevant = np.count_nonzero(gold_scores.values) - 1
                     CG = calc_cg(gold_scores, scores)
                     cgs.append(CG)
                     cgs_at.append(CG[n_relevant])
