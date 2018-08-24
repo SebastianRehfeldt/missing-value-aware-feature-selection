@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from sklearn.metrics import auc
 from collections import defaultdict
 
 
@@ -55,6 +56,14 @@ def calc_sse(gold_ranking, ranking):
 def calc_mse(gold_ranking, ranking):
     sse = calc_sse(gold_ranking, ranking)
     return sse / len(ranking)
+
+
+def calc_aucs(df):
+    missing_rates = list(df.index.astype(float))
+    aucs = pd.Series(np.zeros(df.shape[1]), index=df.columns)
+    for i, col in enumerate(df):
+        aucs[i] = auc(missing_rates, df[col]) / np.max(missing_rates)
+    return aucs
 
 
 def compute_statistics(rankings, relevances, mean_scores, run_i=None):

@@ -29,16 +29,19 @@ mean_scores = calc_mean_ranking(rankings)
 
 # CALC ADDITIONAL STATISTICS (MEAN_DURCATIONS; CG; NDCG; SSE; MSE)
 from experiments.utils import get_mean_durations
-from experiments.metrics import compute_statistics
+from experiments.metrics import compute_statistics, calc_aucs
 
 mean_durations = get_mean_durations(durations)
 statistics = compute_statistics(rankings, relevances, mean_scores)
 cgs, cgs_at, ndcgs, cgs_pos, ndcgs_pos, sses, mses = statistics
+aucs = calc_aucs(cgs_at[0])
 
 # PLOT RESULTS
 from experiments.plots import plot_mean_durations, plot_cgs, plot_scores
+from experiments.plots import plot_aucs
 
 plot_mean_durations(FOLDER, mean_durations)
+plot_aucs(FOLDER, aucs)
 plot_scores(FOLDER, cgs_at, "CG_AT_N")
 plot_scores(FOLDER, ndcgs, "NDCG")
 plot_scores(FOLDER, ndcgs_pos, "NDCG_POS")
