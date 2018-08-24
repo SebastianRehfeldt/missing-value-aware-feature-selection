@@ -9,7 +9,7 @@ from project.rar.rar import RaR
 from project.utils.data import DataGenerator
 from project.utils.imputer import Imputer
 from project.utils import DataLoader, introduce_missing_values, scale_data
-from experiments.metrics import calc_ndcg
+from experiments.metrics import calc_ndcg, calc_cg
 
 data_loader = DataLoader(ignored_attributes=["molecule_name"])
 name = "heart-c"
@@ -23,8 +23,9 @@ print(data.shape, flush=True)
 from project.feature_selection.ranking import Ranking
 from project.feature_selection.embedded import Embedded
 from project.feature_selection.orange import Orange
+from project.feature_selection.baseline import Baseline
 
-n_runs = 1
+n_runs = 3
 seeds = [0] * n_runs
 seeds = [42, 0, 113, 98, 234, 143, 1, 20432, 4357, 12]
 missing_rates = [0.1]
@@ -35,7 +36,7 @@ sums = np.zeros(len(missing_rates))
 data_orig = deepcopy(data)
 
 is_synthetic = True
-generator = DataGenerator(n_samples=500, n_relevant=3, n_clusters=0)
+generator = DataGenerator(n_samples=500, n_relevant=0, n_clusters=3)
 
 for j, mr in enumerate(missing_rates):
     print("======== {:.2f} ========".format(mr))
@@ -48,7 +49,8 @@ for j, mr in enumerate(missing_rates):
 
         data_copy = deepcopy(data_orig)
         data_copy = introduce_missing_values(data_copy, mr, seed=seeds[i])
-        # data_copy = imputer.complete(data_copy)
+        #data_copy = imputer.complete(data_copy)
+        data_copy.shuffle_columns(seed=seeds[i])
 
         start = time()
         selector = RaR(
@@ -64,22 +66,34 @@ for j, mr in enumerate(missing_rates):
             cache_enabled=True,
             dist_method="radius",
             imputation_method="soft",
+            subspace_size=(2, 2),
+            n_subspaces=500,
+            active_sampling=False,
         )
 
         if True:
-            selector = Ranking(
+            selector = Baseline(
                 data_copy.f_types,
                 data_copy.l_type,
                 data_copy.shape,
-                eval_method="cfs",
+                eval_method="fcbf",
             )
 
-        selector.fit(data_copy.X, data_copy.y)
-        pprint(selector.get_ranking())
+        X = data_copy.X
+        #X = X.round(2)
+
+        selector.fit(X, data_copy.y)
+        # pprint(selector.get_ranking())
         # print(time() - start)
         ranking = [k for k, v in selector.get_ranking()]
         ndcgs[i] = calc_ndcg(relevance_vector, ranking, False)
-        print(ndcgs[i])
+
+        if is_synthetic:
+            n_relevant = np.count_nonzero(relevance_vector.values)
+            cg = calc_cg(relevance_vector, ranking)[n_relevant]
+            print(cg)
+        else:
+            print(selector.get_ranking())
 
     avgs[j] = np.mean(ndcgs)
     stds[j] = np.std(ndcgs)
