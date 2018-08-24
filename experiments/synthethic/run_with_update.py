@@ -7,7 +7,7 @@ from experiments.utils import write_config
 from experiments.ranking import get_rankings, calc_mean_ranking
 from experiments.synthethic import CONFIG, DATASET_CONFIG, ALGORITHMS
 
-ID = "101"
+ID = "update_test"
 NAME = "synthethic"
 FOLDER = os.path.join(EXPERIMENTS_PATH, NAME, "EXP_" + ID)
 if os.path.isdir(FOLDER):
@@ -20,11 +20,10 @@ write_config(FOLDER, CONFIG, DATASET_CONFIG, ALGORITHMS)
 res = get_rankings(CONFIG, DATASET_CONFIG, ALGORITHMS)
 rankings, durations, relevances = res
 
-# %%
 # STORE AND READ RAW RESULTS
 from experiments.utils import write_results, read_results
 
-# write_results(FOLDER, relevances, durations, rankings)
+write_results(FOLDER, relevances, durations, rankings)
 relevances, durations, rankings = read_results(FOLDER)
 mean_scores = calc_mean_ranking(rankings)
 
@@ -64,10 +63,11 @@ from experiments.plots import plot_cgs, plot_scores
 stats = [None] * n_runs
 for run in range(n_runs):
     stats[run] = compute_statistics(rankings, relevances, mean_scores, run)
-    cgs, ndcgs, cgs_pos, ndcgs_pos, sses, mses = stats[run]
+    cgs, cgs_at, ndcgs, cgs_pos, ndcgs_pos, sses, mses = stats[run]
 
     NEW_FOLDER = os.path.join(FOLDER, update + "_" + str(index[run]))
 
+    plot_scores(NEW_FOLDER, cgs_at, "CG_AT_N")
     plot_scores(NEW_FOLDER, ndcgs, "NDCG")
     plot_scores(NEW_FOLDER, ndcgs_pos, "NDCG_POS")
     plot_scores(NEW_FOLDER, sses, "SSE")
@@ -77,17 +77,20 @@ for run in range(n_runs):
 
 # COMPUTE NDCG OVER DATASET UPDATES
 ndcg_mean, ndcg_deviation = {}, {}
+cg_mean, cg_deviation = {}, {}
 for run in range(n_runs):
-    cgs, ndcgs, cgs_pos, ndcgs_pos, sses, mses = stats[run]
+    cgs, cgs_at, ndcgs, cgs_pos, ndcgs_pos, sses, mses = stats[run]
     ndcg_mean[run] = ndcgs[0].mean(0)
     ndcg_deviation[run] = ndcgs[0].std(0)
+    cg_mean[run] = cgs_at[0].mean(0)
+    cg_deviation[run] = cgs_at[0].std(0)
 
+# PLOT AND STORE NDCG OVER DATASETS AND MISSING RATES
 ndcg_mean = pd.DataFrame(ndcg_mean).T
 ndcg_mean.index = index
 ndcg_deviation = pd.DataFrame(ndcg_deviation).T
 ndcg_deviation.index = index
 
-# PLOT AND STORE NDCG OVER DATASETS AND MISSING RATES
 kind = "bar" if n_runs <= 2 else "line"
 
 ndcg_mean.to_csv(os.path.join(FOLDER, "mean_ndcgs.csv"))
@@ -107,3 +110,29 @@ ax = ndcg_deviation.plot(
 ax.set(xlabel=update, ylabel="NDCG (std)")
 ax.xaxis.set_tick_params(rotation=0)
 ax.get_figure().savefig(os.path.join(FOLDER, "ndcg_deviation.png"))
+
+# PLOT AND STORE CG AT OVER DATASETS AND MISSING RATES
+cg_mean = pd.DataFrame(cg_mean).T
+cg_mean.index = index
+cg_deviation = pd.DataFrame(cg_deviation).T
+cg_deviation.index = index
+
+kind = "bar" if n_runs <= 2 else "line"
+
+cg_mean.to_csv(os.path.join(FOLDER, "mean_cgs.csv"))
+ax = cg_mean.plot(
+    kind=kind,
+    title="CG (mean) over {:s} and missing rates".format(update),
+)
+ax.set(xlabel=update, ylabel="CG (mean)")
+ax.xaxis.set_tick_params(rotation=0)
+ax.get_figure().savefig(os.path.join(FOLDER, "cg_mean.png"))
+
+cg_deviation.to_csv(os.path.join(FOLDER, "deviation_cgs.csv"))
+ax = cg_deviation.plot(
+    kind=kind,
+    title="CG (std) over {:s} and missing rates".format(update),
+)
+ax.set(xlabel=update, ylabel="CG (std)")
+ax.xaxis.set_tick_params(rotation=0)
+ax.get_figure().savefig(os.path.join(FOLDER, "cg_deviation.png"))

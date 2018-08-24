@@ -7,7 +7,7 @@ from experiments.ranking import get_rankings, calc_mean_ranking
 from experiments.synthethic import CONFIG, DATASET_CONFIG, ALGORITHMS
 
 t = time()
-ID = "cluster_many_large2"
+ID = "cluster_many"
 NAME = "synthethic"
 FOLDER = os.path.join(EXPERIMENTS_PATH, NAME, "EXP_" + ID)
 if os.path.isdir(FOLDER):
@@ -21,9 +21,10 @@ res = get_rankings(CONFIG, DATASET_CONFIG, ALGORITHMS)
 rankings, durations, relevances = res
 
 # STORE AND READ RAW RESULTS
+# %%
 from experiments.utils import write_results, read_results
 
-write_results(FOLDER, relevances, durations, rankings)
+#write_results(FOLDER, relevances, durations, rankings)
 relevances, durations, rankings = read_results(FOLDER)
 mean_scores = calc_mean_ranking(rankings)
 
@@ -33,12 +34,13 @@ from experiments.metrics import compute_statistics
 
 mean_durations = get_mean_durations(durations)
 statistics = compute_statistics(rankings, relevances, mean_scores)
-cgs, ndcgs, cgs_pos, ndcgs_pos, sses, mses = statistics
+cgs, cgs_at, ndcgs, cgs_pos, ndcgs_pos, sses, mses = statistics
 
 # PLOT RESULTS
 from experiments.plots import plot_mean_durations, plot_cgs, plot_scores
 
 plot_mean_durations(FOLDER, mean_durations)
+plot_scores(FOLDER, cgs_at, "CG_AT_N")
 plot_scores(FOLDER, ndcgs, "NDCG")
 plot_scores(FOLDER, ndcgs_pos, "NDCG_POS")
 plot_scores(FOLDER, sses, "SSE")
