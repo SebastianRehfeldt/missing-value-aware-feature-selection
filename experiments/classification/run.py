@@ -7,20 +7,20 @@ from glob import glob
 from copy import deepcopy
 from collections import defaultdict
 from sklearn.metrics import f1_score
+import matplotlib.pyplot as plt
 
 from project import EXPERIMENTS_PATH
 from project.utils import DataLoader, Data
 from project.utils import introduce_missing_values, scale_data
 from experiments.classification.utils import get_selectors, get_classifiers
-from experiments.plots import plot_mean_durations
+from experiments.plots import plot_mean_durations, plot_aucs
+from experiments.metrics import calc_aucs
 
 # LOAD DATA AND DEFINE SELECTORS AND CLASSIFIERS
 name = "heart-c"
-FOLDER = os.path.join(EXPERIMENTS_PATH, "classification", "incomplete",
-                      name + "1")
+FOLDER = os.path.join(EXPERIMENTS_PATH, "classification", "incomplete", name)
 CSV_FOLDER = os.path.join(FOLDER, "csv")
-os.makedirs(FOLDER)
-os.makedirs(CSV_FOLDER)
+AUC_FOLDER = os.path.join(FOLDER, "AUC")
 
 data_loader = DataLoader(ignored_attributes=["molecule_name"])
 data = data_loader.load_data(name, "arff")
@@ -38,6 +38,10 @@ n_insertions = 3 if len(seeds) >= 3 else len(seeds)
 classifiers = ["knn", "tree", "gnb", "svm"]
 k_s = [i + 1 for i in range(7)]
 missing_rates = [0.1 * i for i in range(10)]
+
+os.makedirs(FOLDER)
+os.makedirs(CSV_FOLDER)
+os.makedirs(AUC_FOLDER)
 
 times = {mr: defaultdict(list) for mr in missing_rates}
 complete_scores = deepcopy(times)
@@ -118,6 +122,7 @@ times = pd.read_csv(os.path.join(CSV_FOLDER, "std_times.csv"), index_col=0)
 ax = times.plot(kind="line", title="Fitting time over missing rates")
 fig = ax.get_figure()
 fig.savefig(os.path.join(FOLDER, "runtimes_deviations.png"))
+plt.close(fig)
 times = pd.DataFrame()
 
 # PLOT AVG AMONG BEST K=5 FEATURES
@@ -152,6 +157,13 @@ for clf in classifiers:
         fig = ax.get_figure()
         filename = "{:s}f1_{:s}_{:d}.png".format(p, clf, k)
         fig.savefig(os.path.join(FOLDER, filename))
+        plt.close(fig)
+
+        if p == "mean_":
+            filename = "mean_{:s}_{:d}.csv".format(clf, k)
+            scores.to_csv(os.path.join(FOLDER, filename))
+            aucs = calc_aucs(scores)
+            plot_aucs(AUC_FOLDER, aucs, "F1", "_" + clf)
 
 # PLOT SINGLE FILES
 mr_s = [0.00]
@@ -176,3 +188,4 @@ for clf in clfs:
             fig = ax.get_figure()
             path = "{:s}_{:s}_{:.2f}.png".format(clf, kind, mr)
             fig.savefig(os.path.join(FOLDER, path))
+            plt.close(fig)

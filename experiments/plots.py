@@ -68,7 +68,7 @@ def plot_scores(folder_, scores, name):
     scores[1].to_csv(os.path.join(FOLDER, "{:s}_deviations.csv".format(name)))
 
 
-def plot_aucs(folder, aucs, metric="CG"):
+def plot_aucs(folder, aucs, metric="CG", name=""):
     FOLDER = os.path.join(folder, "AUC")
     os.makedirs(FOLDER, exist_ok=True)
 
@@ -77,6 +77,6 @@ def plot_aucs(folder, aucs, metric="CG"):
     ax.set(ylabel="AUC")
 
     fig = ax.get_figure()
-    fig.savefig(os.path.join(FOLDER, "aucs.png"))
+    fig.savefig(os.path.join(FOLDER, "aucs{:s}.png".format(name)))
     plt.close(fig)
-    aucs.to_csv(os.path.join(FOLDER, "aucs.csv"))
+    aucs.to_csv(os.path.join(FOLDER, "aucs{:s}.csv".format(name)))
