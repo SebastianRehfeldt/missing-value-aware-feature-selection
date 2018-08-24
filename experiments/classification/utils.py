@@ -5,6 +5,7 @@ from project.feature_selection import RKNN, Filter, SFS
 from project.feature_selection.orange import Orange
 from project.feature_selection.ranking import Ranking
 from project.feature_selection.embedded import Embedded
+from project.feature_selection.baseline import Baseline
 from project.rar.rar import RaR
 from project.classifier import KNN, Tree, SKClassifier
 from project.utils.imputer import Imputer
@@ -16,6 +17,7 @@ def get_selectors(data, complete, names, max_k=None):
     max_k = data.shape[1] if max_k is None else max_k
 
     selectors = {
+        "baseline": Baseline(*d),
         "rar_del": RaR(*d, approach="deletion"),
         "rar_fuz": RaR(*d, approach="fuzzy", weight_approach="imputed"),
         "rknn": RKNN(*d),
@@ -59,6 +61,7 @@ def get_pipelines(data, complete, k, names, classifier):
     d2 = [complete.f_types, complete.l_type, complete.shape]
 
     selectors = {
+        "baseline": Baseline(*d),
         "rar": RaR(*d, k=k),
         "rknn": RKNN(*d, k=k),
         "sfs": SFS(*d2, k=k, do_stop=True, eval_method="tree"),

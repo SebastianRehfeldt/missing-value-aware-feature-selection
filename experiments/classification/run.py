@@ -28,8 +28,8 @@ data = scale_data(data)
 data.shuffle_rows(seed=42)
 
 names = [
-    "rar_del", "rar_fuz", "rknn", "sfs", "mi", "mrmr", "cfs", "relief_o",
-    "fcbf_o", "rf", "xgb"
+    "baseline", "rar_del", "rar_fuz", "rknn", "sfs", "mi", "mrmr", "cfs",
+    "relief_o", "fcbf_o", "rf", "xgb"
 ]
 
 seeds = [17, 12, 132, 4, 7]

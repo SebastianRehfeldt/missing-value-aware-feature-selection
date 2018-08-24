@@ -3,8 +3,36 @@ from project.feature_selection import RKNN, Filter, SFS
 from project.feature_selection.orange import Orange
 from project.feature_selection.ranking import Ranking
 from project.feature_selection.embedded import Embedded
+from project.feature_selection.baseline import Baseline
 
 ALGORITHMS = {
+    "Baseline": {
+        "class": Baseline,
+        "config": {}
+    },
+    "FCBF SK": {
+        "class": Ranking,
+        "config": {
+            "eval_method": "fcbf"
+        }
+    },
+    "RaR Deletion": {
+        "class": RaR,
+        "config": {
+            "approach": "deletion",
+            "n_targets": 0,
+        }
+    },
+}
+"""
+    "RaR Fuzzy": {
+        "class": RaR,
+        "config": {
+            "approach": "fuzzy",
+            "weight_approach": "imputed",
+            "n_targets": 0,
+        }
+    },
     "XGBoost": {
         "class": Embedded,
         "config": {}
@@ -33,37 +61,20 @@ ALGORITHMS = {
             "eval_method": "rf"
         }
     },
-    "RaR Deletion": {
-        "class": RaR,
+    "SFS + Tree": {
+        "class": SFS,
         "config": {
-            "approach": "deletion",
-            "n_targets": 0,
+            "eval_method": "tree"
         }
     },
-    "RaR Fuzzy": {
-        "class": RaR,
+    "RKNN": {
+        "class": RKNN,
+        "config": {}
+    },
+    "MI": {
+        "class": Filter,
         "config": {
-            "approach": "fuzzy",
-            "weight_approach": "imputed",
-            "n_targets": 0,
+            "eval_method": "mi"
         }
     },
-}
-"""
-"SFS + Tree": {
-    "class": SFS,
-    "config": {
-        "eval_method": "tree"
-    }
-},
-"RKNN": {
-    "class": RKNN,
-    "config": {}
-},
-"MI": {
-    "class": Filter,
-    "config": {
-        "eval_method": "mi"
-    }
-},
 """

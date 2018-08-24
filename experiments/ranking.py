@@ -52,11 +52,11 @@ def get_rankings(CONFIG, DATASET_CONFIG, ALGORITHMS):
                 data_orig = deepcopy(data_original)
                 seed = CONFIG["seeds"][j]
                 data_orig = introduce_missing_values(data_orig, mr, seed=seed)
+                data_orig.shuffle_columns(CONFIG["seeds"][j])
 
                 for key, algorithm in ALGORITHMS.items():
                     ### GET RANKING USING SELECTOR ###
                     data = deepcopy(data_orig)
-                    data.shuffle_columns(CONFIG["seeds"][j])
 
                     start = clock()
                     if algorithm.get("should_impute", False):
