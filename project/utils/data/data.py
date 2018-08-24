@@ -61,6 +61,14 @@ class Data():
         y_shuffled = self.y.iloc[indices].reset_index(drop=True)
         return self.replace(copy=copy, X=X_shuffled, y=y_shuffled)
 
+    def shuffle_columns(self, copy=False, seed=None):
+        if seed is not None:
+            np.random.seed(seed)
+        indices = np.random.permutation(range(self.shape[1]))
+        names = self.X.columns[indices]
+        return self.replace(
+            copy=copy, X=self.X[names], f_types=self.f_types[names])
+
     def to_table(self):
         attributes = [
             Data.get_variable(c_type, self.X.columns[i], self.X.iloc[:, i])

@@ -21,10 +21,9 @@ res = get_rankings(CONFIG, DATASET_CONFIG, ALGORITHMS)
 rankings, durations, relevances = res
 
 # STORE AND READ RAW RESULTS
-# %%
 from experiments.utils import write_results, read_results
 
-#write_results(FOLDER, relevances, durations, rankings)
+write_results(FOLDER, relevances, durations, rankings)
 relevances, durations, rankings = read_results(FOLDER)
 mean_scores = calc_mean_ranking(rankings)
 

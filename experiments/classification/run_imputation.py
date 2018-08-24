@@ -70,6 +70,9 @@ for mr in missing_rates:
                         else:
                             train = deepcopy(train_data)
                             test = deepcopy(test_data)
+                            train.shuffle_columns(seed=(i_split % n_runs))
+                            test.shuffle_columns(seed=(i_split % n_runs))
+
                             start = time()
 
                             seed = seeds[i_split % n_runs]
@@ -108,7 +111,7 @@ paths = glob(FOLDER + "/*.csv")
 results, missing_rates = [], []
 
 for path in paths:
-    results.append(pd.read_csv(path))
+    results.append(pd.read_csv(path, index_col=0))
     missing_rates.append(path.split("_")[-1].split(".csv")[0])
 
 # PLOT TIME

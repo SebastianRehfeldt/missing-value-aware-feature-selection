@@ -56,6 +56,8 @@ def get_rankings(CONFIG, DATASET_CONFIG, ALGORITHMS):
                 for key, algorithm in ALGORITHMS.items():
                     ### GET RANKING USING SELECTOR ###
                     data = deepcopy(data_orig)
+                    data.shuffle_columns(CONFIG["seeds"][j])
+
                     start = clock()
                     if algorithm.get("should_impute", False):
                         imputer = Imputer(data.f_types, algorithm["strategy"])
