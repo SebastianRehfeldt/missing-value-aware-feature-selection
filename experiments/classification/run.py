@@ -58,6 +58,7 @@ os.makedirs(CSV_FOLDER)
 
 times = {mr: defaultdict(list) for mr in missing_rates}
 complete_scores = deepcopy(times)
+shuffle_seed = 0
 for mr in missing_rates:
 
     scores_clf = {k: defaultdict(list) for k in k_s}
@@ -69,9 +70,10 @@ for mr in missing_rates:
 
         splits = d.split(n_repeats=n_runs)
         for i_split, (train, test) in enumerate(splits):
-            d.shuffle_columns(seed=(i_split % n_runs))
-            train.shuffle_columns(seed=(i_split % n_runs))
-            test.shuffle_columns(seed=(i_split % n_runs))
+            d.shuffle_columns(seed=shuffle_seed)
+            train.shuffle_columns(seed=shuffle_seed)
+            test.shuffle_columns(seed=shuffle_seed)
+            shuffle_seed += 1
 
             if uses_imputation:
                 imputer = Imputer(d.f_types, strategy)

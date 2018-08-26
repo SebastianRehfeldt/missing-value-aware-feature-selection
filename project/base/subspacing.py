@@ -56,11 +56,12 @@ class Subspacing(Selector):
 
     def _get_next(self, dim, p, subspaces, upper):
         found_new, retries = False, 0
-        while not found_new and retries < 3:
+        while not found_new and retries < 4:
             f = sorted(np.random.choice(self.names, dim, False, p))
             found_new = f not in subspaces
             retries += 1
             if dim == 1 and retries > 2:
+                retries = 0
                 dim = np.random.randint(2, upper + 1, 1)[0]
         return f
 

@@ -22,6 +22,7 @@ def calc_mean_ranking(rankings):
 
 
 def get_rankings(CONFIG, DATASET_CONFIG, ALGORITHMS):
+    shuffle_seed = 0
     durations, rankings, relevances = {}, {}, []
     for i in range(CONFIG["n_runs"]):
         ### CREATE DATASET WHICH IS USED FOR EVALUATION ###
@@ -52,7 +53,8 @@ def get_rankings(CONFIG, DATASET_CONFIG, ALGORITHMS):
                 data_orig = deepcopy(data_original)
                 seed = CONFIG["seeds"][j]
                 data_orig = introduce_missing_values(data_orig, mr, seed=seed)
-                data_orig.shuffle_columns(CONFIG["seeds"][j])
+                data_orig.shuffle_columns(shuffle_seed)
+                shuffle_seed += 1
 
                 for key, algorithm in ALGORITHMS.items():
                     ### GET RANKING USING SELECTOR ###
