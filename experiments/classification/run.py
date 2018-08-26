@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 
 from project import EXPERIMENTS_PATH
 from project.utils import DataLoader, Data
+from project.utils.imputer import Imputer
 from project.utils import introduce_missing_values, scale_data
 from experiments.classification.utils import get_selectors, get_classifiers
 from experiments.plots import plot_mean_durations, plot_aucs
@@ -18,18 +19,32 @@ from experiments.metrics import calc_aucs
 
 # LOAD DATA AND DEFINE SELECTORS AND CLASSIFIERS
 name = "heart-c"
-FOLDER = os.path.join(EXPERIMENTS_PATH, "classification", "incomplete", name)
+BASE_PATH = os.path.join(EXPERIMENTS_PATH, "classification")
+
+uses_imputation = False
+if uses_imputation:
+    FOLDER = os.path.join(BASE_PATH, "imputation", name)
+    strategy = "knn"
+    names = [
+        "rar_del0",  # without imputation
+        "rar_del1",  # fs | imputation + transform + clf (no cost savings)
+        "rar_del2",  # fs | transform + imputation + clf
+        "rar_del3",  # imputation + fs | imputation + transform + clf (no cost savings)
+        "rar_del4",  # imputation + fs | transform + imputation + clf
+    ]
+else:
+    FOLDER = os.path.join(BASE_PATH, "incomplete", name)
+    names = [
+        "baseline", "rar_del", "rar_fuz", "rknn", "sfs", "mi", "mrmr", "cfs",
+        "relief_o", "fcbf_o", "rf", "xgb"
+    ]
+
 CSV_FOLDER = os.path.join(FOLDER, "csv")
 
 data_loader = DataLoader(ignored_attributes=["molecule_name"])
 data = data_loader.load_data(name, "arff")
 data = scale_data(data)
 data.shuffle_rows(seed=42)
-
-names = [
-    "baseline", "rar_del", "rar_fuz", "rknn", "sfs", "mi", "mrmr", "cfs",
-    "relief_o", "fcbf_o", "rf", "xgb"
-]
 
 seeds = [17, 12, 132, 4, 7]
 n_runs = 3 if len(seeds) >= 3 else len(seeds)
@@ -58,6 +73,11 @@ for mr in missing_rates:
             train.shuffle_columns(seed=(i_split % n_runs))
             test.shuffle_columns(seed=(i_split % n_runs))
 
+            if uses_imputation:
+                imputer = Imputer(d.f_types, strategy)
+                train_imputed = imputer.complete(train)
+                test_imputed = imputer.complete(test)
+
             # EVALUATE COMPLETE SET
             clfs = get_classifiers(train, d, classifiers)
             for i_c, clf in enumerate(clfs):
@@ -67,11 +87,19 @@ for mr in missing_rates:
                 complete_scores[mr][classifiers[i_c]].append(f1)
 
             # EVALUATE SELECTORS
-            selectors = get_selectors(train, d, names, max(k_s))
+            n = names
+            if uses_imputation:
+                n = [name[:-1] for name in names]
+            selectors = get_selectors(train, d, n, max(k_s))
             for i_s, selector in enumerate(selectors):
                 start = time()
 
-                train_data = deepcopy(train)
+                if uses_imputation and i_s in [3, 4]:
+                    # run fs on imputed datasets
+                    train_data = deepcopy(train_imputed)
+                else:
+                    train_data = deepcopy(train)
+
                 np.random.seed(seeds[i_split % n_runs])
                 selector.fit(train_data.X, train_data.y)
 
@@ -79,8 +107,19 @@ for mr in missing_rates:
                 times[mr][names[i_s]].append(t)
 
                 for k in k_s:
-                    X_train = selector.transform(train.X, k)
-                    X_test = selector.transform(test.X, k)
+                    if uses_imputation and i_s in [1, 3]:
+                        # imputation before transformation
+                        X_train = selector.transform(train_imputed.X, k)
+                        X_test = selector.transform(test_imputed.X, k)
+                    else:
+                        X_train = selector.transform(train.X, k)
+                        X_test = selector.transform(test.X, k)
+
+                    if uses_imputation and i_s in [2, 4]:
+                        # impute on reduced data
+                        cols = X_train.columns
+                        X_train = imputer._complete(X_train, cols)
+                        X_test = imputer._complete(X_test, cols)
 
                     f_types = train.f_types[X_train.columns]
                     transformed_data = Data(X_train, train.y, f_types,

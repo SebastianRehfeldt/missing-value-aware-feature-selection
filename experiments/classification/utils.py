@@ -1,14 +1,12 @@
 from copy import deepcopy
-from sklearn.pipeline import Pipeline
 
+from project.rar.rar import RaR
 from project.feature_selection import RKNN, Filter, SFS
 from project.feature_selection.orange import Orange
 from project.feature_selection.ranking import Ranking
 from project.feature_selection.embedded import Embedded
 from project.feature_selection.baseline import Baseline
-from project.rar.rar import RaR
 from project.classifier import KNN, Tree, SKClassifier
-from project.utils.imputer import Imputer
 
 
 def get_selectors(data, complete, names, max_k=None):
@@ -33,7 +31,7 @@ def get_selectors(data, complete, names, max_k=None):
         "xgb": Embedded(*d),
     }
 
-    return [selectors[name] for name in names]
+    return [deepcopy(selectors[name]) for name in names]
 
 
 def get_classifiers(data, complete, names):
@@ -48,62 +46,3 @@ def get_classifiers(data, complete, names):
         "sk_tree": SKClassifier(data.f_types, "tree"),
     }
     return [classifiers[name] for name in names]
-
-
-def swap_pipeline_steps(pipe):
-    temp_step = deepcopy(pipe.steps[0])
-    pipe.steps[0] = deepcopy(pipe.steps[1])
-    pipe.steps[1] = temp_step
-
-
-def get_pipelines(data, complete, k, names, classifier):
-    d = [data.f_types, data.l_type, data.shape]
-    d2 = [complete.f_types, complete.l_type, complete.shape]
-
-    selectors = {
-        "baseline": Baseline(*d),
-        "rar": RaR(*d, k=k),
-        "rknn": RKNN(*d, k=k),
-        "sfs": SFS(*d2, k=k, do_stop=True, eval_method="tree"),
-        "mi": Filter(*d, k=k),
-        "relief_sk": Ranking(*d, k=k, eval_method="myrelief"),
-        "fcbf_sk": Ranking(*d, k=k, eval_method="fcbf"),
-        "mrmr": Ranking(*d, k=k, eval_method="mrmr"),
-        "cfs": Ranking(*d, k=k, eval_method="cfs"),
-        "relief_o": Orange(*d, k=k, eval_method="relief"),
-        "fcbf_o": Orange(*d, k=k, eval_method="fcbf"),
-        "rf": Orange(*d, k=k, eval_method="rf"),
-        "xgb": Embedded(*d, k=k),
-    }
-
-    clf = get_classifiers(data, complete, [classifier])[0]
-
-    # DEFINE PIEPLINES
-    pipelines = []
-    for name in names:
-        if name == "complete":
-            pipelines.append(Pipeline(steps=[('classify', clf)]))
-        if "+ impute" in name:
-            strategy, selector = name.split(" ")[-1], name.split(" ")[0]
-            pipelines.append(
-                Pipeline(steps=[
-                    ('reduce', deepcopy(selectors[selector])),
-                    ('imputer', Imputer(data.f_types, strategy)),
-                    ('classify', clf),
-                ]))
-        elif "impute +" in name:
-            strategy, selector = name.split(" ")[0], name.split(" ")[-1]
-            pipelines.append(
-                Pipeline(steps=[
-                    ('imputer', Imputer(data.f_types, strategy)),
-                    ('reduce', deepcopy(selectors[selector])),
-                    ('classify', clf),
-                ]))
-        else:
-            pipelines.append(
-                Pipeline(steps=[
-                    ('reduce', deepcopy(selectors[name])),
-                    ('classify', clf),
-                ]))
-
-    return pipelines
