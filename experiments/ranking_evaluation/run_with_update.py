@@ -5,11 +5,12 @@ import pandas as pd
 from project import EXPERIMENTS_PATH
 from experiments.utils import write_config
 from experiments.ranking import get_rankings, calc_mean_ranking
-from experiments.synthethic import CONFIG, DATASET_CONFIG, ALGORITHMS
+from experiments.ranking_evaluation import CONFIG, ALGORITHMS
+from experiments.ranking_evaluation import SYNTHETIC_CONFIG as DATASET_CONFIG
 
 ID = "update_test"
-NAME = "synthethic"
-FOLDER = os.path.join(EXPERIMENTS_PATH, NAME, "EXP_" + ID)
+FOLDER = os.path.join(EXPERIMENTS_PATH, "ranking_evaluation", "updates",
+                      "EXP_" + ID)
 if os.path.isdir(FOLDER):
     raise Exception("Set experiment id to run new experiment")
 
@@ -57,16 +58,18 @@ fig = ax.get_figure()
 fig.savefig(os.path.join(FOLDER, "mean_runtimes.png").format(mr))
 
 # COMPUTE AND PLOT STATISTICS FOR SINGLE RUNS
-from experiments.metrics import compute_statistics
-from experiments.plots import plot_cgs, plot_scores
+from experiments.metrics import compute_statistics, calc_aucs
+from experiments.plots import plot_cgs, plot_scores, plot_aucs
 
 stats = [None] * n_runs
 for run in range(n_runs):
     stats[run] = compute_statistics(rankings, relevances, mean_scores, run)
     cgs, cgs_at, ndcgs, cgs_pos, ndcgs_pos, sses, mses = stats[run]
+    aucs = calc_aucs(cgs_at[0])
 
     NEW_FOLDER = os.path.join(FOLDER, update + "_" + str(index[run]))
 
+    plot_aucs(NEW_FOLDER, aucs)
     plot_scores(NEW_FOLDER, cgs_at, "CG_AT_N")
     plot_scores(NEW_FOLDER, ndcgs, "NDCG")
     plot_scores(NEW_FOLDER, ndcgs_pos, "NDCG_POS")
