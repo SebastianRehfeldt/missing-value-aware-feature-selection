@@ -20,7 +20,6 @@ from experiments.metrics import calc_aucs
 name = "heart-c"
 FOLDER = os.path.join(EXPERIMENTS_PATH, "classification", "incomplete", name)
 CSV_FOLDER = os.path.join(FOLDER, "csv")
-AUC_FOLDER = os.path.join(FOLDER, "AUC")
 
 data_loader = DataLoader(ignored_attributes=["molecule_name"])
 data = data_loader.load_data(name, "arff")
@@ -41,7 +40,6 @@ missing_rates = [0.1 * i for i in range(10)]
 
 os.makedirs(FOLDER)
 os.makedirs(CSV_FOLDER)
-os.makedirs(AUC_FOLDER)
 
 times = {mr: defaultdict(list) for mr in missing_rates}
 complete_scores = deepcopy(times)
@@ -56,6 +54,7 @@ for mr in missing_rates:
 
         splits = d.split(n_repeats=n_runs)
         for i_split, (train, test) in enumerate(splits):
+            d.shuffle_columns(seed=(i_split % n_runs))
             train.shuffle_columns(seed=(i_split % n_runs))
             test.shuffle_columns(seed=(i_split % n_runs))
 
@@ -163,7 +162,7 @@ for clf in classifiers:
             filename = "mean_{:s}_{:d}.csv".format(clf, k)
             scores.to_csv(os.path.join(FOLDER, filename))
             aucs = calc_aucs(scores)
-            plot_aucs(AUC_FOLDER, aucs, "F1", "_" + clf)
+            plot_aucs(FOLDER, aucs, "F1", "_" + clf)
 
 # PLOT SINGLE FILES
 mr_s = [0.00]
