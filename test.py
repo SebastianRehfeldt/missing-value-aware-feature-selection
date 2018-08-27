@@ -12,7 +12,7 @@ from project.utils import DataLoader, introduce_missing_values, scale_data
 from experiments.metrics import calc_ndcg, calc_cg
 
 data_loader = DataLoader(ignored_attributes=["molecule_name"])
-name = "heart-c"
+name = "ionosphere"
 data = data_loader.load_data(name, "arff")
 data = scale_data(data)
 
@@ -25,11 +25,16 @@ from project.feature_selection.embedded import Embedded
 from project.feature_selection.orange import Orange
 from project.feature_selection.baseline import Baseline
 
-n_runs = 3
-seeds = [0] * n_runs
+n_runs = 5
+seeds = [42] * n_runs
 seeds = [42, 0, 113, 98, 234, 143, 1, 20432, 4357, 12]
-missing_rates = [0.1]
-missing_rates = [0.2 * i for i in range(0, 5)]
+
+np.random.seed(1)
+seeds = np.random.randint(0, 1000, n_runs)
+
+missing_rates = [0.5]
+missing_rates = [0.2 * i for i in range(0, 4)]
+cgs = np.zeros(len(missing_rates))
 avgs = np.zeros(len(missing_rates))
 stds = np.zeros(len(missing_rates))
 sums = np.zeros(len(missing_rates))
@@ -37,10 +42,12 @@ data_orig = deepcopy(data)
 
 is_synthetic = True
 generator = DataGenerator(n_samples=500, n_relevant=0, n_clusters=3)
+shuffle_seed = 0
 
 for j, mr in enumerate(missing_rates):
     print("======== {:.2f} ========".format(mr))
     ndcgs = np.zeros(n_runs)
+    cgs_run = np.zeros(n_runs)
     for i in range(n_runs):
         if is_synthetic:
             generator.set_seed(seeds[i])
@@ -49,34 +56,41 @@ for j, mr in enumerate(missing_rates):
 
         data_copy = deepcopy(data_orig)
         data_copy = introduce_missing_values(data_copy, mr, seed=seeds[i])
-        #data_copy = imputer.complete(data_copy)
-        data_copy.shuffle_columns(seed=seeds[i])
+        # data_copy = imputer.complete(data_copy)
+
+        data_copy.shuffle_columns(seed=shuffle_seed)
+        shuffle_seed += 1
 
         start = time()
         selector = RaR(
             data_copy.f_types,
             data_copy.l_type,
             data_copy.shape,
-            approach="deletion",
+            alpha=0.02,  # * (1 + mr),
+            approach="fuzzy",
             weight_approach="imputed",
             boost_value=0,
-            boost_inter=0.1,
+            boost_inter=0,
             boost_corr=0,
+            regularization=1,
+            weight=1,
+            n_targets=0,
             # random_state=seeds[j],
             cache_enabled=True,
-            dist_method="radius",
+            dist_method="distance",
             imputation_method="soft",
             subspace_size=(2, 2),
             n_subspaces=500,
             active_sampling=False,
+            #min_samples=0,
         )
 
-        if True:
-            selector = Baseline(
+        if False:
+            selector = Embedded(
                 data_copy.f_types,
                 data_copy.l_type,
                 data_copy.shape,
-                eval_method="fcbf",
+                eval_method="relief",
             )
 
         X = data_copy.X
@@ -86,37 +100,53 @@ for j, mr in enumerate(missing_rates):
         # pprint(selector.get_ranking())
         # print(time() - start)
         ranking = [k for k, v in selector.get_ranking()]
-        ndcgs[i] = calc_ndcg(relevance_vector, ranking, False)
 
         if is_synthetic:
+            ndcgs[i] = calc_ndcg(relevance_vector, ranking, False)
             n_relevant = np.count_nonzero(relevance_vector.values)
-            cg = calc_cg(relevance_vector, ranking)[n_relevant]
-            print(cg)
+            cgs_run[i] = calc_cg(relevance_vector, ranking)[n_relevant]
+            print(cgs_run[i])
         else:
             print(selector.get_ranking())
 
-    avgs[j] = np.mean(ndcgs)
-    stds[j] = np.std(ndcgs)
-    sums[j] = np.sum([v for k, v in selector.get_ranking()])
-    print(avgs[j], stds[j])
+        #print(selector.hics.evaluate_subspace(["f7"])[0])
+        #print(selector.hics.evaluate_subspace(["f7", "f11"])[0])
 
-rar_results = pd.DataFrame(avgs, columns=["AVG"], index=missing_rates)
+    cgs[j] = np.mean(cgs_run)
+    stds[j] = np.std(cgs_run)
+    avgs[j] = np.mean(ndcgs)
+    sums[j] = np.sum([v for k, v in selector.get_ranking()])
+    print(cgs[j], stds[j])
+
+rar_results = pd.DataFrame(cgs, columns=["CG"], index=missing_rates)
 rar_results["STD"] = stds
+rar_results["NDCG"] = avgs
 rar_results["SUM"] = sums
 rar_results = rar_results.T
 rar_results.T
 
 # %%
-data_copy.X.head().T
+for col in X:
+    print(type(X.head()[col][0]))
+X.head()
+
+# %%
+generator.discrete_features
 
 # %%
 relevance_vector.sort_values(ascending=False)
 
 # %%
-ranking
+generator.clusters
 
 # %%
-selector.get_params()
+selector.interactions
+
+# %%
+selector.get_ranking()
+
+# %%
+selector.score_map
 
 # %%
 k = 4

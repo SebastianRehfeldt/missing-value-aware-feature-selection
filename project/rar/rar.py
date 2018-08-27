@@ -78,7 +78,8 @@ class RaR(RaRUtils):
         results, features = [], d["features"]
         if self.params["boost_inter"] > 0:
             cum_rel = np.sum(self.scores_1d[features])
-            if 1.5 * cum_rel <= d["score"]["relevance"]:
+            factor = 1.5 + self.missing_rates.max()
+            if factor * cum_rel <= d["score"]["relevance"]:
                 self.interactions.append(features)
                 d["score"]["relevance"] *= np.sqrt(len(features))
                 results.append(d)
