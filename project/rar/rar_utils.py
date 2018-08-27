@@ -23,7 +23,7 @@ class RaRUtils(RaRParams):
         self.nan_corr = 1 - (1 + self.nan_corr) / 2
 
     def _increase_iterations(self):
-        mr_boost = 1 + np.mean(self.missing_rates)
+        mr_boost = 1 + np.mean(self.missing_rates) * 2
         n_iterations = int(self.params["contrast_iterations"] * mr_boost)
         self.params["contrast_iterations"] = n_iterations
 
