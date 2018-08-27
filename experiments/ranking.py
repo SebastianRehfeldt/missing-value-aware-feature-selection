@@ -8,6 +8,7 @@ from project.utils.data import DataGenerator
 from project.utils import introduce_missing_values, scale_data
 from project.utils.imputer import Imputer
 from project.utils.deleter import Deleter
+from project.feature_selection.baseline import Baseline
 
 
 def calc_mean_ranking(rankings):
@@ -69,16 +70,21 @@ def get_rankings(CONFIG, DATASET_CONFIG, ALGORITHMS):
                         deleter = Deleter()
                         data = deleter.remove(data)
 
-                    selector = algorithm["class"](
-                        data.f_types,
-                        data.l_type,
-                        data.shape,
-                        **algorithm["config"],
-                    )
-                    # fix for global deletion
                     if data.shape[0] >= 30:
-                        selector.fit(data.X, data.y)
+                        selector = algorithm["class"](
+                            data.f_types,
+                            data.l_type,
+                            data.shape,
+                            **algorithm["config"],
+                        )
+                        # fix for global deletion
+                    else:
+                        selector = Baseline(data.f_types, data.l_type,
+                                            data.shape)
+
+                    selector.fit(data.X, data.y)
                     ranking = selector.get_ranking()
+
                     duration = clock() - start
 
                     rankings_run[key].append(dict(ranking))
