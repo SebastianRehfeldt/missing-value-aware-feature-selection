@@ -153,10 +153,11 @@ class DataGenerator():
             self.X[idx, target] = np.nan
 
     def _discretize_features(self):
-        self.discrete_features = np.random.choice(
+        discrete_features = np.random.choice(
             range(self.n_features), self.n_discrete, False)
+        self.discrete_features = ["f" + str(i) for i in discrete_features]
 
-        for index in self.discrete_features:
+        for index in discrete_features:
             n_values = np.random.randint(2, self.max_discrete_values)
             values = list(range(n_values))
 
@@ -190,6 +191,7 @@ class DataGenerator():
         shuffled_names = np.random.permutation(names)
         X = X[shuffled_names]
         f_types = f_types[shuffled_names]
+        X[self.discrete_features] = X[self.discrete_features].astype(str)
 
         self.data = Data(X, y, f_types, l_type, X.shape)
         self.relevance_vector = pd.Series(self.relevance_vector, index=names)
