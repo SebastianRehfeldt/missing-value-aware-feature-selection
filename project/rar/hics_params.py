@@ -19,7 +19,7 @@ class HICSParams():
     def _init_alphas(self):
         alpha = self.params["alpha"]
         self.alphas_d = {
-            i: alpha**(1 / max(2, i))
+            i: alpha**(1 / max(1.5, i))
             for i in range(1, self.params["subspace_size"][1] + 1)
         }
 
