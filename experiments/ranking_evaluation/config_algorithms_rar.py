@@ -1,18 +1,28 @@
 from project.rar.rar import RaR
 
+SHARED = {
+    "n_targets": 0,
+    "boost_value": 0,
+    "boost_inter": 0,
+    "boost_corr": 0,
+    "n_subspaces": 500,
+    "subspace_size": (2, 2),
+    "active_samling": False,
+}
+
 ALGORITHMS = {
     "RaR Deletion": {
         "class": RaR,
         "config": {
             "approach": "deletion",
-            "n_targets": 0,
+            **SHARED
         }
     },
     "RaR Partial": {
         "class": RaR,
         "config": {
             "approach": "partial",
-            "n_targets": 0,
+            **SHARED
         }
     },
     "RaR Fuzzy alpha": {
@@ -20,15 +30,27 @@ ALGORITHMS = {
         "config": {
             "approach": "fuzzy",
             "weight_approach": "alpha",
-            "n_targets": 0,
+            **SHARED
         }
     },
-    "RaR Fuzzy imputed": {
+    "RaR Fuzzy distance": {
         "class": RaR,
         "config": {
             "approach": "fuzzy",
             "weight_approach": "imputed",
-            "n_targets": 0,
+            "imputation_method": "soft",
+            "dist_method": "distance",
+            **SHARED
+        }
+    },
+    "RaR Fuzzy radius": {
+        "class": RaR,
+        "config": {
+            "approach": "fuzzy",
+            "weight_approach": "imputed",
+            "imputation_method": "soft",
+            "dist_method": "radius",
+            **SHARED
         }
     },
     "RaR Fuzzy proba": {
@@ -36,7 +58,7 @@ ALGORITHMS = {
         "config": {
             "approach": "fuzzy",
             "weight_approach": "proba",
-            "n_targets": 0,
+            **SHARED
         }
     },
     "MEAN + RaR": {
@@ -45,7 +67,7 @@ ALGORITHMS = {
         "class": RaR,
         "config": {
             "approach": "deletion",
-            "n_targets": 0,
+            **SHARED
         }
     },
     "MICE + RaR": {
@@ -54,7 +76,15 @@ ALGORITHMS = {
         "class": RaR,
         "config": {
             "approach": "deletion",
-            "n_targets": 0,
+            **SHARED
+        }
+    },
+    "DELETION + RaR": {
+        "should_delete": True,
+        "class": RaR,
+        "config": {
+            "approach": "deletion",
+            **SHARED
         }
     },
 }

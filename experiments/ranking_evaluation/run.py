@@ -4,12 +4,16 @@ from time import time
 from project import EXPERIMENTS_PATH
 from experiments.utils import write_config
 from experiments.ranking import get_rankings, calc_mean_ranking
-from experiments.ranking_evaluation import CONFIG, ALGORITHMS
+from experiments.ranking_evaluation import CONFIG, COMPETITORS, RAR
 from experiments.ranking_evaluation import SYNTHETIC_CONFIG, UCI_CONFIG
 
 t = time()
 
 BASE_PATH = os.path.join(EXPERIMENTS_PATH, "ranking_evaluation")
+
+# SELECT RAR VERSIONS OR COMPETITORS
+#ALGORITHMS = COMPETITORS
+ALGORITHMS = RAR
 
 is_real_data = CONFIG["is_real_data"]
 if is_real_data:
