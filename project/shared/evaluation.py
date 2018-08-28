@@ -1,6 +1,10 @@
+import warnings
 from sklearn.model_selection import cross_val_score, train_test_split
-from sklearn.cross_validation import StratifiedKFold
 from sklearn.metrics import accuracy_score, mean_squared_error
+
+warnings.filterwarnings(
+    module='sklearn*', action="ignore", category=DeprecationWarning)
+from sklearn.cross_validation import StratifiedKFold
 
 from project.classifier import KNN, Tree
 from project.shared.mutual_information import get_mutual_information

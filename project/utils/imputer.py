@@ -11,6 +11,8 @@ class Imputer():
     def __init__(self, f_types, strategy="knn"):
         warnings.filterwarnings(
             module='sklearn*', action='ignore', category=DeprecationWarning)
+        warnings.filterwarnings(
+            module='fancy*', action='ignore', category=RuntimeWarning)
         self.f_types = f_types
         self.strategy = strategy
 
@@ -59,6 +61,8 @@ class Imputer():
         X[nans] = np.round(X[nans], 0)
         X[nom_cols] = X[nom_cols].astype(int)
         for col in nom_cols:
+            classes = self.encoders[col].classes_
+            X[col].clip(0, len(classes) - 1, inplace=True)
             X[col] = self.encoders[col].inverse_transform(X[col])
             X[col].values[failed[col]] = self.modes[col]
         return X
