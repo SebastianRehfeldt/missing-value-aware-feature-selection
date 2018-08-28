@@ -7,7 +7,7 @@ SHARED = {
     "boost_corr": 0,
     "n_subspaces": 500,
     "subspace_size": (2, 2),
-    "active_samling": False,
+    "active_sampling": False,
 }
 
 ALGORITHMS = {
