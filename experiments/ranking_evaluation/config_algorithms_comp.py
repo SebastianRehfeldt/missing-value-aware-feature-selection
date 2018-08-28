@@ -5,43 +5,41 @@ from project.feature_selection.ranking import Ranking
 from project.feature_selection.embedded import Embedded
 from project.feature_selection.baseline import Baseline
 
+SHARED = {
+    "n_targets": 0,
+    "boost_value": 0,
+    "boost_inter": 0,
+    "boost_corr": 0,
+    "n_subspaces": 500,
+    "subspace_size": (2, 2),
+    "active_sampling": False,
+}
+
 ALGORITHMS = {
     "Baseline": {
         "class": Baseline,
         "config": {}
     },
-    "FCBF SK": {
-        "class": Ranking,
-        "config": {
-            "eval_method": "fcbf"
-        }
-    },
     "RaR Deletion": {
         "class": RaR,
         "config": {
             "approach": "deletion",
-            "n_targets": 0,
+            **SHARED
         }
     },
-}
-"""
-    "RaR Fuzzy": {
+    "RaR Fuzzy Distance": {
         "class": RaR,
         "config": {
             "approach": "fuzzy",
             "weight_approach": "imputed",
-            "n_targets": 0,
+            "imputation_method": "soft",
+            "dist_method": "distance",
+            **SHARED
         }
     },
     "XGBoost": {
         "class": Embedded,
         "config": {}
-    },
-    "Relief Partial": {
-        "class": Ranking,
-        "config": {
-            "eval_method": "myrelief"
-        }
     },
     "Relief": {
         "class": Orange,
@@ -77,4 +75,16 @@ ALGORITHMS = {
             "eval_method": "mi"
         }
     },
-"""
+    "CFS": {
+        "class": Ranking,
+        "config": {
+            "eval_method": "cfs"
+        }
+    },
+    "MRMR": {
+        "class": Ranking,
+        "config": {
+            "eval_method": "mrmr"
+        }
+    },
+}
