@@ -5,10 +5,12 @@ import pandas as pd
 from project import EXPERIMENTS_PATH
 from experiments.utils import write_config
 from experiments.ranking import get_rankings, calc_mean_ranking
-from experiments.ranking_evaluation import CONFIG, ALGORITHMS
+from experiments.ranking_evaluation import CONFIG, RAR
 from experiments.ranking_evaluation import SYNTHETIC_CONFIG as DATASET_CONFIG
 
-ID = "update_test"
+ALGORITHMS = RAR
+
+ID = "mixed_3-1"
 FOLDER = os.path.join(EXPERIMENTS_PATH, "ranking_evaluation", "updates",
                       "EXP_" + ID)
 if os.path.isdir(FOLDER):
