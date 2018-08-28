@@ -2,6 +2,8 @@
 import os
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+
 from project import EXPERIMENTS_PATH
 from experiments.utils import write_config
 from experiments.ranking import get_rankings, calc_mean_ranking
@@ -58,6 +60,7 @@ ax.set(xlabel=update, ylabel="Runtime (s)")
 ax.xaxis.set_tick_params(rotation=0)
 fig = ax.get_figure()
 fig.savefig(os.path.join(FOLDER, "mean_runtimes.png").format(mr))
+plt.close(fig)
 
 # COMPUTE AND PLOT STATISTICS FOR SINGLE RUNS
 from experiments.metrics import compute_statistics, calc_aucs
@@ -105,7 +108,9 @@ ax = ndcg_mean.plot(
 )
 ax.set(xlabel=update, ylabel="NDCG (mean)")
 ax.xaxis.set_tick_params(rotation=0)
-ax.get_figure().savefig(os.path.join(FOLDER, "ndcg_mean.png"))
+fig = ax.get_figure()
+fig.savefig(os.path.join(FOLDER, "ndcg_mean.png"))
+plt.close(fig)
 
 ndcg_deviation.to_csv(os.path.join(FOLDER, "mean_deviation.csv"))
 ax = ndcg_deviation.plot(
@@ -114,7 +119,9 @@ ax = ndcg_deviation.plot(
 )
 ax.set(xlabel=update, ylabel="NDCG (std)")
 ax.xaxis.set_tick_params(rotation=0)
-ax.get_figure().savefig(os.path.join(FOLDER, "ndcg_deviation.png"))
+fig = ax.get_figure()
+fig.savefig(os.path.join(FOLDER, "ndcg_deviation.png"))
+plt.close(fig)
 
 # PLOT AND STORE CG AT OVER DATASETS AND MISSING RATES
 cg_mean = pd.DataFrame(cg_mean).T
@@ -131,7 +138,9 @@ ax = cg_mean.plot(
 )
 ax.set(xlabel=update, ylabel="CG (mean)")
 ax.xaxis.set_tick_params(rotation=0)
-ax.get_figure().savefig(os.path.join(FOLDER, "cg_mean.png"))
+fig = ax.get_figure()
+fig.savefig(os.path.join(FOLDER, "cg_mean.png"))
+plt.close(fig)
 
 cg_deviation.to_csv(os.path.join(FOLDER, "deviation_cgs.csv"))
 ax = cg_deviation.plot(
@@ -140,4 +149,6 @@ ax = cg_deviation.plot(
 )
 ax.set(xlabel=update, ylabel="CG (std)")
 ax.xaxis.set_tick_params(rotation=0)
-ax.get_figure().savefig(os.path.join(FOLDER, "cg_deviation.png"))
+fig = ax.get_figure()
+fig.savefig(os.path.join(FOLDER, "cg_deviation.png"))
+plt.close(fig)
