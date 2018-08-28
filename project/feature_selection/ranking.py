@@ -20,9 +20,10 @@ class Ranking(Selector):
 
     def _fit(self):
         method = self.params["eval_method"]
-        X, y, d = self.data.X.values, self.data.y.values, self.shape[1]
-        X = np.nan_to_num(X)
-        X = np.round(X, 2)
+        X, y, d = self.data.X, self.data.y.values, self.shape[1]
+        numerical_features = self.f_types[self.f_types == "numeric"].index
+        X[numerical_features] = X[numerical_features].round(2)
+        X = np.nan_to_num(X.values)
 
         if method == "mrmr":
             sorted_indices = mrmr(X, y, mode="index", n_selected_features=d)
