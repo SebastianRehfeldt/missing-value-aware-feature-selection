@@ -34,7 +34,7 @@ seeds = np.random.randint(0, 1000, n_runs)
 #[ 37 235 908  72 767]
 
 missing_rates = [0.5]
-missing_rates = [0.2 * i for i in range(0, 4)]
+missing_rates = [0.2 * i for i in range(0, 5)]
 cgs = np.zeros(len(missing_rates))
 avgs = np.zeros(len(missing_rates))
 stds = np.zeros(len(missing_rates))
@@ -42,7 +42,8 @@ sums = np.zeros(len(missing_rates))
 data_orig = deepcopy(data)
 
 is_synthetic = True
-generator = DataGenerator(n_samples=500, n_relevant=2, n_clusters=3)
+generator = DataGenerator(
+    n_samples=500, n_relevant=2, n_clusters=3, n_discrete=10)
 shuffle_seed = 0
 
 for j, mr in enumerate(missing_rates):
@@ -80,7 +81,7 @@ for j, mr in enumerate(missing_rates):
             cache_enabled=True,
             dist_method="distance",
             imputation_method="soft",
-            subspace_size=(1, 2),
+            subspace_size=(2, 2),
             active_sampling=False,
         )
 
