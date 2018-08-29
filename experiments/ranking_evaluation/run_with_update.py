@@ -7,12 +7,12 @@ import matplotlib.pyplot as plt
 from project import EXPERIMENTS_PATH
 from experiments.utils import write_config
 from experiments.ranking import get_rankings, calc_mean_ranking
-from experiments.ranking_evaluation import CONFIG, RAR
+from experiments.ranking_evaluation import CONFIG, RAR, COMPETITORS
 from experiments.ranking_evaluation import SYNTHETIC_CONFIG as DATASET_CONFIG
 
-ALGORITHMS = RAR
+ALGORITHMS = COMPETITORS
 
-ID = "mixed_3-1"
+ID = "mixed_3-1_comp"
 FOLDER = os.path.join(EXPERIMENTS_PATH, "ranking_evaluation", "updates",
                       "EXP_" + ID)
 if os.path.isdir(FOLDER):

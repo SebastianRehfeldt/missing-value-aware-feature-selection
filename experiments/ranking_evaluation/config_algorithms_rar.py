@@ -18,6 +18,14 @@ ALGORITHMS = {
             **SHARED
         }
     },
+    "RaR Deletion Category": {
+        "class": RaR,
+        "config": {
+            "approach": "deletion",
+            "create_category": True,
+            **SHARED
+        }
+    },
     "RaR Partial": {
         "class": RaR,
         "config": {

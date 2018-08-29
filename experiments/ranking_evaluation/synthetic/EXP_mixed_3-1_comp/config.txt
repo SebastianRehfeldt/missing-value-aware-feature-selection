@@ -1,0 +1,256 @@
+CONFIG EXPERIMENT
+
+{
+    "n_runs": 5,
+    "n_insertions": 5,
+    "seeds": [
+        42,
+        0,
+        13,
+        84,
+        107,
+        15,
+        23,
+        11,
+        174,
+        147
+    ],
+    "missing_rates": [
+        0.0,
+        0.1,
+        0.2,
+        0.3,
+        0.4,
+        0.5,
+        0.6,
+        0.7,
+        0.8,
+        0.9
+    ],
+    "is_real_data": false,
+    "update_config": false,
+    "update_attribute": "n_samples",
+    "updates": [
+        {
+            "n_samples": 500
+        },
+        {
+            "n_samples": 2000
+        }
+    ]
+}
+
+CONFIG DATASET
+
+{
+    "n_samples": 500,
+    "n_features": 20,
+    "n_independent": 20,
+    "n_dependent": 0,
+    "n_relevant": 3,
+    "n_discrete": 0,
+    "n_clusters": 1,
+    "y_flip": 0.01,
+    "max_features_in_cluster": 2,
+    "max_discrete_values": 10
+}
+
+CONFIG ALGORITHMS
+
+CONFIG - Baseline
+{
+    "knn_neighbors": 3,
+    "mi_neighbors": 6,
+    "k": 10,
+    "nominal_distance": 1,
+    "use_cv": false,
+    "eval_method": "mi",
+    "seed": null
+}
+
+CONFIG - RaR Deletion
+{
+    "knn_neighbors": 3,
+    "mi_neighbors": 6,
+    "k": 10,
+    "nominal_distance": 1,
+    "use_cv": false,
+    "eval_method": "rar",
+    "seed": null,
+    "n_subspaces": 500,
+    "subspace_size": [
+        2,
+        2
+    ],
+    "n_jobs": 1,
+    "boost_value": 0,
+    "boost_inter": 0,
+    "boost_corr": 0,
+    "active_sampling": false,
+    "active_sampling_mr": true,
+    "active_sampling_rel": true,
+    "active_sampling_corr": true,
+    "approach": "deletion",
+    "create_category": false,
+    "weight_approach": "alpha",
+    "dist_method": "distance",
+    "imputation_method": "knn",
+    "subspace_method": "adaptive",
+    "redundancy_approach": "arvind",
+    "alpha": 0.04,
+    "weight": 1,
+    "beta": 0.01,
+    "n_targets": 0,
+    "resamples": 5,
+    "min_samples": 5,
+    "min_slices": 30,
+    "regularization": 1,
+    "max_subspaces": 1000,
+    "contrast_iterations": 100,
+    "cache_enabled": true
+}
+
+CONFIG - RaR Fuzzy Distance
+{
+    "knn_neighbors": 3,
+    "mi_neighbors": 6,
+    "k": 10,
+    "nominal_distance": 1,
+    "use_cv": false,
+    "eval_method": "rar",
+    "seed": null,
+    "n_subspaces": 500,
+    "subspace_size": [
+        2,
+        2
+    ],
+    "n_jobs": 1,
+    "boost_value": 0,
+    "boost_inter": 0,
+    "boost_corr": 0,
+    "active_sampling": false,
+    "active_sampling_mr": true,
+    "active_sampling_rel": true,
+    "active_sampling_corr": true,
+    "approach": "fuzzy",
+    "create_category": false,
+    "weight_approach": "imputed",
+    "dist_method": "distance",
+    "imputation_method": "soft",
+    "subspace_method": "adaptive",
+    "redundancy_approach": "arvind",
+    "alpha": 0.04,
+    "weight": 1,
+    "beta": 0.01,
+    "n_targets": 0,
+    "resamples": 5,
+    "min_samples": 5,
+    "min_slices": 30,
+    "regularization": 1,
+    "max_subspaces": 1000,
+    "contrast_iterations": 100,
+    "cache_enabled": true
+}
+
+CONFIG - XGBoost
+{
+    "knn_neighbors": 3,
+    "mi_neighbors": 6,
+    "k": 10,
+    "nominal_distance": 1,
+    "use_cv": false,
+    "eval_method": "mi",
+    "seed": null
+}
+
+CONFIG - Relief
+{
+    "knn_neighbors": 3,
+    "mi_neighbors": 6,
+    "k": 10,
+    "nominal_distance": 1,
+    "use_cv": false,
+    "eval_method": "relief",
+    "seed": null
+}
+
+CONFIG - FCBF
+{
+    "knn_neighbors": 3,
+    "mi_neighbors": 6,
+    "k": 10,
+    "nominal_distance": 1,
+    "use_cv": false,
+    "eval_method": "fcbf",
+    "seed": null
+}
+
+CONFIG - Random Forest
+{
+    "knn_neighbors": 3,
+    "mi_neighbors": 6,
+    "k": 10,
+    "nominal_distance": 1,
+    "use_cv": false,
+    "eval_method": "rf",
+    "seed": null
+}
+
+CONFIG - SFS + Tree
+{
+    "knn_neighbors": 3,
+    "mi_neighbors": 6,
+    "k": 10,
+    "nominal_distance": 1,
+    "use_cv": false,
+    "eval_method": "tree",
+    "seed": null,
+    "do_stop": false
+}
+
+CONFIG - RKNN
+{
+    "knn_neighbors": 3,
+    "mi_neighbors": 6,
+    "k": 10,
+    "nominal_distance": 1,
+    "use_cv": false,
+    "eval_method": "knn",
+    "seed": null,
+    "n_subspaces": 80,
+    "subspace_size": 4,
+    "n_jobs": 1
+}
+
+CONFIG - MI
+{
+    "knn_neighbors": 3,
+    "mi_neighbors": 6,
+    "k": 10,
+    "nominal_distance": 1,
+    "use_cv": false,
+    "eval_method": "mi",
+    "seed": null
+}
+
+CONFIG - CFS
+{
+    "knn_neighbors": 3,
+    "mi_neighbors": 6,
+    "k": 10,
+    "nominal_distance": 1,
+    "use_cv": false,
+    "eval_method": "cfs",
+    "seed": null
+}
+
+CONFIG - MRMR
+{
+    "knn_neighbors": 3,
+    "mi_neighbors": 6,
+    "k": 10,
+    "nominal_distance": 1,
+    "use_cv": false,
+    "eval_method": "mrmr",
+    "seed": null
+}

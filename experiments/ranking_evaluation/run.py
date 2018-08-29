@@ -18,10 +18,10 @@ ALGORITHMS = RAR
 is_real_data = CONFIG["is_real_data"]
 if is_real_data:
     DATASET_CONFIG = UCI_CONFIG
-    ID = DATASET_CONFIG["name"] + "3"
+    ID = DATASET_CONFIG["name"] + "_rar_long"
     FOLDER = os.path.join(BASE_PATH, "uci", "EXP_" + ID)
 else:
-    ID = "cluster_many"
+    ID = "all_discrete_3-1_comp"
     FOLDER = os.path.join(BASE_PATH, "synthetic", "EXP_" + ID)
     DATASET_CONFIG = SYNTHETIC_CONFIG
 
