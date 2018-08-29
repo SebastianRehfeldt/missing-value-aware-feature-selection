@@ -6,7 +6,14 @@ data/**/*.json
 data/**/*.arff
 experiments/grid/*/*
 experiments/classification/*/*
-**/EXP_*
+experiments/ranking_evaluation/not_used
+experiments/ranking_evaluation/**/*_*.csv
+experiments/ranking_evaluation/**/*deviations*
+**/MSE/*
+**/SSE/*
+**/CG/*
+**/CG_POS/*
+**/NDCG/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

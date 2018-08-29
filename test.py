@@ -20,6 +20,7 @@ data = introduce_missing_values(data, missing_rate=0)
 print(data.shape, flush=True)
 
 # %%
+from project.feature_selection import Filter, RKNN, SFS
 from project.feature_selection.ranking import Ranking
 from project.feature_selection.embedded import Embedded
 from project.feature_selection.orange import Orange
@@ -43,7 +44,7 @@ data_orig = deepcopy(data)
 
 is_synthetic = True
 generator = DataGenerator(
-    n_samples=500, n_relevant=2, n_clusters=3, n_discrete=10)
+    n_samples=500, n_relevant=2, n_clusters=0, n_discrete=10)
 shuffle_seed = 0
 
 for j, mr in enumerate(missing_rates):
@@ -54,9 +55,11 @@ for j, mr in enumerate(missing_rates):
         if is_synthetic:
             generator.set_seed(seeds[i])
             data_orig, relevance_vector = generator.create_dataset()
-            imputer = Imputer(data_orig.f_types, strategy="soft")
+        else:
+            data_orig = data
 
         data_copy = deepcopy(data_orig)
+        imputer = Imputer(data_orig.f_types, strategy="soft")
         data_copy = introduce_missing_values(data_copy, mr, seed=seeds[i])
         # data_copy = imputer.complete(data_copy)
 
@@ -68,29 +71,29 @@ for j, mr in enumerate(missing_rates):
             data_copy.f_types,
             data_copy.l_type,
             data_copy.shape,
-            alpha=0.04,  # * (1 + mr),
+            alpha=0.02,  # * (1 + mr),
             approach="fuzzy",
             weight_approach="imputed",
-            boost_value=0,
+            boost_value=0.1,
             boost_inter=0,
             boost_corr=0,
             regularization=1,
             weight=1,
-            n_targets=0,
+            n_targets=1,
             # random_state=seeds[j],
             cache_enabled=True,
-            dist_method="distance",
-            imputation_method="soft",
-            subspace_size=(2, 2),
+            dist_method="radius",
+            imputation_method="mice",
+            subspace_size=(1, 2),
             active_sampling=False,
         )
 
-        if False:
-            selector = Orange(
+        if True:
+            selector = Ranking(
                 data_copy.f_types,
                 data_copy.l_type,
                 data_copy.shape,
-                eval_method="rf",
+                eval_method="mrmr",
             )
 
         X = data_copy.X
