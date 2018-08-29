@@ -12,7 +12,7 @@ from experiments.ranking_evaluation import SYNTHETIC_CONFIG as DATASET_CONFIG
 
 ALGORITHMS = COMPETITORS
 
-ID = "mixed_3-1_comp"
+ID = "half_discrete_3-1_comp"
 FOLDER = os.path.join(EXPERIMENTS_PATH, "ranking_evaluation", "updates",
                       "EXP_" + ID)
 if os.path.isdir(FOLDER):

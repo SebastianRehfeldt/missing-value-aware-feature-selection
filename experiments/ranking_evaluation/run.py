@@ -12,16 +12,15 @@ t = time()
 BASE_PATH = os.path.join(EXPERIMENTS_PATH, "ranking_evaluation")
 
 # SELECT RAR VERSIONS OR COMPETITORS
-#ALGORITHMS = COMPETITORS
-ALGORITHMS = RAR
+ALGORITHMS = COMPETITORS
 
 is_real_data = CONFIG["is_real_data"]
 if is_real_data:
     DATASET_CONFIG = UCI_CONFIG
-    ID = DATASET_CONFIG["name"] + "_rar_long"
+    ID = DATASET_CONFIG["name"] + "_comp"
     FOLDER = os.path.join(BASE_PATH, "uci", "EXP_" + ID)
 else:
-    ID = "all_discrete_3-1_comp"
+    ID = "single_comp"
     FOLDER = os.path.join(BASE_PATH, "synthetic", "EXP_" + ID)
     DATASET_CONFIG = SYNTHETIC_CONFIG
 
