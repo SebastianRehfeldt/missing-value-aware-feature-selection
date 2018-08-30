@@ -6,7 +6,8 @@ from project.feature_selection.embedded import Embedded
 from project.feature_selection.baseline import Baseline
 
 SHARED = {
-    "n_targets": 0,
+    "alpha": 0.02,
+    "n_targets": 1,
     "boost_value": 0,
     "boost_inter": 0,
     "boost_corr": 0,

@@ -1,1 +1,1 @@
-DATASET_CONFIG = {"name": "heart-c"}
+DATASET_CONFIG = {"name": "ionosphere"}

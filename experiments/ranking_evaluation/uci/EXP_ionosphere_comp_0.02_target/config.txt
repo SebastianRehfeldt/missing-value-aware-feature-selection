@@ -1,8 +1,8 @@
 CONFIG EXPERIMENT
 
 {
-    "n_runs": 5,
-    "n_insertions": 5,
+    "n_runs": 1,
+    "n_insertions": 10,
     "seeds": [
         42,
         0,
@@ -27,7 +27,7 @@ CONFIG EXPERIMENT
         0.8,
         0.9
     ],
-    "is_real_data": false,
+    "is_real_data": true,
     "update_config": false,
     "update_attribute": "n_samples",
     "updates": [
@@ -49,16 +49,7 @@ CONFIG EXPERIMENT
 CONFIG DATASET
 
 {
-    "n_samples": 500,
-    "n_features": 20,
-    "n_independent": 20,
-    "n_dependent": 0,
-    "n_relevant": 3,
-    "n_discrete": 0,
-    "n_clusters": 3,
-    "y_flip": 0.01,
-    "max_features_in_cluster": 2,
-    "max_discrete_values": 10
+    "name": "ionosphere"
 }
 
 CONFIG ALGORITHMS
@@ -103,10 +94,10 @@ CONFIG - RaR Deletion
     "imputation_method": "knn",
     "subspace_method": "adaptive",
     "redundancy_approach": "arvind",
-    "alpha": 0.04,
+    "alpha": 0.02,
     "weight": 1,
     "beta": 0.01,
-    "n_targets": 0,
+    "n_targets": 1,
     "resamples": 5,
     "min_samples": 5,
     "min_slices": 30,
@@ -145,10 +136,10 @@ CONFIG - RaR Fuzzy Distance
     "imputation_method": "soft",
     "subspace_method": "adaptive",
     "redundancy_approach": "arvind",
-    "alpha": 0.04,
+    "alpha": 0.02,
     "weight": 1,
     "beta": 0.01,
-    "n_targets": 0,
+    "n_targets": 1,
     "resamples": 5,
     "min_samples": 5,
     "min_slices": 30,
@@ -223,8 +214,8 @@ CONFIG - RKNN
     "use_cv": false,
     "eval_method": "knn",
     "seed": null,
-    "n_subspaces": 80,
-    "subspace_size": 4,
+    "n_subspaces": 170,
+    "subspace_size": 5,
     "n_jobs": 1
 }
 

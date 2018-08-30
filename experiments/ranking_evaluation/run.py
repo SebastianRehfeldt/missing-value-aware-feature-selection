@@ -17,10 +17,10 @@ ALGORITHMS = COMPETITORS
 is_real_data = CONFIG["is_real_data"]
 if is_real_data:
     DATASET_CONFIG = UCI_CONFIG
-    ID = DATASET_CONFIG["name"] + "_comp"
+    ID = DATASET_CONFIG["name"] + "_comp_0.02_target"
     FOLDER = os.path.join(BASE_PATH, "uci", "EXP_" + ID)
 else:
-    ID = "single_comp"
+    ID = "mixed_3-3_comp"
     FOLDER = os.path.join(BASE_PATH, "synthetic", "EXP_" + ID)
     DATASET_CONFIG = SYNTHETIC_CONFIG
 
