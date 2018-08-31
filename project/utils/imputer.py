@@ -67,7 +67,7 @@ class Imputer():
             X[col].values[failed[col]] = self.modes[col]
         return X
 
-    def _complete(self, X, cols=None):
+    def _complete(self, X, cols=None, multiple = False):
         types = self.f_types if cols is None else self.f_types[cols]
         num_cols = types.loc[self.f_types == "numeric"].index
         nom_cols = types.loc[self.f_types == "nominal"].index
@@ -84,7 +84,13 @@ class Imputer():
         if len(nom_cols) > 0:
             X_copy = self._encode(X_copy, nom_cols, nans)
 
-        X_copy[:] = self._get_imputer().complete(X_copy)
+
+        if multiple:
+            imputer = self._get_imputer()
+            imputer.n_imputations = 1
+            X_copy[:] = imputer.complete(X_copy)
+        else:
+            X_copy[:] = self._get_imputer().complete(X_copy)
 
         if len(nom_cols) > 0:
             X_copy = self._decode(X_copy, nom_cols, nans)
