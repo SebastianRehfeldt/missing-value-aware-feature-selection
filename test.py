@@ -73,7 +73,7 @@ for j, mr in enumerate(missing_rates):
             data_copy.shape,
             alpha=0.02,  # * (1 + mr),
             approach="fuzzy",
-            weight_approach="imputed",
+            weight_approach="multiple",
             boost_value=0.1,
             boost_inter=0,
             boost_corr=0,
@@ -82,13 +82,13 @@ for j, mr in enumerate(missing_rates):
             n_targets=1,
             # random_state=seeds[j],
             cache_enabled=True,
-            dist_method="radius",
+            dist_method="distance",
             imputation_method="mice",
             subspace_size=(1, 2),
             active_sampling=False,
         )
 
-        if True:
+        if False:
             selector = Ranking(
                 data_copy.f_types,
                 data_copy.l_type,
