@@ -41,6 +41,25 @@ class Data():
             return salted
         return self.X
 
+    def _add_noisy_features(self, n=5, d=5, copy=True, seed=None):
+        if seed is not None:
+            np.random.seed(seed)
+
+        names = ["noise" + str(i) for i in range(n + d)]
+        numeric = np.random.normal(0, 1, (self.shape[0], n))
+        nominal = np.random.randint(0, 10, (self.shape[0], d)).astype(str)
+        new_X = pd.DataFrame(np.hstack((numeric, nominal)), columns=names)
+
+        new_types = ["numeric"] * n + ["nominal"] * d
+        new_types = pd.Series(new_types, index=names)
+
+        new_X = pd.concat([self.X, new_X], axis=1)
+        new_types = pd.concat([self.f_types, new_types])
+        new_shape = new_X.shape
+        new_data = self.replace(
+            copy=copy, X=new_X, f_types=new_types, shape=new_shape)
+        return new_data.shuffle_columns(seed=seed)
+
     def _add_salt_y(self):
         if self.l_type == "numeric":
             rn = np.random.randn(len(self.y))
