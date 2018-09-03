@@ -222,7 +222,6 @@ class HICSSlicing(HICSParams):
                     weights[i, :] = self.get_weight(X_dist, w, 0.1, nan_sum)
 
                 if is_fuzzy and self.params["weight_approach"] == "multiple":
-                    nans = self.nans[col]
                     inside = [
                         np.isin(X_c[col].values[nans], selected).astype(float)
                         for X_c in self.X_multiple_complete
