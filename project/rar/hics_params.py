@@ -45,12 +45,10 @@ class HICSParams():
 
             ### multiple imputation
         if approach == "fuzzy" and self.params["weight_approach"] == "multiple":
-
             from project.utils.imputer import Imputer
-            imputer = Imputer(self.data.f_types, "mice")
-            self.X_multiple_complete = [imputer._complete(self.data.X, multiple=True) for i in range(50)]
 
-
+            imputer = Imputer(self.data.f_types)
+            self.X_multiple_complete = imputer.multi_complete(self.data.X)
 
     def _init_cache(self):
         self.label_indices = np.argsort(self.data.y.values)

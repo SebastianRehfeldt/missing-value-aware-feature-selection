@@ -44,7 +44,7 @@ data_orig = deepcopy(data)
 
 is_synthetic = True
 generator = DataGenerator(
-    n_samples=500, n_relevant=2, n_clusters=0, n_discrete=10)
+    n_samples=500, n_relevant=2, n_clusters=2, n_discrete=10)
 shuffle_seed = 0
 
 for j, mr in enumerate(missing_rates):
