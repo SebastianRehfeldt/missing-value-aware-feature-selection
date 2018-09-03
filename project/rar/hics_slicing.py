@@ -65,11 +65,7 @@ class HICSSlicing(HICSParams):
         return start_positions
 
     def get_X_dist(self, col, center, nans):
-        n_dev = 0.01
-        dev = 0.1
         X_complete = self.X_complete[col].values[nans]
-        noise = np.random.normal(0, n_dev, len(X_complete))
-        #X_complete += np.clip(noise, -dev, dev)
         return np.abs(X_complete - center)
 
     def get_weight(self, X_dist, weight_nans, radius, nan_count):
@@ -111,9 +107,13 @@ class HICSSlicing(HICSParams):
             factor = self.params["weight"]**(1 / options["d"])
             w = {
                 "imputed": weights,
+                "multiple": weights,
                 "alpha": options["alpha"],
                 "proba": probs,
             }.get(self.params["weight_approach"], options["alpha"])
+
+            if self.params["weight_approach"] == "multiple":
+                w /= len(self.X_multiple_complete)
             return w * factor
 
     def get_numerical_slices(self, X, cache, col, **options):
@@ -137,25 +137,22 @@ class HICSSlicing(HICSParams):
 
             # update weights based on imputed values and normal distribution
             if is_fuzzy and not options["boost"]:
+                center = (min_val + max_val) / 2
+                r = min(0.25, max(0.05, (max_val - min_val) / 2))
                 if self.params["weight_approach"] == "imputed":
-                    center = (min_val + max_val) / 2
                     X_dist = self.get_X_dist(col, center, nans)
                     w = options["n_select"] - n_select
-                    r = min(0.25, max(0.05, (max_val - min_val) / 2))
                     weights[i, :] = self.get_weight(X_dist, w, r, nan_sum)
 
                 if self.params["weight_approach"] == "multiple":
+                    inside = [
+                        np.abs(X_c[col].values[nans] - center) <= r
+                        for X_c in self.X_multiple_complete
+                    ]
+                    weights[i, :] = np.sum(np.array(inside), axis=0)
 
-                    center = (min_val + max_val) / 2
-                    distance =  (max_val - min_val) / 2
-                    number_of_imputations = len(self.X_multiple_complete)
-                    inside = [np.abs(X_c[col].values[nans] - center) <= distance for X_c in self.X_multiple_complete]
-                    weights[i, :] = np.sum(np.array(inside), axis = 0) / number_of_imputations
-
-
-
-
-                probs[i, :] = self.get_probs(min_val, max_val)
+                if self.params["weight_approach"] == "proba":
+                    probs[i, :] = self.get_probs(min_val, max_val)
 
             idx = indices[start:end]
             slices[i, idx] = True
@@ -170,13 +167,8 @@ class HICSSlicing(HICSParams):
         return values
 
     def get_nom_dist(self, col, selected):
-        nans = self.nans[col]
-        X = self.X_complete[col].values[nans]
-        X_dist = np.isin(X, selected).astype(float)
-        n_dev, dev = 0.01, 0.1
-        noise = np.random.normal(0, n_dev, len(X))
-        X_dist += np.clip(noise, -dev, dev)
-        return X_dist
+        X = self.X_complete[col].values[self.nans[col]]
+        return np.isin(X, selected).astype(float)
 
     def get_categorical_slices(self, X, cache, col, **options):
         is_fuzzy = self.params["approach"] == "fuzzy"
@@ -229,14 +221,13 @@ class HICSSlicing(HICSParams):
                     X_dist = self.get_nom_dist(col, selected)
                     weights[i, :] = self.get_weight(X_dist, w, 0.1, nan_sum)
 
-
-                elif is_fuzzy and self.params["weight_approach"] == "multiple":
-
+                if is_fuzzy and self.params["weight_approach"] == "multiple":
                     nans = self.nans[col]
-                    number_of_imputations = len(self.X_multiple_complete)
-                    inside = [np.isin(X_c[col].values[nans], selected).astype(float) for X_c in self.X_multiple_complete]
-                    weights[i, :] = np.sum(np.array(inside), axis=0) / number_of_imputations
-
+                    inside = [
+                        np.isin(X_c[col].values[nans], selected).astype(float)
+                        for X_c in self.X_multiple_complete
+                    ]
+                    weights[i, :] = np.sum(np.array(inside), axis=0)
 
         slices[:, nans] = self.update_nans(options, probs, weights)
         return slices
