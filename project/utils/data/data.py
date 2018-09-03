@@ -48,12 +48,14 @@ class Data():
         names = ["noise" + str(i) for i in range(n + d)]
         numeric = np.random.normal(0, 1, (self.shape[0], n))
         nominal = np.random.randint(0, 10, (self.shape[0], d)).astype(str)
-        new_X = pd.DataFrame(np.hstack((numeric, nominal)), columns=names)
+
+        df1 = pd.DataFrame(numeric, columns=names[:n])
+        df2 = pd.DataFrame(nominal, columns=names[n:])
 
         new_types = ["numeric"] * n + ["nominal"] * d
         new_types = pd.Series(new_types, index=names)
 
-        new_X = pd.concat([self.X, new_X], axis=1)
+        new_X = pd.concat([self.X, df1, df2], axis=1)
         new_types = pd.concat([self.f_types, new_types])
         new_shape = new_X.shape
         new_data = self.replace(
