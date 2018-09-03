@@ -67,7 +67,7 @@ class Imputer():
             X[col].values[failed[col]] = self.modes[col]
         return X
 
-    def _complete(self, X, cols=None):
+    def _complete(self, X, cols=None, imputer=None):
         types = self.f_types if cols is None else self.f_types[cols]
         num_cols = types.loc[self.f_types == "numeric"].index
         nom_cols = types.loc[self.f_types == "nominal"].index
@@ -84,7 +84,8 @@ class Imputer():
         if len(nom_cols) > 0:
             X_copy = self._encode(X_copy, nom_cols, nans)
 
-        X_copy[:] = self._get_imputer().complete(X_copy)
+        imputer = imputer or self._get_imputer()
+        X_copy[:] = imputer.complete(X_copy)
 
         if len(nom_cols) > 0:
             X_copy = self._decode(X_copy, nom_cols, nans)
@@ -95,8 +96,14 @@ class Imputer():
         complete_features = self._complete(data.X)
         return data.replace(copy=True, X=complete_features)
 
-    def _get_imputer(self):
-        if self.strategy == "simple":
+    def multi_complete(self, X):
+        imputer = self._get_imputer("mice")
+        imputer.n_imputations = 1
+        return [self._complete(X, imputer=imputer) for i in range(50)]
+
+    def _get_imputer(self, strategy=None):
+        strategy = strategy or self.strategy
+        if strategy == "simple":
             return SimpleFill()
 
         return {
@@ -104,4 +111,4 @@ class Imputer():
             "mice": MICE,
             "matrix": MatrixFactorization,
             "soft": SoftImpute,
-        }[self.strategy](verbose=False)
+        }[strategy](verbose=False)
