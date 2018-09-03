@@ -62,7 +62,7 @@ for j, mr in enumerate(missing_rates):
         data_copy = deepcopy(data_orig)
         imputer = Imputer(data_orig.f_types, strategy="soft")
         data_copy = introduce_missing_values(data_copy, mr, seed=seeds[i])
-        data_copy = imputer.complete(data_copy)
+        #data_copy = imputer.complete(data_copy)
 
         #data_copy.shuffle_columns(seed=shuffle_seed)
         shuffle_seed += 1
@@ -74,7 +74,7 @@ for j, mr in enumerate(missing_rates):
             data_copy.shape,
             alpha=0.02,  # * (1 + mr),
             approach="fuzzy",
-            weight_approach="alpha",
+            weight_approach="multiple",
             boost_value=0,
             boost_inter=0,
             boost_corr=0,

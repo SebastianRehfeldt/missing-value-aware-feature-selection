@@ -104,7 +104,7 @@ class Imputer():
         return data.replace(copy=True, X=complete_features)
 
     def multi_complete(self, X):
-        imputer = MICE(verbose=False, n_imputations=50)
+        imputer = MICE(verbose=False, n_imputations=10)
         return self._complete(X, imputer=imputer)
 
     def _get_imputer(self):
