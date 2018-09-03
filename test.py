@@ -42,7 +42,7 @@ stds = np.zeros(len(missing_rates))
 sums = np.zeros(len(missing_rates))
 data_orig = deepcopy(data)
 
-is_synthetic = True
+is_synthetic = False
 generator = DataGenerator(
     n_samples=500, n_relevant=2, n_clusters=2, n_discrete=10)
 shuffle_seed = 0
@@ -71,20 +71,20 @@ for j, mr in enumerate(missing_rates):
             data_copy.f_types,
             data_copy.l_type,
             data_copy.shape,
-            alpha=0.04,  # * (1 + mr),
+            alpha=0.02,  # * (1 + mr),
             approach="fuzzy",
-            weight_approach="multiple",
+            weight_approach="alpha",
             boost_value=0,
             boost_inter=0,
             boost_corr=0,
             regularization=1,
             weight=1,
-            n_targets=0,
+            n_targets=1,
             # random_state=seeds[j],
             cache_enabled=True,
             dist_method="distance",
             imputation_method="mice",
-            subspace_size=(2, 2),
+            subspace_size=(1, 2),
             active_sampling=False,
         )
 
