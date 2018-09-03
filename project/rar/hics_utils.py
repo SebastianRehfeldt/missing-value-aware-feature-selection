@@ -6,9 +6,15 @@ from .hics_slicing import HICSSlicing
 class HICSUtils(HICSSlicing):
     def get_cached_slices(self, subspace, use_cache=True):
         dim = len(subspace)
-        if self.params["cache_enabled"] and use_cache:
-            slices = [self.slices[subspace[i]][dim] for i in range(dim)]
-            slices = self.combine_slices(slices).copy()
+        if self.params["cache_enabled"]:
+            if use_cache:
+                slices = [self.slices[subspace[i]][dim] for i in range(dim)]
+            else:
+                slices = [None] * len(subspace)
+                for i in range(dim):
+                    slices[i] = self.slices[subspace[i]][dim].copy()
+                    np.random.shuffle(slices[i])
+            slices = self.combine_slices(slices)
         else:
             slices = self.get_slices(subspace)
 
