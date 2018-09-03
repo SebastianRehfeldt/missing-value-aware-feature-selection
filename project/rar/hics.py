@@ -13,11 +13,11 @@ class HICS(HICSUtils):
     def compute_relevance(self, slices, subspace):
         rels, deviations = self.get_relevance(slices)
 
-        n_resamples = self.params["resamples"]
+        n_resamples = self.params["n_resamples"]
         n_retries = int(np.floor(deviations * n_resamples / 0.5)) + 1
         n_resamples = min(n_resamples, n_retries)
 
-        if len(subspace) == 1 and n_resamples > 1:
+        if n_resamples > 1:
             resamples = np.zeros(n_resamples + 1)
             resamples[0] = rels
             for i in range(1, n_resamples + 1):

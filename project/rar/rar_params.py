@@ -41,7 +41,7 @@ class RaRParams(Subspacing):
             "weight": 1,
             "beta": 0.01,
             "n_targets": 1,
-            "resamples": 5,
+            "n_resamples": 5,
             "min_samples": 5,
             "min_slices": 30,
             "regularization": 1,

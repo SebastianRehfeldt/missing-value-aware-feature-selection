@@ -34,8 +34,8 @@ np.random.seed(1)
 seeds = np.random.randint(0, 1000, n_runs)
 #[ 37 235 908  72 767]
 
-missing_rates = [0.5]
 missing_rates = [0.2 * i for i in range(0, 5)]
+missing_rates = [0.2]
 cgs = np.zeros(len(missing_rates))
 avgs = np.zeros(len(missing_rates))
 stds = np.zeros(len(missing_rates))
@@ -57,13 +57,14 @@ for j, mr in enumerate(missing_rates):
             data_orig, relevance_vector = generator.create_dataset()
         else:
             data_orig = data
+            data_orig = data._add_noisy_features(seed=shuffle_seed + 1)
 
         data_copy = deepcopy(data_orig)
         imputer = Imputer(data_orig.f_types, strategy="soft")
         data_copy = introduce_missing_values(data_copy, mr, seed=seeds[i])
-        # data_copy = imputer.complete(data_copy)
+        data_copy = imputer.complete(data_copy)
 
-        data_copy.shuffle_columns(seed=shuffle_seed)
+        #data_copy.shuffle_columns(seed=shuffle_seed)
         shuffle_seed += 1
 
         start = time()
@@ -79,6 +80,7 @@ for j, mr in enumerate(missing_rates):
             boost_corr=0,
             regularization=1,
             weight=1,
+            n_resamples=5,
             n_targets=1,
             # random_state=seeds[j],
             cache_enabled=True,
@@ -101,14 +103,14 @@ for j, mr in enumerate(missing_rates):
 
         selector.fit(X, data_copy.y)
         # pprint(selector.get_ranking())
-        # print(time() - start)
+        print(time() - start)
         ranking = [k for k, v in selector.get_ranking()]
 
         if is_synthetic:
             ndcgs[i] = calc_ndcg(relevance_vector, ranking, False)
             n_relevant = np.count_nonzero(relevance_vector.values)
             cgs_run[i] = calc_cg(relevance_vector, ranking)[n_relevant]
-            print(cgs_run[i])
+            #print(cgs_run[i])
         else:
             print(selector.get_ranking())
 
