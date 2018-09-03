@@ -84,9 +84,16 @@ class Imputer():
         if len(nom_cols) > 0:
             X_copy = self._encode(X_copy, nom_cols, nans)
 
-        imputer = imputer or self._get_imputer()
-        X_copy[:] = imputer.complete(X_copy)
+        if imputer is not None:
+            imputed_arrays, mask = imputer.multiple_imputations(X_copy)
+            multi_X = [X_copy.copy() for i in range(len(imputed_arrays))]
+            for i in range(len(imputed_arrays)):
+                multi_X[i].values[mask] = imputed_arrays[i, :]
+                if len(nom_cols) > 0:
+                    multi_X[i] = self._decode(multi_X[i], nom_cols, nans)
+            return multi_X
 
+        X_copy[:] = self._get_imputer().complete(X_copy)
         if len(nom_cols) > 0:
             X_copy = self._decode(X_copy, nom_cols, nans)
         return X_copy
@@ -97,13 +104,11 @@ class Imputer():
         return data.replace(copy=True, X=complete_features)
 
     def multi_complete(self, X):
-        imputer = self._get_imputer("mice")
-        imputer.n_imputations = 1
-        return [self._complete(X, imputer=imputer) for i in range(50)]
+        imputer = MICE(verbose=False, n_imputations=50)
+        return self._complete(X, imputer=imputer)
 
-    def _get_imputer(self, strategy=None):
-        strategy = strategy or self.strategy
-        if strategy == "simple":
+    def _get_imputer(self):
+        if self.strategy == "simple":
             return SimpleFill()
 
         return {
@@ -111,4 +116,4 @@ class Imputer():
             "mice": MICE,
             "matrix": MatrixFactorization,
             "soft": SoftImpute,
-        }[strategy](verbose=False)
+        }[self.strategy](verbose=False)

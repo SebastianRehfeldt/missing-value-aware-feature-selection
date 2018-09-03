@@ -32,6 +32,9 @@ class RaRUtils(RaRParams):
         self._set_nan_corr()
         self.nan_sums = self.nans.sum()
         self.missing_rates = self.nan_sums / self.data.shape[0]
+        if self.missing_rates.max() == 0:
+            self.params["approach"] = "deletion"
+
         self._increase_iterations()
         self.scores_1d = pd.Series(np.zeros(len(self.names)), index=self.names)
         self.hics = HICS(self.data, self.nans, self.missing_rates,
