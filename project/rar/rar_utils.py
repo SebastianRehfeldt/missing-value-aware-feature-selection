@@ -25,7 +25,10 @@ class RaRUtils(RaRParams):
     def _increase_iterations(self):
         mr_boost = 1 + np.mean(self.missing_rates) * 2
         n_iterations = int(self.params["contrast_iterations"] * mr_boost)
-        self.params["contrast_iterations"] = n_iterations
+        self.params["contrast_iterations"] = min(n_iterations, 300)
+
+        cache_on = self.params.get("cache_enabled", self.should_enable_cache())
+        self.params["cache_enabled"] = cache_on
 
     def _fit(self):
         self._set_nans()
@@ -35,13 +38,7 @@ class RaRUtils(RaRParams):
         if self.missing_rates.max() == 0:
             self.params["approach"] = "deletion"
 
-        n_classes = len(np.unique(self.data.y.values))
-        min_samples = int(np.clip(np.round(n_classes * 0.75), 5, 20))
-        self.params.update({
-            "n_classes": n_classes,
-            "min_samples": min_samples,
-        })
-
+        self.update_params()
         self._increase_iterations()
         self.scores_1d = pd.Series(np.zeros(len(self.names)), index=self.names)
         self.hics = HICS(self.data, self.nans, self.missing_rates,

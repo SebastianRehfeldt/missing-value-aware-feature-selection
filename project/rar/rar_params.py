@@ -35,9 +35,7 @@ class RaRParams(Subspacing):
         })
 
     def _init_constants(self):
-        a = self._get_alpha()
         self.params.update({
-            "alpha": a,
             "weight": 1,
             "beta": 0.01,
             "n_targets": 1,
@@ -45,7 +43,6 @@ class RaRParams(Subspacing):
             "min_slices": 30,
             "regularization": 1,
             "max_subspaces": 2000,
-            "contrast_iterations": 100,
             "subspace_size": self._get_size(),
         })
 
@@ -55,16 +52,29 @@ class RaRParams(Subspacing):
         self._init_constants()
         self.params.update(**kwargs)
 
+        n_subspaces = kwargs.get("n_subspaces", self._get_n_subspaces())
+        self.params["n_subspaces"] = n_subspaces
+
+    def update_params(self):
+        n_classes = len(np.unique(self.data.y.values))
+        a = self.params.get("alpha", self._get_alpha(n_classes))
+
+        min_samples = int(np.clip(np.round(n_classes * 0.75), 5, 20))
+        min_samples = self.params.get("min_samples", min_samples)
+
+        n_iterations = np.clip(int(1.5 / a), 75, 150)
+        n_iterations = self.params.get("contrast_iterations", n_iterations)
+
         self.params.update({
-            "n_subspaces":
-            kwargs.get("n_subspaces", self._get_n_subspaces()),
-            "cache_enabled":
-            kwargs.get("cache_enabled", self.should_enable_cache()),
+            "alpha": a,
+            "n_classes": n_classes,
+            "min_samples": min_samples,
+            "contrast_iterations": n_iterations,
         })
 
-    def _get_alpha(self):
-        min_samples = 20
-        return max(0.01, min_samples / self.shape[0])
+    def _get_alpha(self, n_classes):
+        alpha = (10 * n_classes / self.shape[0])**1.5
+        return np.clip(alpha, 0.005, 0.2)
 
     def _get_size(self):
         max_size = int(self.shape[1] / 2)
