@@ -5,7 +5,7 @@ data/**/*.txt
 data/**/*.json
 data/**/*.arff
 experiments/grid/*/*
-experiments/classification/*/*
+experiments/classification/**/*.csv
 experiments/ranking_evaluation/not_used
 experiments/ranking_evaluation/**/*_*.csv
 experiments/ranking_evaluation/**/*deviations*
