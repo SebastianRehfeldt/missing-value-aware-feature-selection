@@ -45,7 +45,7 @@ class RaRParams(Subspacing):
             "min_samples": 5,
             "min_slices": 30,
             "regularization": 1,
-            "max_subspaces": 1000,
+            "max_subspaces": 2000,
             "contrast_iterations": 100,
             "subspace_size": self._get_size(),
         })
@@ -93,7 +93,7 @@ class RaRParams(Subspacing):
         return ceil(log(beta) / denominator)
 
     def _get_n_subspaces_linear(self):
-        return self.shape[1] * self.params["contrast_iterations"]
+        return self.shape[1] * 10 * self.params["subspace_size"][1]
 
     def _get_n_subspaces_fixed(self):
         return 1000
