@@ -39,7 +39,7 @@ class Imputer():
             # replace "?" with mode so that labelencoder does not fills with ?
             elements = X[col].value_counts()
             mode = elements.index[0]
-            if mode == "?":
+            if mode == "?" and len(elements.index) > 1:
                 mode = elements.index[1]
             X[col] = X[col].where(X[col] != "?", mode)
             self.modes[col] = mode
