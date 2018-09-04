@@ -35,6 +35,13 @@ class RaRUtils(RaRParams):
         if self.missing_rates.max() == 0:
             self.params["approach"] = "deletion"
 
+        n_classes = len(np.unique(self.data.y.values))
+        min_samples = int(np.clip(np.round(n_classes * 0.75), 5, 20))
+        self.params.update({
+            "n_classes": n_classes,
+            "min_samples": min_samples,
+        })
+
         self._increase_iterations()
         self.scores_1d = pd.Series(np.zeros(len(self.names)), index=self.names)
         self.hics = HICS(self.data, self.nans, self.missing_rates,
