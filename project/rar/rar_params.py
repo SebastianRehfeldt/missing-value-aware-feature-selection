@@ -31,7 +31,6 @@ class RaRParams(Subspacing):
             "dist_method": "distance",
             "imputation_method": "knn",
             "subspace_method": "adaptive",
-            "redundancy_approach": "arvind",
         })
 
     def _init_constants(self):
@@ -62,18 +61,25 @@ class RaRParams(Subspacing):
         min_samples = int(np.clip(np.round(n_classes * 0.75), 5, 20))
         min_samples = self.params.get("min_samples", min_samples)
 
-        n_iterations = np.clip(int(1.5 / a), 75, 150)
+        n_iterations = np.clip(int(1.5 / a), 75, 125)
         n_iterations = self.params.get("contrast_iterations", n_iterations)
+
+        redundancy_approach = self.params.get("redundancy_approach", "arvind")
+        if redundancy_approach == "arvind":
+            n_comparisons = self.shape[1] * max(10, np.sqrt(self.shape[1]))
+            if n_comparisons > max(1000, self.params["n_subspaces"] * 2):
+                self.params["redundancy_approach"] = "tom"
 
         self.params.update({
             "alpha": a,
             "n_classes": n_classes,
             "min_samples": min_samples,
             "contrast_iterations": n_iterations,
+            "redundancy_approach": redundancy_approach,
         })
 
     def _get_alpha(self, n_classes):
-        alpha = (10 * n_classes / self.shape[0])**1.5
+        alpha = (10 * n_classes / self.data.shape[0])**1.5
         return np.clip(alpha, 0.005, 0.2)
 
     def _get_size(self):
@@ -122,7 +128,7 @@ class RaRParams(Subspacing):
 
         # ESTIMATE NEEDED SIZE FOR CACHE (MAX = 1G)
         n_iterations = self.params["contrast_iterations"]
-        expected_size = all_slices * n_iterations * self.shape[0]
+        expected_size = all_slices * n_iterations * self.data.shape[0]
         if self.params["approach"] == "fuzzy":
             expected_size *= 2
         return False if expected_size > 1e9 else True

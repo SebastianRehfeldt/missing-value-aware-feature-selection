@@ -111,5 +111,7 @@ class Selector(ABC):
         }
 
     def set_params(self, **params):
+        # remove Nones to enable None in grid search
+        params = {k: v for k, v in params.items() if v is not None}
         self.params.update(params)
         self.is_fitted = False
