@@ -23,9 +23,12 @@ class RaRUtils(RaRParams):
         self.nan_corr = 1 - (1 + self.nan_corr) / 2
 
     def _increase_iterations(self):
-        mr_boost = 1 + np.mean(self.missing_rates) * 2
+        mr_boost = 1 + np.mean(self.missing_rates)
         n_iterations = int(self.params["contrast_iterations"] * mr_boost)
-        self.params["contrast_iterations"] = n_iterations
+        self.params["contrast_iterations"] = min(n_iterations, 200)
+
+        cache_on = self.params.get("cache_enabled", self.should_enable_cache())
+        self.params["cache_enabled"] = cache_on
 
     def _fit(self):
         self._set_nans()
@@ -35,6 +38,7 @@ class RaRUtils(RaRParams):
         if self.missing_rates.max() == 0:
             self.params["approach"] = "deletion"
 
+        self.update_params()
         self._increase_iterations()
         self.scores_1d = pd.Series(np.zeros(len(self.names)), index=self.names)
         self.hics = HICS(self.data, self.nans, self.missing_rates,
@@ -112,11 +116,9 @@ class RaRUtils(RaRParams):
         return subspace
 
     def _get_max_calculations(self, open_features):
-        # TODO: find good heuristic for max_calculations
-        n_targets = self.params["n_targets"]
-        max_calculations = max(30, int(np.sqrt(len(open_features))))
-        if max_calculations * len(open_features) * n_targets > 1000:
-            max_calculations, n_targets = 10, 1
+        max_calculations = max(10, int(np.sqrt(len(open_features))))
+        if max_calculations * len(open_features) > 1000:
+            max_calculations, self.params["n_targets"] = 5, 1
         return max_calculations
 
     def _get_new_reds(self, selected_f, open_f, last_best):

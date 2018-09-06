@@ -35,18 +35,15 @@ class RaRParams(Subspacing):
         })
 
     def _init_constants(self):
-        a = self._get_alpha()
         self.params.update({
-            "alpha": a,
             "weight": 1,
-            "beta": 0.01,
+            "beta": 0.05,
             "n_targets": 1,
             "n_resamples": 5,
-            "min_samples": 5,
             "min_slices": 30,
             "regularization": 1,
-            "max_subspaces": 2000,
-            "contrast_iterations": 100,
+            "samples_per_class": 5,
+            "max_subspaces": 1500,
             "subspace_size": self._get_size(),
         })
 
@@ -56,16 +53,30 @@ class RaRParams(Subspacing):
         self._init_constants()
         self.params.update(**kwargs)
 
+        n_subspaces = kwargs.get("n_subspaces", self._get_n_subspaces())
+        self.params["n_subspaces"] = n_subspaces
+
+    def update_params(self):
+        n_classes = len(np.unique(self.data.y.values))
+        a = self.params.get("alpha", self._get_alpha(n_classes))
+
+        min_samples = int(np.clip(np.round(n_classes * 0.75), 5, 20))
+        min_samples = self.params.get("min_samples", min_samples)
+
+        n_iterations = np.clip(int(1.5 / a), 75, 125)
+        n_iterations = self.params.get("contrast_iterations", n_iterations)
+
         self.params.update({
-            "n_subspaces":
-            kwargs.get("n_subspaces", self._get_n_subspaces()),
-            "cache_enabled":
-            kwargs.get("cache_enabled", self.should_enable_cache()),
+            "alpha": a,
+            "n_classes": n_classes,
+            "min_samples": min_samples,
+            "contrast_iterations": n_iterations,
         })
 
-    def _get_alpha(self):
-        min_samples = 20
-        return max(0.01, min_samples / self.shape[0])
+    def _get_alpha(self, n_classes):
+        n_per_class = self.params["samples_per_class"]
+        alpha = (n_per_class * n_classes / self.data.shape[0])
+        return np.clip(alpha, 0.01, 0.2)
 
     def _get_size(self):
         max_size = int(self.shape[1] / 2)
@@ -84,7 +95,7 @@ class RaRParams(Subspacing):
         beta = self.params["beta"]
         k = self.params["subspace_size"][1]
         d = self.shape[1]
-        s = min(3, k)
+        s = min(2, k)
 
         def _choose(n, k):
             return factorial(n) // factorial(k) // factorial(n - k)
@@ -113,7 +124,7 @@ class RaRParams(Subspacing):
 
         # ESTIMATE NEEDED SIZE FOR CACHE (MAX = 1G)
         n_iterations = self.params["contrast_iterations"]
-        expected_size = all_slices * n_iterations * self.shape[0]
+        expected_size = all_slices * n_iterations * self.data.shape[0]
         if self.params["approach"] == "fuzzy":
             expected_size *= 2
         return False if expected_size > 1e9 else True

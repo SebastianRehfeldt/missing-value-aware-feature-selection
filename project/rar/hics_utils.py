@@ -9,12 +9,18 @@ class HICSUtils(HICSSlicing):
         if self.params["cache_enabled"]:
             if use_cache:
                 slices = [self.slices[subspace[i]][dim] for i in range(dim)]
+                slices = self.combine_slices(slices)
             else:
-                slices = [None] * len(subspace)
-                for i in range(dim):
-                    slices[i] = self.slices[subspace[i]][dim].copy()
-                    np.random.shuffle(slices[i])
-            slices = self.combine_slices(slices)
+                # shuffle slices instead of creating new for multi-d spaces
+                # shuffling does not change contrast when having 1 dim only
+                if len(subspace) > 1:
+                    slices = [None] * len(subspace)
+                    for i in range(dim):
+                        slices[i] = self.slices[subspace[i]][dim]
+                        np.random.shuffle(slices[i])
+                    slices = self.combine_slices(slices)
+                else:
+                    slices = self.get_slices(subspace)
         else:
             slices = self.get_slices(subspace)
 

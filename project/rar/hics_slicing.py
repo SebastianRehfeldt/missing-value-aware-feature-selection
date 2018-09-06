@@ -47,7 +47,8 @@ class HICSSlicing(HICSParams):
         mr = self.missing_rates[col]
         nan_count = self.nan_sums[col]
         non_nan_count = self.data.shape[0] - nan_count
-        n_select = max(5, int(np.ceil(options["n_select"] * (1 - mr))))
+        n_select = max(self.params["min_samples"] + 1,
+                       int(np.ceil(options["n_select"] * (1 - mr))))
         return nans, nan_count, non_nan_count, n_select
 
     def get_start_pos(self, non_nan_count, n_select, boost):
