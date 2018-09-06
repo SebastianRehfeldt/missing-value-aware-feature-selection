@@ -37,13 +37,13 @@ class RaRParams(Subspacing):
     def _init_constants(self):
         self.params.update({
             "weight": 1,
-            "beta": 0.01,
+            "beta": 0.05,
             "n_targets": 1,
             "n_resamples": 5,
             "min_slices": 30,
             "regularization": 1,
             "samples_per_class": 5,
-            "max_subspaces": 2000,
+            "max_subspaces": 1500,
             "subspace_size": self._get_size(),
         })
 
@@ -95,7 +95,7 @@ class RaRParams(Subspacing):
         beta = self.params["beta"]
         k = self.params["subspace_size"][1]
         d = self.shape[1]
-        s = min(3, k)
+        s = min(2, k)
 
         def _choose(n, k):
             return factorial(n) // factorial(k) // factorial(n - k)
