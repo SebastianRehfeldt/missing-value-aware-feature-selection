@@ -42,6 +42,7 @@ class RaRParams(Subspacing):
             "n_resamples": 5,
             "min_slices": 30,
             "regularization": 1,
+            "samples_per_class": 5,
             "max_subspaces": 2000,
             "subspace_size": self._get_size(),
         })
@@ -73,8 +74,9 @@ class RaRParams(Subspacing):
         })
 
     def _get_alpha(self, n_classes):
-        alpha = (10 * n_classes / self.data.shape[0])**1.5
-        return np.clip(alpha, 0.005, 0.2)
+        n_per_class = self.params["samples_per_class"]
+        alpha = (n_per_class * n_classes / self.data.shape[0])
+        return np.clip(alpha, 0.01, 0.2)
 
     def _get_size(self):
         max_size = int(self.shape[1] / 2)
