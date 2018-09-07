@@ -22,6 +22,11 @@ class RaRUtils(RaRParams):
         self.nan_corr.fillna(0, inplace=True)
         self.nan_corr = 1 - (1 + self.nan_corr) / 2
 
+    def _increase_n_subspaces(self):
+        # increase number of sampled subspaces (maximum by 1.5)
+        mr_boost = 1 + np.mean(self.missing_rates) / 2
+        self.params["n_subspaces"] = int(self.params["n_subspaces"] * mr_boost)
+
     def _increase_iterations(self):
         mr_boost = 1 + np.mean(self.missing_rates)
         n_iterations = int(self.params["contrast_iterations"] * mr_boost)
@@ -39,6 +44,7 @@ class RaRUtils(RaRParams):
             self.params["approach"] = "deletion"
 
         self.update_params()
+        self._increase_n_subspaces()
         self._increase_iterations()
         self.scores_1d = pd.Series(np.zeros(len(self.names)), index=self.names)
         self.hics = HICS(self.data, self.nans, self.missing_rates,
