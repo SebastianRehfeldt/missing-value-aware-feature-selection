@@ -20,6 +20,30 @@ data = introduce_missing_values(data, missing_rate=0)
 print(data.shape, flush=True)
 
 # %%
+runtimes = pd.Series(np.zeros(10))
+for i in range(1, 10):
+    t = time()
+    rar = RaR(data.f_types, data.l_type, data.shape, n_subspaces=i * 100)
+    rar.fit(data.X, data.y)
+    runtimes[i] = time() - t
+runtimes.plot()
+
+# %%
+rar = RaR(data.f_types, data.l_type, data.shape)
+rar.fit(data.X, data.y)
+rar.get_ranking()
+
+# %%
+n_spaces = pd.Series(np.zeros(100))
+for i in range(2, 100):
+    rar = RaR(data.f_types, data.l_type, (1000, i))
+    n_spaces[i] = rar.params["n_subspaces"]
+n_spaces.plot()
+
+# %%
+n_spaces
+
+# %%
 from project.feature_selection import Filter, RKNN, SFS
 from project.feature_selection.ranking import Ranking
 from project.feature_selection.embedded import Embedded

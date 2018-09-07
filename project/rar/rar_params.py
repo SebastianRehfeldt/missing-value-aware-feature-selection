@@ -37,7 +37,6 @@ class RaRParams(Subspacing):
     def _init_constants(self):
         self.params.update({
             "weight": 1,
-            "beta": 0.05,
             "n_targets": 1,
             "n_resamples": 5,
             "min_slices": 30,
@@ -80,7 +79,9 @@ class RaRParams(Subspacing):
 
     def _get_size(self):
         max_size = int(self.shape[1] / 2)
-        return (1, min(3, max_size))
+        m = 2 if self.shape[1] <= 15 else 3
+        self.params["beta"] = 0.05 if self.shape[1] <= 15 else 0.01
+        return (1, min(m, max_size))
 
     def _get_n_subspaces(self):
         n_subspaces = {

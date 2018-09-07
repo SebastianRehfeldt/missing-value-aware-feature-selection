@@ -1,3 +1,4 @@
+import itertools
 import numpy as np
 from .rar_utils import RaRUtils
 from .optimizer import deduce_relevances
@@ -61,7 +62,7 @@ class RaR(RaRUtils):
             "features": [key],
             "score": {
                 "relevance": self.scores_1d[key],
-                "redundancies": [0],
+                "redundancies": [],
                 "targets": [],
             }
         }
@@ -96,6 +97,17 @@ class RaR(RaRUtils):
                     self.scores_1d[key] = self.hics.evaluate_subspace([key])[0]
                     results.append(self._create_result(key))
                     open_fs.remove(key)
+                if len(d["features"]) > 2:
+                    for comb in itertools.combinations(d["features"], 2):
+                        rel = self.hics.evaluate_subspace(list(comb))[0]
+                        results.append({
+                            "features": list(comb),
+                            "score": {
+                                "relevance": rel,
+                                "redundancies": [],
+                                "targets": [],
+                            }
+                        })
 
                 results.extend(self._collect_iteractions(d))
             results.extend(self._collect_last_open(open_fs[:10]))
