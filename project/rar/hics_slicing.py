@@ -94,7 +94,6 @@ class HICSSlicing(HICSParams):
         prob = 0
         if self.params["weight_approach"] == "proba":
             prob = norm.cdf(max_val) - norm.cdf(min_val)
-            prob += norm.pdf(min_val)
         return prob
 
     def update_nans(self, options, probs, weights):
