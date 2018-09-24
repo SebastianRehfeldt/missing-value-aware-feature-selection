@@ -61,7 +61,7 @@ class HICSSlicing(HICSParams):
                 np.arange(min_start, non_nan_count - n_select, 2))
             start_positions = start_positions + end_positions
         else:
-            max_start = non_nan_count - n_select
+            max_start = max(1, non_nan_count - n_select)
             start_positions = np.random.randint(0, max_start, n_iterations)
         return start_positions
 
