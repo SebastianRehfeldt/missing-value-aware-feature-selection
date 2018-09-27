@@ -38,7 +38,10 @@ n_spaces = pd.Series(np.zeros(100))
 for i in range(2, 100):
     rar = RaR(data.f_types, data.l_type, (1000, i))
     n_spaces[i] = rar.params["n_subspaces"]
-n_spaces.plot()
+ax = n_spaces.plot()
+ax.set(xlabel="DIM", ylabel="Number of subspaces")
+fig = ax.get_figure()
+fig.savefig("subspaces.png")
 
 # %%
 n_spaces
