@@ -149,6 +149,7 @@ class HICSSlicing(HICSParams):
                         np.abs(X_c[col].values[nans] - center) <= r
                         for X_c in self.X_multiple_complete
                     ]
+                    # normalization takes part in update_nans
                     weights[i, :] = np.sum(np.array(inside), axis=0)
 
                 if self.params["weight_approach"] == "proba":
