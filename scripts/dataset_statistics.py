@@ -58,4 +58,4 @@ names = [
 ]
 overview = get_overview(raw_data, types, missing_rates, names)
 overview.to_csv(os.path.join(PLOT_FOLDER, "summary_datasets.csv"))
-overview.T
+print(overview.T.to_latex())

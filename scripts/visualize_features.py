@@ -14,7 +14,8 @@ data = data_loader.load_data(name, "arff")
 print(data.shape, flush=True)
 
 mr = 0.3
-data = introduce_missing_values(data, missing_rate=mr)
+data = introduce_missing_values(
+    data, missing_rate=mr, missing_type="predictive")
 data = scale_data(data)
 
 # %%
