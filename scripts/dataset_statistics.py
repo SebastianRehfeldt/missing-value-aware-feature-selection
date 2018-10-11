@@ -22,8 +22,9 @@ find(
 
 # %%
 # PLOT MR BY DIMENSIONS
-fig, data = plot_mr_by_dimensions(raw_data, False, bin_=False)
-fig.savefig(os.path.join(PLOT_FOLDER, "mr_by_dimensions.png"))
+fig, data = plot_mr_by_dimensions(raw_data, True, bin_=False)
+fig.savefig(
+    os.path.join(PLOT_FOLDER, "mr_by_dimensions.pdf"), bbox_inches='tight')
 dimensions, missing_rates = data
 
 # %%
@@ -40,8 +41,8 @@ summary_mr, ratios = get_statistics_for_mr(raw_data, missing_rates, mr)
 summary_mr.to_csv(os.path.join(PLOT_FOLDER, name))
 
 fig = plot_ratios(ratios)
-name = "ratios_of_incomplete_instances_{:.2f}.png".format(mr)
-fig.savefig(os.path.join(PLOT_FOLDER, name))
+name = "ratios_of_incomplete_instances_{:.2f}.pdf".format(mr)
+fig.savefig(os.path.join(PLOT_FOLDER, name), bbox_inches='tight')
 summary_mr
 
 # %%

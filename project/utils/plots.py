@@ -46,7 +46,11 @@ def show_boxplots(data, features=None):
     features = data.X.columns if features is None else features
     df = data.X[features]
     df["class"] = data.y
-    return df.boxplot(grid=False, by="class")
+    ax = df.boxplot(grid=False, by="class", title="")
+    plt.title("Boxplot of Something")
+    # get rid of the automatic 'Boxplot grouped by group_by_column_name' title
+    plt.suptitle("")
+    return ax
 
 
 def show_scatter_plots(data, features):

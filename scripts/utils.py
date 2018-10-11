@@ -73,8 +73,8 @@ def plot_mr_by_dimensions(data, use_log=True, max_f=1e2, max_n=1e4, bin_=True):
     # COMBINE RESULTS INTO ARRAY
     for i, d in enumerate(data):
         dimensions[i] = {
-            "samples": d["quality"]["NumberOfInstances"],
-            "features": d["quality"]["NumberOfFeatures"],
+            "Samples": d["quality"]["NumberOfInstances"],
+            "Features": d["quality"]["NumberOfFeatures"],
         }
 
         n_samples, n_features = list(dimensions[i].values())
@@ -93,12 +93,14 @@ def plot_mr_by_dimensions(data, use_log=True, max_f=1e2, max_n=1e4, bin_=True):
     df = dimensions[show].iloc[sorted_indices]
     colors = colors[sorted_indices]
     ax = df.plot.scatter(
-        "samples",
-        "features",
+        "Samples",
+        "Features",
         c=colors,
-        cmap='coolwarm',
+        cmap='gist_heat_r',
         sharex=False,
-        title="Missing rate by dataset dimensions")
+        edgecolors="gray",
+        linewidths=0.25,
+    )
 
     if use_log:
         ax.set_yscale('log')
@@ -193,9 +195,15 @@ def get_statistics_for_mr(data, missing_rates, thresh=0):
 
 
 def plot_ratios(ratios):
-    t = "Ratio of instances with missing values"
-    ax = pd.DataFrame(ratios).plot(kind="hist", title=t)
-    ax.set(xlabel="Ratio in %")
+    x = "Percentage of incomplete samples"
+    weights = np.ones_like(ratios) / len(ratios)
+    ax = pd.DataFrame(ratios).plot.hist(
+        bins=20,
+        weights=weights,
+        edgecolor="black",
+        linewidth=1,
+        range=(0, 100))
+    ax.set(xlabel=x, ylabel="Relative Frequency")
     ax.legend_.remove()
     return ax.get_figure()
 
@@ -226,6 +234,8 @@ def plot_by_type(missing_rates, types):
     df["TYPES"] = types[missing_rates > 0]
     ax = df.boxplot(grid=False, by="TYPES")
     ax.set(xlabel="", ylabel="Missing Rate", title="Missing rate by type")
+    for t in ["mixed", "nominal", "numeric"]:
+        print(t, float(df[df["TYPES"] == t].mean()))
     fig = ax.get_figure()
     fig.suptitle('')
     return fig, summary.round(2)

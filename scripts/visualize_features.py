@@ -35,8 +35,25 @@ ax = plot_nan_dendogram(data)
 ax.get_figure().savefig(os.path.join(FOLDER, "nan_dendogram.png"))
 
 # %%
-features = ["a05", "a06"]
-show_boxplots(data, features)
+import matplotlib.pyplot as plt
+
+
+def show_boxplots(data, features=None):
+    features = data.X.columns if features is None else features
+    df = data.X[features]
+    df["class"] = data.y
+    ax = df.boxplot(grid=False, by="class")
+    fig = ax.get_figure()
+    fig.suptitle("")
+    plt.title('')
+    plt.xlabel('Class', fontsize=14)
+    plt.ylabel('Standardized value', fontsize=14)
+    return fig
+
+
+features = ["a06"]
+fig = show_boxplots(data, features)
+fig.savefig(os.path.join(FOLDER, "boxplot.pdf"), bbox_inches="tight")
 
 # %%
 ax = show_scatter_plots(data, features)
