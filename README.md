@@ -1,10 +1,16 @@
 # Learning from Incomplete Data
 
-Missing values can be frequently observed in datasets and hinder many approaches from being applied directly. 
-This repository collects different approaches for feature selection and classification on these datasets and further comes with utilities to create synthetic datasets and simulate different missing mechanisms.
+Missing values frequently occur in datasets and hinder many approaches from being directly applied. 
+This repository collects different approaches for feature selection and classification on incomplete datasets. It further provides utilities to create synthetic datasets and to simulate different missing mechanisms.
 
 It was developed during my Master's thesis and has the aim to check whether the traditional approaches - imputation or deletion - are inferior to approaches which handle missing values internally.
-Further, the repository includes a version of the RaR algorithm which was extended by handling missing values internally and by introducing active sampling of subspaces rather than random subsampling.
+Further, the repository includes a version of the RaR[1] algorithm extended by a robust handling of handling missing values internally and by introducing active sampling of subspaces rather than random subsampling.
+
+[1] Shekar, Arvind Kumar, et al. "Including multi-feature interactions and redundancy for feature ranking in mixed datasets." Joint European Conference on Machine Learning and Knowledge Discovery in Databases. Springer, Cham, 2017.
+
+# Thesis
+
+The attached thesis presents the theoretical foundations of RaR and discusses its strengths and weaknesses compared to related algorithms and traditional missing value handling techniques.
 
 # Datasets
 
