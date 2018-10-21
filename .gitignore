@@ -1,16 +1,5 @@
 # CUSTOM
 data
-experiments/grid/*/*
-experiments/classification/**/*.csv
-experiments/ranking_evaluation/**/*_*.csv
-experiments/ranking_evaluation/**/*deviations*
-experiments/ranking_evaluation/synthetic
-experiments/ranking_evaluation/updates/*/*/*/*
-**/MSE/*
-**/SSE/*
-**/CG/*
-**/CG_POS/*
-**/NDCG/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
