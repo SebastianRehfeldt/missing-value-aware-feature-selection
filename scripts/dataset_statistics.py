@@ -5,7 +5,6 @@ from scripts.utils import *
 
 FOLDER = os.path.join(DATA_PATH, "statistics")
 PLOT_FOLDER = os.path.join(FOLDER, "plots")
-os.makedirs(PLOT_FOLDER, exist_ok=True)
 raw_data = get_raw_data(FOLDER)
 
 # %%

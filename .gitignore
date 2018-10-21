@@ -1,9 +1,8 @@
 # CUSTOM
-rar
-data/**/*.csv
-data/**/*.txt
-data/**/*.json
-data/**/*.arff
+data/arff
+data/csv
+data/plots
+data/statistics
 experiments/grid/*/*
 experiments/classification/**/*.csv
 experiments/ranking_evaluation/not_used

@@ -9,21 +9,28 @@ from pprint import pprint
 def get_raw_data(FOLDER):
     try:
         os.makedirs(FOLDER)
+        os.makedirs(os.path.join(FOLDER, "plots"))
         base = 'https://www.openml.org/api/v1/json/data/list/'
         raw_data = json.loads(requests.get(base).content)
+        raw_data = raw_data["data"]["dataset"]
+
+        data = []
+        for d in raw_data:
+            if d["quality"]:
+                data.append(d)
+
         with open(os.path.join(FOLDER, "raw_data.json"), 'w') as outfile:
-            json.dump(raw_data, outfile, indent=4)
-
+            json.dump(data, outfile, indent=4)
     except:
-        with open(os.path.join(FOLDER, "raw_data.json")) as infile:
-            raw_data = json.load(infile)["data"]["dataset"]
-            for d in raw_data:
-                metrics = d["quality"]
-                new_metrics = {x["name"]: float(x["value"]) for x in metrics}
-                d["quality"] = new_metrics
-
+        path = os.path.join(FOLDER, "raw_data.json")
+        with open(path) as infile:
+            data = json.load(infile)
     finally:
-        return raw_data
+        for d in data:
+            metrics = d["quality"]
+            new_metrics = {x["name"]: float(x["value"]) for x in metrics}
+            d["quality"] = new_metrics
+        return data
 
 
 def print_dataset(data, names):
@@ -36,7 +43,6 @@ def find(data, f=(0, 1e10), s=(0, 1e10), c=(2, 1e10), mr=(0, 1), types=[]):
     ids, names = [], []
     for d in data:
         m = d["quality"]
-
         n_values = m["NumberOfFeatures"] * m["NumberOfInstances"]
         missing_rate = m["NumberOfMissingValues"] / n_values * 100
 
@@ -115,22 +121,25 @@ def get_global_statistics(data, missing_rates, imbalance_ratio=10):
 
     for i, d in enumerate(data):
         # GET TYPE OF DATASET
-        if d["quality"]["NumberOfSymbolicFeatures"] > 1:
-            if d["quality"]["NumberOfNumericFeatures"] > 0:
-                types[i] = "mixed"
+        try:
+            if d["quality"]["NumberOfSymbolicFeatures"] > 1:
+                if d["quality"]["NumberOfNumericFeatures"] > 0:
+                    types[i] = "mixed"
+                else:
+                    types[i] = "nominal"
             else:
-                types[i] = "nominal"
-        else:
-            types[i] = "numeric"
+                types[i] = "numeric"
 
-        # INCREASE BINARY AND IMBALANCED COUNT
-        if d["quality"]["NumberOfClasses"] == 2:
-            bin_count += 1
+            # INCREASE BINARY AND IMBALANCED COUNT
+            if d["quality"]["NumberOfClasses"] == 2:
+                bin_count += 1
 
-        s_min = d["quality"]["MinorityClassSize"]
-        s_max = d["quality"]["MajorityClassSize"]
-        if s_min * imbalance_ratio < s_max:
-            imbalanced_count += 1
+            s_min = d["quality"]["MinorityClassSize"]
+            s_max = d["quality"]["MajorityClassSize"]
+            if s_min * imbalance_ratio < s_max:
+                imbalanced_count += 1
+        except:
+            pass
 
     data = np.zeros((2, 6))
     row_names = ["COUNT", "PERCENTAGE"]
