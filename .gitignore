@@ -1,8 +1,5 @@
 # CUSTOM
-data/arff
-data/csv
-data/plots
-data/statistics
+data
 experiments/grid/*/*
 experiments/classification/**/*.csv
 experiments/ranking_evaluation/not_used
