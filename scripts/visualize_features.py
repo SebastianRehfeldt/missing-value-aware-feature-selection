@@ -56,6 +56,7 @@ fig = show_boxplots(data, features)
 fig.savefig(os.path.join(FOLDER, "boxplot.pdf"), bbox_inches="tight")
 
 # %%
+features = ["a05", "a06"]
 ax = show_scatter_plots(data, features)
 ax.get_figure().savefig(os.path.join(FOLDER, "scatter.png"))
 
