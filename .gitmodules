@@ -1,0 +1,3 @@
+[submodule "thesis-experiments"]
+	path = thesis-experiments
+	url = https://github.com/SebastianRehfeldt/thesis-experiments.git

@@ -5,4 +5,4 @@ PROJECT_PATH = os.path.abspath(
 ROOT_PATH = os.path.abspath(os.path.join(PROJECT_PATH, os.pardir))
 DATA_PATH = os.path.join(ROOT_PATH, "data")
 
-EXPERIMENTS_PATH = os.path.join(ROOT_PATH, "experiments")
+EXPERIMENTS_PATH = os.path.join(ROOT_PATH, "thesis-experiments")
