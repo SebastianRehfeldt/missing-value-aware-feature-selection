@@ -24,7 +24,7 @@ def get_raw_data(FOLDER):
     except:
         path = os.path.join(FOLDER, "raw_data.json")
         with open(path) as infile:
-            data = json.load(infile)
+            data = json.load(infile)["data"]["dataset"]
     finally:
         for d in data:
             metrics = d["quality"]

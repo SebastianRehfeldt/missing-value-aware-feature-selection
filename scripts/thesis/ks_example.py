@@ -25,7 +25,6 @@ df = pd.DataFrame({
     "mass slice2": np.round(mass_slice2, 3),
     "is_last": is_last
 }).T
-#df = df[shuffle]
 df
 
 # %%

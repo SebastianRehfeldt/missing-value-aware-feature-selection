@@ -2,14 +2,16 @@
 data
 experiments/grid/*/*
 experiments/classification/**/*.csv
-experiments/ranking_evaluation/not_used
-experiments/ranking_evaluation/**/*_*.csv
-experiments/ranking_evaluation/**/*deviations*
-**/MSE/*
-**/SSE/*
-**/CG/*
-**/CG_POS/*
-**/NDCG/*
+# experiments/ranking_evaluation/**/*_*.csv
+# experiments/ranking_evaluation/**/*deviations*
+experiments/ranking_evaluation/uci
+experiments/ranking_evaluation/synthetic
+experiments/ranking_evaluation/updates/*/*/*/
+# **/MSE/*
+# **/SSE/*
+# **/CG/*
+# **/CG_POS/*
+# **/NDCG/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
