@@ -1,4 +1,4 @@
-#cython: boundscheck=False, wraparound=False, nonecheck=False
+#cython: boundscheck=False, wraparound=False, nonecheck=False, language_level=3
 from cython.parallel import parallel, prange
 cimport numpy as np
 import numpy as np

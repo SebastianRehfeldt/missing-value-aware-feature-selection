@@ -1,6 +1,6 @@
 # Learning from Incomplete Data
 
-Missing values frequently occur in datasets and hinder many approaches from being directly applied. 
+Missing values frequently occur in datasets and hinder many approaches from being directly applied.
 This repository collects different approaches for feature selection and classification on incomplete datasets. It further provides utilities to create synthetic datasets and to simulate different missing mechanisms.
 
 It was developed during my Master's thesis and has the aim to check whether the traditional approaches - imputation or deletion - are inferior to approaches which handle missing values internally.
@@ -18,35 +18,40 @@ Datasets can be downloaded directly either from UCI (as csv) or from openml (as 
 
 # Evaluation
 
-To try and test the algorithms, there is a jupyter script at the top-level which is called test.py (can be executed in vscode or atom using jupyter and hydrogen extension, can also be run as a script but without breakpoints). 
+To try and test the algorithms, there is a jupyter script at the top-level which is called test.py (can be executed in vscode or atom using jupyter and hydrogen extension, can also be run as a script but without breakpoints).
 
 It shows how to load data, introduce missing values and how to run the developed algorithm on it.
 
 # Installation (Windows)
 
 Required installations
+
 - Python 3.6 and pip (other versions might also work but are not tested)
 - Microsoft Visual C++ Build Tools
-    - https://visualstudio.microsoft.com/de/vs/community/
-    - Tools für Visual Studio 2017 > Download Build Tools für Visual Studio 2017 (including Windows SDK)
+  - https://visualstudio.microsoft.com/de/vs/community/
+  - Tools für Visual Studio 2017 > Download Build Tools für Visual Studio 2017 (including Windows SDK)
+  - requires c++ build tools and windows 10 sdk
+  - add paths to ucrt and vcvarshall.bat to path
 - Gurobi optimizer (https://www.gurobi.com/downloads/gurobi-optimizer)
-    - Get licence, install and run "grbgetkey \<key\>" in run and start menu (win+r)
-    - Run "python setup.py install" in gurobi folder
+  - Get licence, install and run "grbgetkey \<key\>" in run and start menu (win+r)
+  - Run "python setup.py install" in gurobi folder
 
 Steps:
+
 - Install requirements using pip (virtual environment is recommended)
-    - Using git bash under Windows:
-    - python3 -m venv rar
-    - source rar/Scripts/activate
+  - Using git bash under Windows:
+  - python3 -m venv rar
+  - source rar/Scripts/activate
 - pip install -r requirements.txt
-    - (eventually ecos module does not succeed to install, install then using whl file from https://www.lfd.uci.edu/~gohlke/pythonlibs/)
+  - (eventually ecos module does not succeed to install, install then using whl file from https://www.lfd.uci.edu/~gohlke/pythonlibs/)
 - python setup.py build_ext --inplace
 
 - (Jupyter when using venv and vs code extension):
-    - Jupyter must be installed globally
-    - Create kernel in venv: ipython kernel install --name=rar
-    - Go to python site-packages and copy gurobipy folder to site-packages in venv
-    - Test kernel from vs code
+
+  - Jupyter must be installed globally
+  - Create kernel in venv: ipython kernel install --name=rar
+  - Go to python site-packages and copy gurobipy folder to site-packages in venv
+  - Test kernel from vs code
 
 - Add root folder to system path or set workspace root in vs code
 
