@@ -1,9 +1,10 @@
 {
-    "python.linting.pylintEnabled": true,
-    "python.linting.flake8Enabled": true,
-    "python.linting.enabled": true,
-    "files.exclude": {
-        "*/**/__pycache__/*": true,
-        "*/**/__pycache__": true,
-    }
+  "python.linting.pylintEnabled": false,
+  "python.linting.flake8Enabled": true,
+  "python.linting.enabled": true,
+  "python.linting.lintOnSave": true,
+  "python.pythonPath": ".venv\\Scripts\\python.exe",
+  "python.formatting.provider": "black",
+  "python.linting.mypyEnabled": true,
+  "editor.formatOnSave": true
 }

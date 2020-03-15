@@ -1,0 +1,38 @@
+[tool.poetry]
+name = "rar"
+version = "0.1.0"
+description = "Feature Selection approaches for datasets with missing values"
+authors = ["SebastianRehfeldt <sebastian.rehfeldt@gmx.net>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+black = "^19.10b0"
+mypy = "^0.770"
+numpy = "^1.18.1"
+scipy = "^1.4.1"
+flake8 = "^3.7.9"
+pandas = "^1.0.2"
+scikit-learn = "^0.22.2"
+skfeature-chappers = "^1.0.3"
+pyswarm = "^0.6"
+joblib = "^0.14.1"
+requests = "^2.23.0"
+xgboost = "^1.0.2"
+orange3 = "^3.24.1"
+fancyimpute = "^0.5.4"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+pprint = "^0.1"
+jupyter = "^1.0.0"
+matplotlib = "^3.2.0"
+missingno = "^0.4.2"
+
+[tool.black]
+line-length = 88
+target-version = ['py37']
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
